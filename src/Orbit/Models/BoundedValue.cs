@@ -1,15 +1,12 @@
-﻿namespace Orbit.Util
+﻿namespace Orbit.Models
 {
     public readonly struct BoundedValue
     {
-        public BoundedValue(string label, double value, bool isSafe)
+        public BoundedValue(double value, bool isSafe)
         {
-            this.Label = label;
             this.Value = value;
             this.IsSafe = isSafe;
         }
-
-        public string Label { get; }
 
         public double Value { get; }
 

@@ -1,75 +1,78 @@
-﻿using System;
+﻿using Microsoft.Extensions.DependencyInjection;
+
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
+using System.Threading.Tasks;
+using Orbit.Models;
 
 namespace Orbit.Util
 {
     public class EventMonitor
     {
-        private static readonly Lazy<EventMonitor> _instance = new Lazy<EventMonitor>(() => new EventMonitor());
+        // TODO: Determine an appropriate wait period
         private const int MS_WAIT = 5000;
-        private readonly Thread _eventThread;
+        private Task? _eventThread;
 
-        private EventMonitor()
-        {
-            this._eventThread = new Thread(this.WorkerMethod);
-            this._eventThread.Start();
-        }
+        #region Singleton pattern
 
-        private readonly ICollection<IValueProvider> _valueProviders = new List<IValueProvider>();
-
+        private static readonly Lazy<EventMonitor> _instance = new Lazy<EventMonitor>(() => new EventMonitor());
+        
         public static EventMonitor Instance => _instance.Value;
 
-        public EventHandler<ValueOutOfSafeRangeEventArgs> ValueOutOfSafeRange;
+        #endregion Singleton pattern
 
-        private void RunChecks()
+        private readonly ICollection<Type> _providerTypes = new HashSet<Type>();
+
+        public EventHandler? Started;
+
+        public EventHandler<ValueOutOfSafeRangeEventArgs>? ValueOutOfSafeRange;
+
+        private IEnumerable<IMonitoredComponent> GetComponents()
         {
-            foreach (var provider in this._valueProviders)
+            using IServiceScope scope = OrbitServiceProvider.Instance.CreateScope();
+
+            foreach (Type type in this._providerTypes)
             {
-                var val = provider.GetCurrentValue();
-                if (!val.IsSafe)
-                {
-                    this.ValueOutOfSafeRange?.Invoke(provider, new ValueOutOfSafeRangeEventArgs(val));
-                }
+                var valProvider = (IMonitoredComponent)scope.ServiceProvider.GetRequiredService(type);
+                yield return valProvider;
             }
         }
-
-        private void WorkerMethod()
+        
+        private async Task WorkerMethodAsync()
         {
+            this.Started?.Invoke(this, EventArgs.Empty);
             while (true)
             {
-                this.RunChecks();
-                Thread.Sleep(MS_WAIT);
-            }
-        }
-        #region Observation
-
-        public IDisposable Subscribe(IValueProvider observer)
-        {
-            this._valueProviders.Add(observer);
-            return new UnSubscriber(this._valueProviders, observer);
-        }
-
-        private sealed class UnSubscriber : IDisposable
-        {
-            private readonly ICollection<IValueProvider> _observers;
-            private readonly IValueProvider _observer;
-
-            public UnSubscriber(ICollection<IValueProvider> observers, IValueProvider observer)
-            {
-                this._observers = observers;
-                this._observer = observer;
-            }
-
-            public void Dispose()
-            {
-                if (this._observers.Contains(this._observer))
+                foreach (IMonitoredComponent provider in this.GetComponents())
                 {
-                    this._observers.Remove(this._observer);
+                    BoundedValue val = await provider.GetCurrentValueAsync().ConfigureAwait(true);
+                    if (!val.IsSafe)
+                    {
+                        this.ValueOutOfSafeRange?.Invoke(provider, new ValueOutOfSafeRangeEventArgs(provider.ComponentName, val));
+                    }
                 }
+
+                await Task.Delay(MS_WAIT);
             }
         }
 
-        #endregion Observation
+        public void Register(Type providerType)
+        {
+            if (!providerType.GetInterfaces().Contains(typeof(IMonitoredComponent)))
+            {
+                throw new InvalidOperationException("Types registered with EventMonitor must implement " + nameof(IMonitoredComponent));
+            }
+            this._providerTypes.Add(providerType);
+        }
+
+        public void Start()
+        {
+            if(_eventThread== null)
+            {
+                this._eventThread = Task.Run(this.WorkerMethodAsync);
+            }
+        }
     }
 }
