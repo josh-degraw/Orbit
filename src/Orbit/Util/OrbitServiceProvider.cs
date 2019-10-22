@@ -1,13 +1,15 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
+
 using System;
-using System.Collections.Generic;
-using System.Text;
+using System.Linq;
+using System.Reflection;
 
 namespace Orbit.Util
 {
-    public class OrbitServiceProvider: IServiceProvider
+    public class OrbitServiceProvider : IServiceProvider
     {
         private readonly IServiceProvider _provider;
+
         private OrbitServiceProvider()
         {
             this._provider = Build();
@@ -26,10 +28,12 @@ namespace Orbit.Util
 
         private void RegisterServices(IServiceCollection services)
         {
-            //TODO: Register service implementations
+            foreach (var prov in Assembly.GetExecutingAssembly().ExportedTypes.Where(t => t.GetInterfaces().Contains(typeof(IValueProvider))))
+            {
+                services.AddScoped(prov);
+            }
         }
 
         object IServiceProvider.GetService(Type serviceType) => _provider.GetService(serviceType);
-
     }
 }
