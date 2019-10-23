@@ -23,10 +23,7 @@ namespace Orbit.Components
 
         public async Task<BoundedValue> GetCurrentValueAsync()
         {
-            var allReports =await _database.BatteryReports.Include(r => r.Limit).ToListAsync();
-            BatteryReport? val = allReports
-                //await this._database.BatteryReports.Include(r => r.Limit)
-                    .FirstOrDefault();
+            BatteryReport? val = await this._database.BatteryReports.Include(r => r.Limit).FirstOrDefaultAsync();
 
             if (val == null)
                 throw new InvalidOperationException("No data retrieved");

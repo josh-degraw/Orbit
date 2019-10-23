@@ -15,6 +15,7 @@ namespace Orbit.Tests.Util
         public void Can_instantiate_service()
         {
             using var scope = OrbitServiceProvider.Instance.CreateScope();
+
             var service = scope.ServiceProvider.GetService<BatteryComponent>();
             service.Should().NotBeNull();
         }
