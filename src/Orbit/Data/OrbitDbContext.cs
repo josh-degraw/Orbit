@@ -32,13 +32,13 @@ namespace Orbit.Data
             {
                 // Members like this one are "shadow" properties that are represented in the database, but we don't need
                 // to define as visible class members
-                e.Property<Guid>("Id").HasValueGenerator(typeof(GuidValueGenerator));
+                e.Property<Guid>("Id").ValueGeneratedOnAdd();
                 e.HasKey("Id");
             });
 
             modelBuilder.Entity<ReportBase>(e =>
             {
-                e.Property<Guid>("Id").ValueGeneratedOnAdd().HasValueGenerator(typeof(GuidValueGenerator));
+                e.Property<Guid>("Id").ValueGeneratedOnAdd();
                 e.HasKey("Id");
 
                 e.Property<Guid>("LimitId");
