@@ -1,6 +1,10 @@
-﻿using System.Threading.Tasks;
+﻿using System.Diagnostics;
+using Microsoft.EntityFrameworkCore;
 using Orbit.Data;
 using Orbit.Models;
+using System.Threading.Tasks;
+using System;
+using System.Linq;
 
 namespace Orbit.Components
 {
@@ -19,10 +23,17 @@ namespace Orbit.Components
 
         public async Task<BoundedValue> GetCurrentValueAsync()
         {
-            await Task.CompletedTask.ConfigureAwait(false);
-            return default;
+            var allReports =await _database.BatteryReports.Include(r => r.Limit).ToListAsync();
+            BatteryReport? val = allReports
+                //await this._database.BatteryReports.Include(r => r.Limit)
+                    .FirstOrDefault();
+
+            if (val == null)
+                throw new InvalidOperationException("No data retrieved");
+
+            return BoundedValue.Create(val.CurrentValue, val.Limit);
         }
-    
+
         #endregion Implementation of IMonitoredComponent
     }
 }

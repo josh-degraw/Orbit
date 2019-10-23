@@ -3,20 +3,24 @@
 using Microsoft.Extensions.DependencyInjection;
 
 using Orbit.Components;
+using Orbit.Data;
 using Orbit.Util;
 
 using Xunit;
 
-namespace Orbit.Tests.Util
+namespace Orbit.Tests.Components
 {
-    public class OrbitServiceProvider_tests
+    public class BatteryComponent_tests
     {
         [Fact]
-        public void Can_instantiate_service()
+        public void Can_return_default_value()
         {
             using var scope = OrbitServiceProvider.Instance.CreateScope();
+
+            scope.ServiceProvider.GetRequiredService<OrbitDbContext>().InsertSeedData();
+
             var service = scope.ServiceProvider.GetService<BatteryComponent>();
-            service.Should().NotBeNull();
+            service.Invoking(async s => await s.GetCurrentValueAsync()).Should().NotThrow();
         }
     }
 }

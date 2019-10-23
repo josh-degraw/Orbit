@@ -1,22 +1,39 @@
-﻿using System.ComponentModel;
+﻿using System;
+using System.ComponentModel;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Orbit.Models
 {
     public class Limit
     {
-        public Limit(int id, double upperLimit, double lowerLimit)
+        public Limit(Guid id, double upperErrorLimit, double lowerErrorLimit, double warningTolerance)
         {
             this.Id = id;
-            this.UpperLimit = upperLimit;
-            this.LowerLimit = lowerLimit;
+            this.UpperErrorLimit = upperErrorLimit;
+            this.LowerErrorLimit = lowerErrorLimit;
+            this.WarningTolerance = Math.Abs(warningTolerance);
         }
 
-        public int Id { get; }
+        public Guid Id { get; private set; }
 
+        [Required]
         [DefaultValue(double.MaxValue)]
-        public double UpperLimit { get; }
+        public double UpperErrorLimit { get; private set; }
 
+        [Required]
         [DefaultValue(double.MinValue)]
-        public double LowerLimit { get; }
+        public double LowerErrorLimit { get; private set; }
+
+        [Range(0, double.MaxValue)]
+        [DefaultValue(0)]
+        public double WarningTolerance { get; private set; }
+
+        [NotMapped]
+        public double UpperWarningLevel => this.UpperErrorLimit - this.WarningTolerance;
+
+        [NotMapped]
+        public double LowerWarningLevel => this.UpperErrorLimit + this.WarningTolerance;
+
     }
 }
