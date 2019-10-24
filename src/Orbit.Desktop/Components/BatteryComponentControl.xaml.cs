@@ -1,17 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using Orbit.Models;
+
 using System.Diagnostics.CodeAnalysis;
-using System.Text;
-using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using Orbit.Components;
 
 namespace Orbit.Desktop.Components
 {
@@ -21,9 +11,9 @@ namespace Orbit.Desktop.Components
     public partial class BatteryComponentControl : UserControl
     {
         [DisallowNull]
-        public BatteryComponent Battery
+        public IMonitoredComponent<BatteryReport> Battery
         {
-            get => (BatteryComponent)DataContext;
+            get => (IMonitoredComponent<BatteryReport>)DataContext;
             set => DataContext = value;
         }
 

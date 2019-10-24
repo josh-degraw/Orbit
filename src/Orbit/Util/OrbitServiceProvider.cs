@@ -4,6 +4,7 @@ using Orbit.Data;
 using System;
 using System.Linq;
 using System.Reflection;
+using Orbit.Components;
 
 namespace Orbit.Util
 {
@@ -33,12 +34,8 @@ namespace Orbit.Util
 
         private void AddValueProviders(IServiceCollection services)
         {
-            var providerTypes = Assembly.GetExecutingAssembly().ExportedTypes.Where(t => t.GetInterfaces().Contains(typeof(IMonitoredComponent)));
-            foreach (Type prov in providerTypes)
-            {
-                services.AddScoped(prov);
-                EventMonitor.Instance.Register(prov);
-            }
+            // Registering "open" types allows the provider to map the requested type parameter appropriately, assuming it exists in the database
+            services.AddScoped(typeof(IMonitoredComponent<>), typeof(MonitoredComponent<>));
         }
 
         private void RegisterServices(IServiceCollection services)

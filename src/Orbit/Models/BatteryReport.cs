@@ -9,7 +9,12 @@ namespace Orbit.Models
     {
         double CurrentValue { get; }
         DateTimeOffset ReportDateTime { get; }
-        ReportType ReportType { get; }
+        string ReportType { get; }
+    }
+
+    public interface IBoundedReport:IReport
+    {
+        Limit Limit { get; }
     }
 
     public enum ReportType
@@ -18,7 +23,7 @@ namespace Orbit.Models
         Battery
     }
 
-    public abstract class ReportBase : IReport
+    public abstract class ReportBase : IBoundedReport
     {
         protected ReportBase(DateTimeOffset reportDateTime, double currentValue)
         {
@@ -33,7 +38,7 @@ namespace Orbit.Models
         public virtual double CurrentValue { get; private set; }
 
         [Column]
-        public abstract ReportType ReportType { get; }
+        public abstract string ReportType { get; }
         
         public Limit Limit { get; set; }
     }
@@ -44,7 +49,6 @@ namespace Orbit.Models
         {
         }
 
-        public override ReportType ReportType { get; } = ReportType.Battery;
-
+        public override string ReportType { get; } = "Battery";
     }
 }

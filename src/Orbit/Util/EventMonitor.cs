@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using Orbit.Models;
@@ -18,12 +19,20 @@ namespace Orbit.Util
         #region Singleton pattern
 
         private static readonly Lazy<EventMonitor> _instance = new Lazy<EventMonitor>(() => new EventMonitor());
-        
+
         public static EventMonitor Instance => _instance.Value;
 
         #endregion Singleton pattern
 
-        private readonly ICollection<Type> _providerTypes = new HashSet<Type>();
+        private ICollection<Type> _providerTypes => _reportType.Value;
+
+
+        private readonly Lazy<ICollection<Type>> _reportType = 
+            new Lazy<ICollection<Type>>(() =>
+            {
+                var allTypes = Assembly.GetExecutingAssembly().ExportedTypes;
+                return allTypes.Where(t => t.GetInterfaces().Contains(typeof(IBoundedReport))).ToList();
+            });
 
         public EventHandler? Started;
 
@@ -31,26 +40,26 @@ namespace Orbit.Util
 
         private IEnumerable<IMonitoredComponent> GetComponents()
         {
-            using IServiceScope scope = OrbitServiceProvider.Instance.CreateScope();
-
             foreach (Type type in this._providerTypes)
             {
+                using IServiceScope scope = OrbitServiceProvider.Instance.CreateScope();
+
                 var valProvider = (IMonitoredComponent)scope.ServiceProvider.GetRequiredService(type);
                 yield return valProvider;
             }
         }
-        
+
         private async Task WorkerMethodAsync()
         {
             this.Started?.Invoke(this, EventArgs.Empty);
             while (true)
             {
-                foreach (IMonitoredComponent provider in this.GetComponents())
+                foreach (IMonitoredComponent component in this.GetComponents())
                 {
-                    BoundedValue val = await provider.GetCurrentValueAsync().ConfigureAwait(true);
+                    BoundedValue val = await component.GetCurrentValueAsync().ConfigureAwait(true);
                     if (!val.IsSafe)
                     {
-                        this.ValueOutOfSafeRange?.Invoke(provider, new ValueOutOfSafeRangeEventArgs(provider.ComponentName, val));
+                        this.ValueOutOfSafeRange?.Invoke(component, new ValueOutOfSafeRangeEventArgs(component.ComponentName, val));
                     }
                 }
 
@@ -58,18 +67,9 @@ namespace Orbit.Util
             }
         }
 
-        public void Register(Type providerType)
-        {
-            if (!providerType.GetInterfaces().Contains(typeof(IMonitoredComponent)))
-            {
-                throw new InvalidOperationException("Types registered with EventMonitor must implement " + nameof(IMonitoredComponent));
-            }
-            this._providerTypes.Add(providerType);
-        }
-
         public void Start()
         {
-            if(_eventThread== null)
+            if (_eventThread == null)
             {
                 this._eventThread = Task.Run(this.WorkerMethodAsync);
             }

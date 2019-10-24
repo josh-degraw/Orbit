@@ -1,4 +1,6 @@
-﻿namespace Orbit
+﻿using Orbit.Models;
+
+namespace Orbit
 {
     public interface IModuleComponent
     {
