@@ -1,5 +1,4 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ValueGeneration;
 
 using Orbit.Models;
 
@@ -21,8 +20,8 @@ namespace Orbit.Data
         {
             var lim = new Limit(Guid.NewGuid(), 400, 300, 50);
 
-            Limits.Add(lim);
-            BatteryReports.Add(new BatteryReport(DateTimeOffset.Now, 360) { Limit = lim });
+            this.Limits.Add(lim);
+            this.BatteryReports.Add(new BatteryReport(DateTimeOffset.Now, 360) { Limit = lim });
             this.SaveChanges();
         }
 

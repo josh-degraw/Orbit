@@ -12,5 +12,9 @@ namespace Orbit.Models
 
         public string ComponentName { get; }
         public BoundedValue Value { get; }
+
+        public void Deconstruct(out string componentName, out BoundedValue value) => (componentName, value) = (ComponentName, Value);
+
+        public static implicit operator ValueOutOfSafeRangeEventArgs((string name, BoundedValue val) report) => new ValueOutOfSafeRangeEventArgs(report.name, report.val);
     }
 }

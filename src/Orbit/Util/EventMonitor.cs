@@ -1,22 +1,31 @@
 ﻿using Microsoft.Extensions.DependencyInjection;
 
+using Orbit.Models;
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
-using Orbit.Models;
 
 namespace Orbit.Util
 {
-    public class EventMonitor
+    public sealed class EventMonitor : IDisposable
     {
         // TODO: Determine an appropriate wait period
         private const int MS_WAIT = 5000;
+
         private Task? _eventThread;
 
+        private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
+
         #region Singleton pattern
+
+        private EventMonitor()
+        {
+            AppDomain.CurrentDomain.ProcessExit += (s, e) => _cancellationTokenSource.Cancel();
+        }
 
         private static readonly Lazy<EventMonitor> _instance = new Lazy<EventMonitor>(() => new EventMonitor());
 
@@ -38,13 +47,13 @@ namespace Orbit.Util
 
         public EventHandler<ValueOutOfSafeRangeEventArgs>? ValueOutOfSafeRange;
 
-        private IEnumerable<IMonitoredComponent> GetComponents()
+        private IEnumerable<IReportableComponent> GetComponents()
         {
             foreach (Type type in this._providerTypes)
             {
                 using IServiceScope scope = OrbitServiceProvider.Instance.CreateScope();
 
-                var valProvider = (IMonitoredComponent)scope.ServiceProvider.GetRequiredService(type);
+                var valProvider = (IReportableComponent)scope.ServiceProvider.GetRequiredService(type);
                 yield return valProvider;
             }
         }
@@ -52,14 +61,19 @@ namespace Orbit.Util
         private async Task WorkerMethodAsync()
         {
             this.Started?.Invoke(this, EventArgs.Empty);
-            while (true)
+            while (!_cancellationTokenSource.IsCancellationRequested)
             {
-                foreach (IMonitoredComponent component in this.GetComponents())
+                foreach (IReportableComponent provider in this.GetComponents())
                 {
-                    BoundedValue val = await component.GetCurrentValueAsync().ConfigureAwait(true);
-                    if (!val.IsSafe)
+                    if (_cancellationTokenSource.IsCancellationRequested)
+                        break;
+
+                    await foreach (var report in provider.BuildCurrentValueReport(_cancellationTokenSource.Token))
                     {
-                        this.ValueOutOfSafeRange?.Invoke(component, new ValueOutOfSafeRangeEventArgs(component.ComponentName, val));
+                        if (!report.Value.IsSafe)
+                        {
+                            this.ValueOutOfSafeRange?.Invoke(provider, report);
+                        }
                     }
                 }
 
@@ -74,5 +88,18 @@ namespace Orbit.Util
                 this._eventThread = Task.Run(this.WorkerMethodAsync);
             }
         }
+
+        #region Implementation of IDisposable
+
+        /// <summary>
+        /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+        /// </summary>
+        public void Dispose()
+        {
+            this._cancellationTokenSource.Dispose();
+            this._eventThread?.Dispose();
+        }
+
+        #endregion Implementation of IDisposable
     }
 }

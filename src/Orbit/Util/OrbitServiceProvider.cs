@@ -20,6 +20,8 @@ namespace Orbit.Util
         private static readonly Lazy<OrbitServiceProvider> _instance = new Lazy<OrbitServiceProvider>(() => new OrbitServiceProvider());
 
         public static IServiceProvider Instance => _instance.Value;
+        
+        public static EventHandler<IServiceCollection>? OnRegisteringServices;
 
         public static EventHandler<IServiceCollection>? OnRegisteringServices;
 
@@ -27,6 +29,7 @@ namespace Orbit.Util
         {
             var services = new ServiceCollection();
             this.RegisterServices(services);
+            OnRegisteringServices?.Invoke(this, services);
             ServiceProvider prov = services.BuildServiceProvider();
             EventMonitor.Instance.Start();
             return prov;

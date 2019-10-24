@@ -1,7 +1,4 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
-using Microsoft.EntityFrameworkCore;
 
 namespace Orbit.Models
 {
@@ -51,4 +48,5 @@ namespace Orbit.Models
 
         public override string ReportType { get; } = "Battery";
     }
+
 }
