@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Orbit.Models
 {
-    public abstract class ReportBase : IReport
+    public abstract class ReportBase : IBoundedReport
     {
         protected ReportBase(DateTimeOffset reportDateTime, double currentValue)
         {
@@ -18,8 +18,8 @@ namespace Orbit.Models
         public virtual double CurrentValue { get; private set; }
 
         [Column]
-        public abstract ReportType ReportType { get; }
+        public abstract string ReportType { get; }
         
-        public Limit Limit { get; set; }
+        public Limit? Limit { get; set; }
     }
 }

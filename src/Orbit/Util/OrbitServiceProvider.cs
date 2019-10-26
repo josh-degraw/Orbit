@@ -22,9 +22,7 @@ namespace Orbit.Util
         public static IServiceProvider Instance => _instance.Value;
         
         public static EventHandler<IServiceCollection>? OnRegisteringServices;
-
-        public static EventHandler<IServiceCollection>? OnRegisteringServices;
-
+        
         private IServiceProvider Build()
         {
             var services = new ServiceCollection();

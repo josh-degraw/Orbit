@@ -43,14 +43,14 @@ namespace Orbit.Components
             }
         }
 
-        public async Task<BoundedValue> GetCurrentValueAsync()
+        public async Task<double> GetCurrentValueAsync()
         {
-            IBoundedReport? val = await this._database.Set<T>().AsNoTracking().Include(r => r.Limit).FirstOrDefaultAsync();
+            IBoundedReport? val = await this._database.Set<T>().AsNoTracking().FirstOrDefaultAsync();
 
             if (val == null)
                 throw new InvalidOperationException("No data retrieved");
 
-            return BoundedValue.Create(val.CurrentValue, val.Limit);
+            return val.CurrentValue;
         }
 
         #endregion Implementation of IMonitoredComponent

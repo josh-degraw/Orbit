@@ -6,6 +6,11 @@ namespace Orbit.Models
     {
         double CurrentValue { get; }
         DateTimeOffset ReportDateTime { get; }
-        ReportType ReportType { get; }
+        string ReportType { get; }
     }
+    public interface IBoundedReport : IReport
+    {
+        Limit? Limit { get; }
+    }
+
 }

@@ -8,7 +8,7 @@ namespace Orbit
 {
     public interface IMonitoredComponent :IModuleComponent
     {
-        Task<BoundedValue> GetCurrentValueAsync();
+        Task<double> GetCurrentValueAsync();
     }
 
     /// <summary>
