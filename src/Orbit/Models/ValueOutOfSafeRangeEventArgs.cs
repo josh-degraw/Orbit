@@ -4,17 +4,18 @@ namespace Orbit.Models
 {
     public class ValueOutOfSafeRangeEventArgs : EventArgs
     {
-        public ValueOutOfSafeRangeEventArgs(string componentName, BoundedValue value)
+        public ValueOutOfSafeRangeEventArgs(CurrentValueReport report)
         {
-            this.ComponentName = componentName;
-            this.Value = value;
+            if (report == null) throw new ArgumentNullException(nameof(report));
+
+            this.ComponentName = report.ComponentName;
+            this.Value = report.Value;
         }
 
         public string ComponentName { get; }
+
         public BoundedValue Value { get; }
 
         public void Deconstruct(out string componentName, out BoundedValue value) => (componentName, value) = (ComponentName, Value);
-
-        public static implicit operator ValueOutOfSafeRangeEventArgs((string name, BoundedValue val) report) => new ValueOutOfSafeRangeEventArgs(report.name, report.val);
     }
 }

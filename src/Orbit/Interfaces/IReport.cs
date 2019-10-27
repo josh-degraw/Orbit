@@ -8,6 +8,7 @@ namespace Orbit.Models
         DateTimeOffset ReportDateTime { get; }
         string ReportType { get; }
     }
+
     public interface IBoundedReport : IReport
     {
         Limit? Limit { get; }

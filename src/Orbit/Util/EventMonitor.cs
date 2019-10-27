@@ -1,13 +1,15 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-
-using Orbit.Models;
-
-using System;
+﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+
+using Microsoft.Extensions.DependencyInjection;
+
+using Orbit.Components;
+using Orbit.Models;
 
 namespace Orbit.Util
 {
@@ -22,10 +24,7 @@ namespace Orbit.Util
 
         #region Singleton pattern
 
-        private EventMonitor()
-        {
-            AppDomain.CurrentDomain.ProcessExit += (s, e) => _cancellationTokenSource.Cancel();
-        }
+        private EventMonitor() => AppDomain.CurrentDomain.ProcessExit += (s, e) => this._cancellationTokenSource.Cancel();
 
         private static readonly Lazy<EventMonitor> _instance = new Lazy<EventMonitor>(() => new EventMonitor());
 
@@ -33,57 +32,67 @@ namespace Orbit.Util
 
         #endregion Singleton pattern
 
-        private ICollection<Type> _providerTypes => _reportType.Value;
+        /// <summary>
+        /// Returns a collection of the Report types defined in this assembly.
+        /// </summary>
+        private IEnumerable<Type> ReportTypes => this._reportTypes.Value;
 
-
-        private readonly Lazy<ICollection<Type>> _reportType = 
+        private readonly Lazy<ICollection<Type>> _reportTypes =
             new Lazy<ICollection<Type>>(() =>
             {
-                var allTypes = Assembly.GetExecutingAssembly().ExportedTypes;
+                IEnumerable<Type> allTypes = Assembly.GetExecutingAssembly().ExportedTypes;
                 return allTypes.Where(t => t.GetInterfaces().Contains(typeof(IBoundedReport))).ToList();
             });
 
-        public EventHandler? Started;
+        public event EventHandler? Started;
 
-        public EventHandler<ValueOutOfSafeRangeEventArgs>? ValueOutOfSafeRange;
+        public event EventHandler<ValueOutOfSafeRangeEventArgs>? ValueOutOfSafeRange;
 
-        private IEnumerable<IReportableComponent> GetComponents()
+        private static Type ExplicitlyMappedComponent(Type reportType)
         {
-            foreach (Type type in this._providerTypes)
-            {
-                using IServiceScope scope = OrbitServiceProvider.Instance.CreateScope();
+            Type explicitlyDefined = Assembly.GetExecutingAssembly().ExportedTypes
+                .SingleOrDefault(a => a.GetInterfaces().Contains(typeof(IBoundedReport))
+                                      && a.GetGenericArguments().Contains(reportType));
 
-                var valProvider = (IReportableComponent)scope.ServiceProvider.GetRequiredService(type);
-                yield return valProvider;
-            }
+            // If there exists a class explicitly defined to handle the given report, use that Otherwise, assume it only
+            // generates one report and create a MonitoredComponent<T> of the given type to handle it
+
+            return explicitlyDefined ?? typeof(MonitoredComponent<>).MakeGenericType(reportType);
         }
+
+        private readonly ConcurrentDictionary<Type, Type> _componentByReportType = new ConcurrentDictionary<Type, Type>();
 
         private async Task WorkerMethodAsync()
         {
             this.Started?.Invoke(this, EventArgs.Empty);
-            while (!_cancellationTokenSource.IsCancellationRequested)
+            while (!this._cancellationTokenSource.IsCancellationRequested)
             {
-                foreach (IReportableComponent provider in this.GetComponents())
+                foreach (Type reportType in this.ReportTypes)
                 {
-                    if (_cancellationTokenSource.IsCancellationRequested)
+                    using IServiceScope scope = OrbitServiceProvider.Instance.CreateScope();
+                    Type componentType = this._componentByReportType.GetOrAdd(reportType, ExplicitlyMappedComponent);
+
+                    var component = (IModuleComponent)scope.ServiceProvider.GetRequiredService(componentType);
+
+                    if (this._cancellationTokenSource.IsCancellationRequested)
                         break;
 
-                    await foreach (var report in provider.BuildCurrentValueReport(_cancellationTokenSource.Token))
+                    await foreach (CurrentValueReport report in component.BuildCurrentValueReport(this._cancellationTokenSource.Token))
                     {
                         if (!report.Value.IsSafe)
                         {
-                            this.ValueOutOfSafeRange?.Invoke(provider, report);
+                            this.ValueOutOfSafeRange?.Invoke(component, new ValueOutOfSafeRangeEventArgs(report));
                         }
                     }
-                }
 
-                await Task.Delay(MS_WAIT);
+                    await Task.Delay(MS_WAIT).ConfigureAwait(false);
+                }
             }
         }
 
         public void Start()
         {
-            if (_eventThread == null)
+            if (this._eventThread == null)
             {
                 this._eventThread = Task.Run(this.WorkerMethodAsync);
             }

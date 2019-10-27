@@ -6,17 +6,16 @@ using Orbit.Util;
 
 namespace Orbit
 {
-    public interface IMonitoredComponent :IModuleComponent
-    {
-        Task<double> GetCurrentValueAsync();
-    }
-
     /// <summary>
     /// Indicates a component that will be monitored regularly via <see cref="EventMonitor"/>
     /// </summary>
-    public interface IMonitoredComponent<out T> : IMonitoredComponent 
+    public interface IMonitoredComponent<T> : IModuleComponent
         where T : class, IBoundedReport
     {
+        Task<Limit> GetComponentValueLimitAsync();
+
+        Task<T?> GetLatestReportAsync();
         IAsyncEnumerable<T> GetReportsAsync(int? maxResults = 10, CancellationToken cancellationToken = default);
+
     }
 }

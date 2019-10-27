@@ -27,6 +27,7 @@ namespace Orbit.Data
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            if (modelBuilder == null) throw new ArgumentNullException(nameof(modelBuilder));
             modelBuilder.Entity<Limit>(e =>
             {
                 // Members like this one are "shadow" properties that are represented in the database, but we don't need
