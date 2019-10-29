@@ -16,10 +16,15 @@ namespace Orbit.Util
     public interface IEventMonitor
     {
         void Start();
+
         void Stop();
+
         event EventHandler? Started;
+
         event EventHandler? Stopped;
+
         event EventHandler<CurrentValueReport>? NewValueRead;
+
         event EventHandler<ValueOutOfSafeRangeEventArgs>? ValueOutOfSafeRange;
     }
 
@@ -27,7 +32,7 @@ namespace Orbit.Util
     {
         // TODO: Determine an appropriate wait period
 
-        private const double SecondsDelay = 10.0;
+        private const double SecondsDelay = 2.0;
 
         private Task? _eventThread;
 
@@ -56,8 +61,11 @@ namespace Orbit.Util
             });
 
         public event EventHandler? Started;
+
         public event EventHandler? Stopped;
+
         public event EventHandler<CurrentValueReport>? NewValueRead;
+
         public event EventHandler<ValueOutOfSafeRangeEventArgs>? ValueOutOfSafeRange;
 
         private static Type ExplicitlyMappedComponent(Type reportType)
@@ -74,7 +82,12 @@ namespace Orbit.Util
 
         private readonly ConcurrentDictionary<Type, Type> _componentByReportType = new ConcurrentDictionary<Type, Type>();
 
-        private async Task WorkerMethodAsync()
+        /// <summary>
+        /// This method iterates through all known report types and generates alerts for them. It is then up to the
+        /// consumer of said alerts as to how the alerts will be handled.
+        /// </summary>
+        /// <returns>  </returns>
+        private async Task IterateReportedValues()
         {
             this.Started?.Invoke(this, EventArgs.Empty);
             while (!this._cancellationTokenSource.IsCancellationRequested)
@@ -91,6 +104,7 @@ namespace Orbit.Util
                         if (this._cancellationTokenSource.IsCancellationRequested)
                             break;
 
+                        // A component could generate more than one report, so those will be looped through here
                         await foreach (CurrentValueReport report in component.BuildCurrentValueReport(this._cancellationTokenSource.Token))
                         {
                             NewValueRead?.Invoke(component, report);
@@ -111,14 +125,13 @@ namespace Orbit.Util
             }
 
             this.Stopped?.Invoke(this, EventArgs.Empty);
-
         }
 
         public void Start()
         {
             if (this._eventThread == null)
             {
-                this._eventThread = Task.Run(this.WorkerMethodAsync, _cancellationTokenSource.Token);
+                this._eventThread = Task.Run(this.IterateReportedValues, _cancellationTokenSource.Token);
             }
         }
 
@@ -127,7 +140,6 @@ namespace Orbit.Util
             if (!_cancellationTokenSource.IsCancellationRequested)
             {
                 this._cancellationTokenSource.Cancel();
-
             }
         }
 

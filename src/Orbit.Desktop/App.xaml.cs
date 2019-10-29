@@ -45,10 +45,14 @@ namespace Orbit.Desktop
             _thread = Task.Run(InsertNewBatteryReports, _tokenSource.Token);
         }
 
+        /// <summary>
+        /// This method simulates generating 
+        /// </summary>
+        /// <returns></returns>
         private async Task InsertNewBatteryReports()
         {
             Limit limit;
-            using (var db = ServiceProvider.GetRequiredService<OrbitDbContext>())
+            await using (var db = ServiceProvider.GetRequiredService<OrbitDbContext>())
             {
                 db.InsertSeedData();
                 limit = db.Limits.First();
@@ -58,7 +62,7 @@ namespace Orbit.Desktop
             while (true)
             {
                 using (var scope = ServiceProvider.CreateScope())
-                using (var db = scope.ServiceProvider.GetRequiredService<OrbitDbContext>())
+                await using (var db = scope.ServiceProvider.GetRequiredService<OrbitDbContext>())
                 {
                     var next = new BatteryReport(DateTimeOffset.UtcNow, rand.Next(300, 400)) {
                         LimitId = limit.Id,

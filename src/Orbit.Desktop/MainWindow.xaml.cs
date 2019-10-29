@@ -3,7 +3,7 @@ using System.ComponentModel;
 using System.Windows;
 
 using Microsoft.Extensions.DependencyInjection;
-
+using Orbit.Data;
 using Orbit.Models;
 
 namespace Orbit.Desktop
@@ -35,11 +35,15 @@ namespace Orbit.Desktop
             this.InitializeComponent();
             this.ServiceProvider = serviceProvider ?? App.ServiceProvider;
             this.Loaded += this.MainWindow_Loaded;
+            
         }
 
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            // Try to load 
             using var scope = ServiceProvider.CreateScope();
+            var db = scope.ServiceProvider.GetRequiredService<OrbitDbContext>();
+            db.InsertSeedData();
             var comp = scope.ServiceProvider.GetService<IMonitoredComponent<BatteryReport>>();
             var rep = await comp.GetLatestReportAsync().ConfigureAwait(true);
             this.Battery = rep;

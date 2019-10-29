@@ -55,7 +55,7 @@ namespace Orbit.Components
         {
             var set = this._database.Set<T>();
             T? val = await set.AsNoTracking().LastOrDefaultAsync().ConfigureAwait(false);
-            
+
             return val;
         }
 
@@ -70,7 +70,7 @@ namespace Orbit.Components
             if (report == null)
                 yield break;
 
-                //throw Exceptions.NoDataFound();
+            //throw Exceptions.NoDataFound();
 
             var boundedValue = BoundedValue.Create(report.CurrentValue, limit);
 

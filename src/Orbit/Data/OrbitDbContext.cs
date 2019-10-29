@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿#nullable disable warnings
+using Microsoft.EntityFrameworkCore;
 
 using Orbit.Models;
 
