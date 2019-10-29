@@ -42,14 +42,14 @@ namespace Orbit.Desktop
 
             var mainWindow = ServiceProvider.GetRequiredService<MainWindow>();
             mainWindow.Show();
-            _thread = Task.Run(InsertNewBatteryReports, _tokenSource.Token);
+            _thread = Task.Run(this.SimulateDataGeneration, _tokenSource.Token);
         }
 
         /// <summary>
         /// This method simulates generating 
         /// </summary>
         /// <returns></returns>
-        private async Task InsertNewBatteryReports()
+        private async Task SimulateDataGeneration()
         {
             Limit limit;
             await using (var db = ServiceProvider.GetRequiredService<OrbitDbContext>())
