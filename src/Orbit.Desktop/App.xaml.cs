@@ -7,6 +7,7 @@ using System;
 using System.IO;
 using System.Windows;
 using Orbit.Components;
+using System.Windows.Navigation;
 
 namespace Orbit.Desktop
 {
@@ -18,26 +19,32 @@ namespace Orbit.Desktop
         public static IServiceProvider ServiceProvider => OrbitServiceProvider.Instance;
         
 
-        public IConfiguration Configuration { get; private set; }
+        //public IConfiguration Configuration { get; private set; }
 
         protected override void OnStartup(StartupEventArgs e)
         {
-            IConfigurationBuilder builder = new ConfigurationBuilder()
-                .SetBasePath(Directory.GetCurrentDirectory())
-                .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
+            //IConfigurationBuilder builder = new ConfigurationBuilder()
+            //    .SetBasePath(Directory.GetCurrentDirectory())
+            //    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
-            this.Configuration = builder.Build();
+            //this.Configuration = builder.Build();
 
             OrbitServiceProvider.OnRegisteringServices += this.ConfigureServices;
+            
             
             var mainWindow = ServiceProvider.GetRequiredService<MainWindow>();
             mainWindow.Show();
         }
 
+        protected override void OnLoadCompleted(NavigationEventArgs e)
+        {
+            base.OnLoadCompleted(e);
+        }
+
         private void ConfigureServices(object? sender, IServiceCollection services)
         {
             services.AddSingleton<MainWindow>();
-            services.AddTransient<BatteryComponentControl>();
+            services.AddTransient<ModuleComponentControl>();
         }
     }
 }

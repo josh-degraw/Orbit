@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Windows;
 
+using Microsoft.Extensions.DependencyInjection;
+using Orbit.Models;
+using Orbit.Util;
+
 namespace Orbit.Desktop
 {
     /// <summary>
@@ -9,10 +13,14 @@ namespace Orbit.Desktop
     public partial class MainWindow : Window
     {
         private IServiceProvider ServiceProvider { get; }
-        public MainWindow(IServiceProvider serviceProvider)
+
+        public IMonitoredComponent<BatteryReport> Battery { get; }
+
+        public MainWindow()
         {
             this.InitializeComponent();
-            this.ServiceProvider = serviceProvider;
+            this.ServiceProvider = /*serviceProvider??*/ App.ServiceProvider;
+            this.Battery = ServiceProvider.GetService<IMonitoredComponent<BatteryReport>>();
         }
     }
 }

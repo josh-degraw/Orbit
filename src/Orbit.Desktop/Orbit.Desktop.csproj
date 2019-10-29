@@ -18,7 +18,6 @@
 
   <ItemGroup>
     <Folder Include="Util\" />
-    <Folder Include="Properties\" />
   </ItemGroup>
 
 </Project>

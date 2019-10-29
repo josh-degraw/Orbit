@@ -16,7 +16,8 @@ namespace Orbit.Util
     public sealed class EventMonitor : IDisposable
     {
         // TODO: Determine an appropriate wait period
-        private const int MS_WAIT = 5000;
+
+        private const double SecondsDelay = 10.0;
 
         private Task? _eventThread;
 
@@ -46,6 +47,7 @@ namespace Orbit.Util
 
         public event EventHandler? Started;
 
+        public event EventHandler<CurrentValueReport>? NewValueRead;
         public event EventHandler<ValueOutOfSafeRangeEventArgs>? ValueOutOfSafeRange;
 
         private static Type ExplicitlyMappedComponent(Type reportType)
@@ -79,13 +81,15 @@ namespace Orbit.Util
 
                     await foreach (CurrentValueReport report in component.BuildCurrentValueReport(this._cancellationTokenSource.Token))
                     {
+                        NewValueRead?.Invoke(component, report);
+
                         if (!report.Value.IsSafe)
                         {
                             this.ValueOutOfSafeRange?.Invoke(component, new ValueOutOfSafeRangeEventArgs(report));
                         }
                     }
 
-                    await Task.Delay(MS_WAIT).ConfigureAwait(false);
+                    await Task.Delay(TimeSpan.FromSeconds(SecondsDelay)).ConfigureAwait(false);
                 }
             }
         }
