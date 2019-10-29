@@ -4,7 +4,7 @@ namespace Orbit.Models
 {
     public readonly struct BoundedValue : IEquatable<BoundedValue>, IComparable<BoundedValue>
     {
-        private BoundedValue(double value, AlertLevel alertAlertLevel)
+        public BoundedValue(double value, AlertLevel alertAlertLevel)
         {
             this.Value = value;
             this.AlertLevel = alertAlertLevel;
@@ -16,6 +16,8 @@ namespace Orbit.Models
         public double Value { get; }
 
         public AlertLevel AlertLevel { get; }
+
+        public override string ToString() => $"{Value:N2} ({AlertLevel})";
 
         public bool IsSafe => this.AlertLevel == AlertLevel.Safe;
 

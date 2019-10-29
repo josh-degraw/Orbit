@@ -6,15 +6,23 @@
              xmlns:local="clr-namespace:Orbit.Desktop.Components"
              xmlns:desktop="clr-namespace:Orbit.Desktop"
              mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800"
+             d:DesignHeight="107.813" d:DesignWidth="180.313"
              >
 
     <Grid Background="White">
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition/>
+            <RowDefinition/>
         </Grid.RowDefinitions>
-        <Label Grid.Row="0" Content="{Binding ComponentName, FallbackValue=Component}"/>
-        <TextBlock Grid.Row="1" Text="{Binding CurrentValue, FallbackValue=0.0}"/>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <Label     Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Content="{Binding ComponentName, FallbackValue=Component}" HorizontalContentAlignment="Center" VerticalAlignment="Center"/>
+        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding CurrentValue.Value, FallbackValue=0.0}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding CurrentValue.AlertLevel}" VerticalAlignment="Center"/>
+        
     </Grid>
 </UserControl>

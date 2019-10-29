@@ -40,8 +40,7 @@ namespace Orbit.Data
             {
                 e.Property<Guid>("Id").ValueGeneratedOnAdd();
                 e.HasKey("Id");
-
-                e.Property<Guid>("LimitId");
+                
                 e.HasOne(d => d.Limit).WithMany().HasForeignKey("LimitId");
 
                 e.Property(p => p.ReportDateTime).ValueGeneratedOnAdd();

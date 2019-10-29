@@ -13,7 +13,17 @@ using Orbit.Models;
 
 namespace Orbit.Util
 {
-    public sealed class EventMonitor : IDisposable
+    public interface IEventMonitor
+    {
+        void Start();
+        void Stop();
+        event EventHandler? Started;
+        event EventHandler? Stopped;
+        event EventHandler<CurrentValueReport>? NewValueRead;
+        event EventHandler<ValueOutOfSafeRangeEventArgs>? ValueOutOfSafeRange;
+    }
+
+    public sealed class EventMonitor : IEventMonitor, IDisposable
     {
         // TODO: Determine an appropriate wait period
 
@@ -29,7 +39,7 @@ namespace Orbit.Util
 
         private static readonly Lazy<EventMonitor> _instance = new Lazy<EventMonitor>(() => new EventMonitor());
 
-        public static EventMonitor Instance => _instance.Value;
+        public static IEventMonitor Instance => _instance.Value;
 
         #endregion Singleton pattern
 
@@ -46,7 +56,7 @@ namespace Orbit.Util
             });
 
         public event EventHandler? Started;
-
+        public event EventHandler? Stopped;
         public event EventHandler<CurrentValueReport>? NewValueRead;
         public event EventHandler<ValueOutOfSafeRangeEventArgs>? ValueOutOfSafeRange;
 
@@ -69,36 +79,55 @@ namespace Orbit.Util
             this.Started?.Invoke(this, EventArgs.Empty);
             while (!this._cancellationTokenSource.IsCancellationRequested)
             {
-                foreach (Type reportType in this.ReportTypes)
+                try
                 {
-                    using IServiceScope scope = OrbitServiceProvider.Instance.CreateScope();
-                    Type componentType = this._componentByReportType.GetOrAdd(reportType, ExplicitlyMappedComponent);
-
-                    var component = (IModuleComponent)scope.ServiceProvider.GetRequiredService(componentType);
-
-                    if (this._cancellationTokenSource.IsCancellationRequested)
-                        break;
-
-                    await foreach (CurrentValueReport report in component.BuildCurrentValueReport(this._cancellationTokenSource.Token))
+                    foreach (Type reportType in this.ReportTypes)
                     {
-                        NewValueRead?.Invoke(component, report);
+                        using IServiceScope scope = OrbitServiceProvider.Instance.CreateScope();
+                        Type componentType = this._componentByReportType.GetOrAdd(reportType, ExplicitlyMappedComponent);
 
-                        if (!report.Value.IsSafe)
+                        var component = (IModuleComponent)scope.ServiceProvider.GetRequiredService(componentType);
+
+                        if (this._cancellationTokenSource.IsCancellationRequested)
+                            break;
+
+                        await foreach (CurrentValueReport report in component.BuildCurrentValueReport(this._cancellationTokenSource.Token))
                         {
-                            this.ValueOutOfSafeRange?.Invoke(component, new ValueOutOfSafeRangeEventArgs(report));
-                        }
-                    }
+                            NewValueRead?.Invoke(component, report);
 
-                    await Task.Delay(TimeSpan.FromSeconds(SecondsDelay)).ConfigureAwait(false);
+                            if (!report.Value.IsSafe)
+                            {
+                                this.ValueOutOfSafeRange?.Invoke(component, new ValueOutOfSafeRangeEventArgs(report));
+                            }
+                        }
+
+                        await Task.Delay(TimeSpan.FromSeconds(SecondsDelay)).ConfigureAwait(false);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Console.Error.WriteLine(ex);
                 }
             }
+
+            this.Stopped?.Invoke(this, EventArgs.Empty);
+
         }
 
         public void Start()
         {
             if (this._eventThread == null)
             {
-                this._eventThread = Task.Run(this.WorkerMethodAsync);
+                this._eventThread = Task.Run(this.WorkerMethodAsync, _cancellationTokenSource.Token);
+            }
+        }
+
+        public void Stop()
+        {
+            if (!_cancellationTokenSource.IsCancellationRequested)
+            {
+                this._cancellationTokenSource.Cancel();
+
             }
         }
 

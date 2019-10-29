@@ -13,7 +13,7 @@ using Orbit.Util;
 
 namespace Orbit.Components
 {
-    public class MonitoredComponent<T> : IMonitoredComponent<T>
+    public class MonitoredComponent<T> : IMonitoredComponent<T>, IMonitoredComponent
         where T : class, IBoundedReport
     {
         private readonly Lazy<string> _componentName;
@@ -26,6 +26,13 @@ namespace Orbit.Components
         {
             this._database = db;
             _componentName = new Lazy<string>(() => _database.Set<T>().AsNoTracking().Select(r => r.ReportType).First());
+        }
+
+        async ValueTask<IBoundedReport?> IMonitoredComponent.GetLatestReportAsync() => await this.GetLatestReportAsync().ConfigureAwait(false);
+
+        IAsyncEnumerable<IBoundedReport> IMonitoredComponent.GetReportsAsync(int? maxResults, CancellationToken cancellationToken)
+        {
+            return this.GetReportsAsync(maxResults, cancellationToken);
         }
 
         public async IAsyncEnumerable<T> GetReportsAsync(int? maxResults = 10, [EnumeratorCancellation] CancellationToken cancellationToken = default)
@@ -44,13 +51,11 @@ namespace Orbit.Components
         /// <summary>
         /// Asynchronously returns the latest available report of type <typeparamref name="T"/> available.
         /// </summary>
-        public async Task<T?> GetLatestReportAsync()
+        public async ValueTask<T?> GetLatestReportAsync()
         {
-            T? val = await this._database.Set<T>().AsNoTracking().LastOrDefaultAsync().ConfigureAwait(false);
-
-            if (val == null)
-                throw Exceptions.NoDataFound();
-
+            var set = this._database.Set<T>();
+            T? val = await set.AsNoTracking().LastOrDefaultAsync().ConfigureAwait(false);
+            
             return val;
         }
 
@@ -63,11 +68,14 @@ namespace Orbit.Components
             T? report = await this.GetLatestReportAsync().ConfigureAwait(false);
 
             if (report == null)
-                throw Exceptions.NoDataFound();
+                yield break;
+
+                //throw Exceptions.NoDataFound();
 
             var boundedValue = BoundedValue.Create(report.CurrentValue, limit);
 
             yield return new CurrentValueReport(this.ComponentName, report, boundedValue);
         }
+
     }
 }

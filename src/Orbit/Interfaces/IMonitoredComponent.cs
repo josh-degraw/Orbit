@@ -13,9 +13,13 @@ namespace Orbit
         where T : class, IBoundedReport
     {
         Task<Limit> GetComponentValueLimitAsync();
-
-        Task<T?> GetLatestReportAsync();
+        ValueTask<T?> GetLatestReportAsync();
         IAsyncEnumerable<T> GetReportsAsync(int? maxResults = 10, CancellationToken cancellationToken = default);
+    }
 
+    public interface IMonitoredComponent: IModuleComponent
+    {
+        ValueTask<IBoundedReport?> GetLatestReportAsync();
+        IAsyncEnumerable<IBoundedReport> GetReportsAsync(int? maxResults = 10, CancellationToken cancellationToken = default);
     }
 }

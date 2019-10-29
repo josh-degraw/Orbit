@@ -42,13 +42,17 @@ namespace Orbit.Util
         {
             // Registering "open" types allows the provider to map the requested type parameter appropriately, assuming it exists in the database
             services.AddScoped(typeof(IMonitoredComponent<>), typeof(MonitoredComponent<>));
+            services.AddScoped(typeof(MonitoredComponent<>));
 
             services.AddSingleton(_ => EventMonitor.Instance);
 
             services.AddSingleton(_ => new ResourceManager(LanguageCulture, Assembly.GetExecutingAssembly()));
 
             //TODO: Replace the following with actual database implementation when ready
-            services.AddDbContext<OrbitDbContext>(o => o.UseInMemoryDatabase("OrbitDb"));
+            services.AddDbContext<OrbitDbContext>(o =>
+            {
+                o.UseInMemoryDatabase("OrbitDb");
+            });
         }
 
         object? IServiceProvider.GetService(Type serviceType) => this._provider.GetService(serviceType);

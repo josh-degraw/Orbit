@@ -12,5 +12,7 @@
         public string ComponentName { get; }
         public IBoundedReport Report { get; }
         public BoundedValue Value { get; }
+
+        public override string ToString() => $"{ComponentName} - {Value}";
     }
 }

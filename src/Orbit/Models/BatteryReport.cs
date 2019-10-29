@@ -11,7 +11,7 @@ namespace Orbit.Models
         {
         }
 
-        public override string ReportType { get; } = "Battery";
+        public override string ReportType { get; protected set; } = "Battery";
     }
 
 }
