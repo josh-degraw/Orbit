@@ -8,6 +8,6 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <components:BatteryComponentControl />
+        <components:ModuleComponentControl ComponentName="Battery" DataContext="{Binding Battery}" Margin="0,0,497,311" />
     </Grid>
 </Window>

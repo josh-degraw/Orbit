@@ -1,5 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ValueGeneration;
+﻿#nullable disable warnings
+using Microsoft.EntityFrameworkCore;
 
 using Orbit.Models;
 
@@ -21,13 +21,14 @@ namespace Orbit.Data
         {
             var lim = new Limit(Guid.NewGuid(), 400, 300, 50);
 
-            Limits.Add(lim);
-            BatteryReports.Add(new BatteryReport(DateTimeOffset.Now, 360) { Limit = lim });
+            this.Limits.Add(lim);
+            this.BatteryReports.Add(new BatteryReport(DateTimeOffset.Now, 360) { Limit = lim });
             this.SaveChanges();
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            if (modelBuilder == null) throw new ArgumentNullException(nameof(modelBuilder));
             modelBuilder.Entity<Limit>(e =>
             {
                 // Members like this one are "shadow" properties that are represented in the database, but we don't need
@@ -40,8 +41,7 @@ namespace Orbit.Data
             {
                 e.Property<Guid>("Id").ValueGeneratedOnAdd();
                 e.HasKey("Id");
-
-                e.Property<Guid>("LimitId");
+                
                 e.HasOne(d => d.Limit).WithMany().HasForeignKey("LimitId");
 
                 e.Property(p => p.ReportDateTime).ValueGeneratedOnAdd();

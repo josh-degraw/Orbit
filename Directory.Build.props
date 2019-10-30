@@ -2,5 +2,7 @@
   <PropertyGroup>
     <LangVersion>8.0</LangVersion>
     <Nullable>enable</Nullable>
+    <CodeAnalysisRuleSet>$(SolutionDir)\Analyzers.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+
 </Project>

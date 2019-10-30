@@ -21,7 +21,7 @@ namespace Orbit.Tests.Components
             scope.ServiceProvider.GetRequiredService<OrbitDbContext>().InsertSeedData();
 
             var service = scope.ServiceProvider.GetService<IMonitoredComponent<BatteryReport>>();
-            service.Invoking(async s => await s.GetCurrentValueAsync()).Should().NotThrow();
+            service.Invoking(async s => await s.GetLatestReportAsync().ConfigureAwait(false)).Should().NotThrow();
         }
     }
 }

@@ -5,15 +5,10 @@ using Orbit.Models;
 namespace Orbit
 {
     /// <summary>
-    ///  Base interface for module components.
+    /// Indicates a component that is able to generate snapshot reports of its values.
     /// </summary>
-    public interface IModuleComponent
+    public interface IReportableComponent
     {
-        /// <summary>
-        /// The name of the component.
-        /// </summary>
-        string ComponentName { get; }
-
         /// <summary>
         /// Generate one or more informational reports for a component.
         /// </summary>
