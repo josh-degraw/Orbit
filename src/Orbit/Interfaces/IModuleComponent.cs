@@ -17,8 +17,6 @@ namespace Orbit
         /// <summary>
         /// Generate one or more informational reports for a component.
         /// </summary>
-        /// <param name="cancellationToken"></param>
-        /// <returns></returns>
         IAsyncEnumerable<CurrentValueReport> BuildCurrentValueReport(CancellationToken cancellationToken = default);
     }
 }

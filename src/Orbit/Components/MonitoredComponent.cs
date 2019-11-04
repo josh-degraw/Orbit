@@ -20,12 +20,12 @@ namespace Orbit.Components
 
         public string ComponentName => _componentName.Value;
 
-        private readonly OrbitDbContext _database;
+        protected OrbitDbContext Database { get; }
 
         public MonitoredComponent(OrbitDbContext db)
         {
-            this._database = db;
-            _componentName = new Lazy<string>(() => _database.Set<T>().AsNoTracking().Select(r => r.ReportType).First());
+            this.Database = db;
+            _componentName = new Lazy<string>(() => this.Database.Set<T>().AsNoTracking().Select(r => r.ReportType).First());
         }
 
         async ValueTask<IBoundedReport?> IMonitoredComponent.GetLatestReportAsync() => await this.GetLatestReportAsync().ConfigureAwait(false);
@@ -35,9 +35,9 @@ namespace Orbit.Components
             return this.GetReportsAsync(maxResults, cancellationToken);
         }
 
-        public async IAsyncEnumerable<T> GetReportsAsync(int? maxResults = 10, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        public virtual async IAsyncEnumerable<T> GetReportsAsync(int? maxResults = 10, [EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
-            IQueryable<T> query = _database.Set<T>().AsNoTracking();
+            IQueryable<T> query = this.Database.Set<T>();
 
             if (maxResults != null)
                 query = query.Take(maxResults.Value);
@@ -53,14 +53,13 @@ namespace Orbit.Components
         /// </summary>
         public async ValueTask<T?> GetLatestReportAsync()
         {
-            var set = this._database.Set<T>();
+            var set = this.Database.Set<T>();
             T? val = await set.AsNoTracking().LastOrDefaultAsync().ConfigureAwait(false);
 
             return val;
         }
 
-        public Task<Limit> GetComponentValueLimitAsync() => this._database.Set<T>().AsNoTracking().Include(r => r.Limit).Select(r => r.Limit!).FirstAsync();
-
+        public Task<Limit> GetComponentValueLimitAsync() => this.Database.Set<T>().AsNoTracking().Include(r => r.Limit).Select(r => r.Limit!).FirstAsync();
 
         public virtual async IAsyncEnumerable<CurrentValueReport> BuildCurrentValueReport([EnumeratorCancellation] CancellationToken cancellationToken = default)
         {
@@ -70,12 +69,30 @@ namespace Orbit.Components
             if (report == null)
                 yield break;
 
-            //throw Exceptions.NoDataFound();
-
             var boundedValue = BoundedValue.Create(report.CurrentValue, limit);
 
             yield return new CurrentValueReport(this.ComponentName, report, boundedValue);
         }
+    }
 
+    public class BatteryComponent : MonitoredComponent<BatteryReport>
+    {
+        public BatteryComponent(OrbitDbContext db) : base(db)
+        {
+        }
+
+        public override async IAsyncEnumerable<BatteryReport> GetReportsAsync(int? maxResults = 10, [EnumeratorCancellation] CancellationToken cancellationToken = default)
+        {
+            // This overridden implementation is EXACTLY equivalent to the base class implementation
+            IQueryable<BatteryReport> query = Database.BatteryReports;
+
+            if (maxResults != null)
+                query = query.Take(maxResults.Value);
+
+            await foreach (var item in query.ToAsyncEnumerable().WithCancellation(cancellationToken))
+            {
+                yield return item;
+            }
+        }
     }
 }

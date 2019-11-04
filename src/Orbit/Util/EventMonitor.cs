@@ -60,12 +60,24 @@ namespace Orbit.Util
                 return allTypes.Where(t => t.GetInterfaces().Contains(typeof(IBoundedReport))).ToList();
             });
 
+        /// <summary>
+        /// Invoked when the event monitor thread starts.
+        /// </summary>
         public event EventHandler? Started;
 
+        /// <summary>
+        /// Invoked when the event monitor thread stops.
+        /// </summary>
         public event EventHandler? Stopped;
 
+        /// <summary>
+        /// Triggered for every newly returned point of data for each registered report.
+        /// </summary>
         public event EventHandler<CurrentValueReport>? NewValueRead;
 
+        /// <summary>
+        /// Triggered when new values are returned that are outside of the configured "safe" range.
+        /// </summary>
         public event EventHandler<ValueOutOfSafeRangeEventArgs>? ValueOutOfSafeRange;
 
         private static Type ExplicitlyMappedComponent(Type reportType)
@@ -86,7 +98,6 @@ namespace Orbit.Util
         /// This method iterates through all known report types and generates alerts for them. It is then up to the
         /// consumer of said alerts as to how the alerts will be handled.
         /// </summary>
-        /// <returns>  </returns>
         private async Task IterateReportedValues()
         {
             this.Started?.Invoke(this, EventArgs.Empty);
@@ -107,10 +118,12 @@ namespace Orbit.Util
                         // A component could generate more than one report, so those will be looped through here
                         await foreach (CurrentValueReport report in component.BuildCurrentValueReport(this._cancellationTokenSource.Token))
                         {
-                            NewValueRead?.Invoke(component, report);
+                            // Trigger the NewValueRead event
+                            this.NewValueRead?.Invoke(component, report);
 
                             if (!report.Value.IsSafe)
                             {
+                                // Trigger the ValueOutOfSafeRangeEvent
                                 this.ValueOutOfSafeRange?.Invoke(component, new ValueOutOfSafeRangeEventArgs(report));
                             }
                         }
@@ -131,13 +144,13 @@ namespace Orbit.Util
         {
             if (this._eventThread == null)
             {
-                this._eventThread = Task.Run(this.IterateReportedValues, _cancellationTokenSource.Token);
+                this._eventThread = Task.Run(this.IterateReportedValues, this._cancellationTokenSource.Token);
             }
         }
 
         public void Stop()
         {
-            if (!_cancellationTokenSource.IsCancellationRequested)
+            if (!this._cancellationTokenSource.IsCancellationRequested)
             {
                 this._cancellationTokenSource.Cancel();
             }

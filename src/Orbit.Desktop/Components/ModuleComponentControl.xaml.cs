@@ -24,6 +24,7 @@ namespace Orbit.Desktop.Components
         {
             InitializeComponent();
 
+            // Subscribe to updates
             EventMonitor.Instance.NewValueRead += this.Instance_NewValueRead;
         }
 

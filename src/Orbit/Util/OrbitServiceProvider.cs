@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using Orbit.Components;
 using System.Resources;
+using Orbit.Models;
 
 namespace Orbit.Util
 {
@@ -18,14 +19,12 @@ namespace Orbit.Util
             this._provider = this.Build();
         }
 
-        public string LanguageCulture { get; set; } = "en-US";
-
         private static readonly Lazy<OrbitServiceProvider> _instance = new Lazy<OrbitServiceProvider>(() => new OrbitServiceProvider());
 
         public static IServiceProvider Instance => _instance.Value;
-        
+
         public static event EventHandler<IServiceCollection>? OnRegisteringServices;
-        
+
         private IServiceProvider Build()
         {
             var services = new ServiceCollection();
@@ -36,17 +35,24 @@ namespace Orbit.Util
             return prov;
         }
 
-        public static ResourceManager ResourceManager => Instance.GetService<ResourceManager>();
-
         private void RegisterServices(IServiceCollection services)
         {
-            // Registering "open" types allows the provider to map the requested type parameter appropriately, assuming it exists in the database
-            services.AddScoped(typeof(IMonitoredComponent<>), typeof(MonitoredComponent<>));
-            services.AddScoped(typeof(MonitoredComponent<>));
+            /* Registering "open" types allows the provider to map the requested type parameter appropriately,
+             * assuming it exists in the database
+             *
+             * services.AddScoped(typeof(IMonitoredComponent<>), typeof(MonitoredComponent<>));
+             * services.AddScoped(typeof(MonitoredComponent<>));
+             */
 
+            // This is how you can register a concrete implementation
+            // With only one valid report type (BatteryReport), the following is equivalent to the above commented out code
+            services.AddScoped<IMonitoredComponent<BatteryReport>, BatteryComponent>();
+
+            // Another way could be just directly registering the concrete class
+            //services.AddScoped<BatteryComponent>();
+
+            // Allow the singleton instance of the event monitor to be retrieved by the service provider if desired
             services.AddSingleton(_ => EventMonitor.Instance);
-
-            services.AddSingleton(_ => new ResourceManager(LanguageCulture, Assembly.GetExecutingAssembly()));
 
             //TODO: Replace the following with actual database implementation when ready
             services.AddDbContext<OrbitDbContext>(o =>
@@ -54,7 +60,7 @@ namespace Orbit.Util
                 o.UseInMemoryDatabase("OrbitDb");
             });
         }
-
+        
         object? IServiceProvider.GetService(Type serviceType) => this._provider.GetService(serviceType);
     }
 }

@@ -1,19 +1,15 @@
-﻿using Microsoft.Extensions.Configuration;
-using Microsoft.Extensions.DependencyInjection;
-using Orbit.Desktop.Components;
-using Orbit.Util;
-
-using System;
-using System.IO;
+﻿using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using Orbit.Components;
-using System.Windows.Navigation;
-using Orbit.Models;
+
+using Microsoft.Extensions.DependencyInjection;
+
 using Orbit.Data;
-using AutoFixture;
+using Orbit.Desktop.Components;
+using Orbit.Models;
+using Orbit.Util;
 
 namespace Orbit.Desktop
 {
@@ -23,12 +19,13 @@ namespace Orbit.Desktop
     public partial class App : Application
     {
         public static IServiceProvider ServiceProvider => OrbitServiceProvider.Instance;
+
         private Task? _thread;
 
         private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
 
         //public IConfiguration Configuration { get; private set; }
-        
+
         protected override void OnStartup(StartupEventArgs e)
         {
             //IConfigurationBuilder builder = new ConfigurationBuilder()
@@ -39,16 +36,15 @@ namespace Orbit.Desktop
 
             OrbitServiceProvider.OnRegisteringServices += this.ConfigureServices;
 
-
             var mainWindow = ServiceProvider.GetRequiredService<MainWindow>();
             mainWindow.Show();
             _thread = Task.Run(this.SimulateDataGeneration, _tokenSource.Token);
         }
 
         /// <summary>
-        /// This method simulates generating 
+        /// This method simulates generating real-world data and inserting it into the database.
         /// </summary>
-        /// <returns></returns>
+        /// <returns> </returns>
         private async Task SimulateDataGeneration()
         {
             Limit limit;
@@ -75,7 +71,6 @@ namespace Orbit.Desktop
                 await Task.Delay(TimeSpan.FromSeconds(3)).ConfigureAwait(true);
             }
         }
-
 
         private void ConfigureServices(object? sender, IServiceCollection services)
         {
