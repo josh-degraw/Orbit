@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace Orbit.Model
+namespace Orbit.Models
 {
     public  class WasteWaterStorageTank
     {
