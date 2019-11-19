@@ -51,8 +51,6 @@ namespace Orbit.Models
         /// moves potable water to drinkin dispenser and various other systems?
         /// </summary>
         public string DeliveryPump { get; set; }
-       
-        //public virtual ICollection<Alarm> Alarms { get; set; }
-
+  
     }
 }
