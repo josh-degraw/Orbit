@@ -3,6 +3,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.Text;
+using Orbit.Util;
+using Orbit.Data;
 
 namespace Orbit.Models
 {
@@ -49,11 +51,10 @@ namespace Orbit.Models
                 InflowFluidTemp = random.Next(120, 150);
                 OutflowFluidTemp = random.Next(180, 200);
             }
+            
+            IServiceProvider provider = OrbitServiceProvider.Instance;
 
-            //TODO: change this to OrbitService Provider
-            IServiceProvider provider = TestServiceProvider.Instance;
-
-            using (var db = provider.GetService<DatabaseContext>())
+            using (var db = provider.GetService<OrbitDbContext>())
             {
                 db.Add(new InternalCoolantLoop()
                 {

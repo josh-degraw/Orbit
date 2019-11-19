@@ -17,6 +17,10 @@ namespace Orbit.Data
 
         public DbSet<BatteryReport> BatteryReports { get; set; }
 
+        public DbSet<InternalCoolantLoop> InternalCoolantLoop { get; set; }
+
+        public DbSet<ExternalCoolantLoop> ExternalCoolantLoop { get; set; }
+
         public void InsertSeedData()
         {
             var lim = new Limit(Guid.NewGuid(), 400, 300, 50);
