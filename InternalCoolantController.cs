@@ -34,6 +34,10 @@ namespace EntityFrameworkTest
         /// </summary>
         public int OutflowFluidTemp { get; private set; }
 
+        /// <summary>
+        /// emulate sensors and firmware controller
+        /// generate sensor data (rand in range), change hardware state if indicated (TODO), upload 'momentary' state to database
+        /// </summary>
         public void GenerateData()
         {
 
