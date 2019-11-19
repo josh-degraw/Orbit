@@ -4,7 +4,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System.Collections.Generic;
 using System.Text;
 
-namespace EntityFrameworkTest
+namespace Orbit.Models
 {
     class InternalCoolantController
     {
@@ -50,6 +50,7 @@ namespace EntityFrameworkTest
                 OutflowFluidTemp = random.Next(180, 200);
             }
 
+            //TODO: change this to OrbitService Provider
             IServiceProvider provider = TestServiceProvider.Instance;
 
             using (var db = provider.GetService<DatabaseContext>())
