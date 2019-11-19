@@ -8,6 +8,11 @@ namespace Orbit.Models
     {
         public Guid ID { get; set; }
         public DateTimeOffset DateTime { get; set; }
+        
+        /// <summary>
+        /// distinguish between seperate tanks ('Tank 1', 'Tank 2')
+        /// </summary>
+        public string TankId { get; set; }
 
         /// <summary>
         /// Current level of the wastewater collection tank
