@@ -7,6 +7,7 @@ namespace Orbit.Model
     public  class WasteWaterStorageTank
     {
         public Guid ID { get; set; }
+        public DateTimeOffset DateTime { get; set; }
 
         /// <summary>
         /// Current level of the wastewater collection tank
