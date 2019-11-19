@@ -10,6 +10,11 @@ namespace Orbit.Models
         public DateTimeOffset DateTime { get; set; }
 
         /// <summary>
+        /// distinguish between seperate redundant processors ('MainProcessor', 'Backup 1')
+        /// </summary>
+        public string ProcessorId { get; set; }
+
+        /// <summary>
         /// draws water from dirty storage tank and pushes into the water processing system
         /// </summary>        
         public string SupplyPump { get; set; }

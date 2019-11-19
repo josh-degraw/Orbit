@@ -8,6 +8,12 @@ namespace Orbit.Models
     {
         public Guid ID { get; set; }
         public DateTimeOffset DateTime { get; set; }
+
+        /// <summary>
+        /// distinguish between seperate redundant processors ('MainProcessor', 'Backup 1')
+        /// </summary>
+        public string ProcessorId { get; set; }
+
         /// <summary>
         /// Percentage full of treated urine holding tank
         /// </summary>
