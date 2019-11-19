@@ -10,6 +10,11 @@ namespace Orbit.Models
         public DateTimeOffset DateTime { get; set; }
 
         /// <summary>
+        /// indicator of overall system status (ie: Ready, Processing, Failure...)
+        /// </summary> 
+        public string SystemStatus { get; set; }
+
+        /// <summary>
         /// basically on/off/failure(on by not working)
         /// </summary>
         public string PumpStatus { get; set; }
