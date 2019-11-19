@@ -15,6 +15,11 @@ namespace Orbit.Models
         public string ProcessorId { get; set; }
 
         /// <summary>
+        /// indicator of overall system status (Ready, Processing, Failure...)
+        /// </summary>
+        public string SystemStatus { get; set; }
+        
+        /// <summary>
         /// draws water from dirty storage tank and pushes into the water processing system
         /// </summary>        
         public string SupplyPump { get; set; }

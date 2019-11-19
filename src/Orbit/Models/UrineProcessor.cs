@@ -15,6 +15,11 @@ namespace Orbit.Models
         public string ProcessorId { get; set; }
 
         /// <summary>
+        /// indicator of overall system status (Ready, Processing, Failure...)
+        /// </summary>
+        public string SystemStatus { get; set; }
+
+        /// <summary>
         /// Percentage full of treated urine holding tank
         /// </summary>
         public int UrineTankLevel { get; set; }
