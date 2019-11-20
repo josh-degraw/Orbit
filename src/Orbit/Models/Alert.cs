@@ -5,6 +5,8 @@ namespace Orbit.Models
 {
     public class Alert
     {
+        // TODO: Creator methods, e.g. TooHigh(msg), TooLow(msg), WayTooHigh(msg), etc.?
+
         public Alert(string propertyName, string message, AlertLevel level)
         {
             this.PropertyName = propertyName;
@@ -21,5 +23,7 @@ namespace Orbit.Models
         /// Optionally specify additional data via key-value pairs.
         /// </summary>
         public IDictionary<string, object> Data { get; } = new Dictionary<string, object>();
+
+        public override string ToString() => $"({PropertyName} {AlertLevel}): {Message}";
     }
 }

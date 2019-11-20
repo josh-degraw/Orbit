@@ -17,7 +17,7 @@ namespace Orbit.Desktop.Components
             get => (ReportViewModel<WasteWaterStorageTankData>)DataContext;
             set => DataContext = value;
         }
-
+        
         public string? ComponentName { get; set; }
 
         public WasteWaterStorageTankDataComponentControl()
@@ -31,6 +31,10 @@ namespace Orbit.Desktop.Components
 
         private void Instance_AlertReported(object? sender, AlertEventArgs e)
         {
+            if(e.Alert.PropertyName == nameof(WasteWaterStorageTankData.Level))
+            {
+                // Handle level alert
+            }
 
         }
 
@@ -42,7 +46,6 @@ namespace Orbit.Desktop.Components
                 return;
             }
             
-            //else 
             if (e.Report is WasteWaterStorageTankData data)
             {
                 if (ViewModel == null)
