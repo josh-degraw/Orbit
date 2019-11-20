@@ -23,6 +23,12 @@ namespace Orbit.Data
 
         public DbSet<WasteWaterStorageTank> WasteWaterStorageTanks { get; set; }
 
+        public DbSet<Atmosphere> CabinAtmosphere { get; set; }
+
+        public DbSet<OxygenGenerator> OxygenGenerator { get; set; }
+
+        public DbSet<CarbonDioxideRemediation> CarbonDioxideRemover { get; set; }
+
         public void InsertSeedData()
         {
             var lim = new Limit(Guid.NewGuid(), 400, 300, 50);
