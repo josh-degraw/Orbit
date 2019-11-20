@@ -4,7 +4,7 @@ using System.Text;
 
 namespace Orbit.Models
 {
-    class CarbonDioxideRemediation
+    public class CarbonDioxideRemediation
     {
         /// <summary>
         /// current system for ISS has changed to testing a mineral 'sponge' (zeolite) that absorbs CO2 when cold, then releases
