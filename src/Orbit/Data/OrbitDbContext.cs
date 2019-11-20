@@ -60,7 +60,7 @@ namespace Orbit.Data
             this.SaveChanges();
         }
 
-        static void MapModelCommonProps<T>(EntityTypeBuilder<T> e) where T : class, IModel
+        private static void MapModelCommonProps<T>(EntityTypeBuilder<T> e) where T : class, IModel
         {
             e.Property<Guid>("Id").ValueGeneratedOnAdd();
             e.HasKey("Id");
@@ -68,6 +68,7 @@ namespace Orbit.Data
             e.Property(p => p.ReportDateTime).ValueGeneratedOnAdd();
             e.HasAlternateKey(p => p.ReportDateTime);
         }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             if (modelBuilder == null)
@@ -76,6 +77,9 @@ namespace Orbit.Data
             modelBuilder.Entity<UrineSystemData>(MapModelCommonProps);
             modelBuilder.Entity<WaterProcessorData>(MapModelCommonProps);
             modelBuilder.Entity<WasteWaterStorageTankData>(MapModelCommonProps);
+            modelBuilder.Entity<Atmosphere>(MapModelCommonProps);
+            modelBuilder.Entity<CarbonDioxideRemediation>(MapModelCommonProps);
+            modelBuilder.Entity<OxygenGenerator>(MapModelCommonProps);
         }
     }
 }

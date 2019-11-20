@@ -8,6 +8,6 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid>
-        <components:WasteWaterStorageTankDataComponentControl ComponentName="WasteWaterStorageTank" DataContext="{Binding WasteWater}" Margin="0,0,497,311" />
+        <components:WasteWaterStorageTankDataComponentControl DataContext="{Binding WasteWater}" Margin="0,0,497,311" />
     </Grid>
 </Window>

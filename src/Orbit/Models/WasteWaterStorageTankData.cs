@@ -25,18 +25,21 @@ namespace Orbit.Models
             {
                 yield return new Alert(nameof(Level), "Waste Water storage tank overflowing", AlertLevel.HighError);
             }
-            else if (Level > 80)
+            else if (Level >= 70)
             {
                 yield return new Alert(nameof(Level), "Waste Water storage tank water level high", AlertLevel.HighWarning);
             }
-
-            if (Level <= 0)
+            else if (Level <= 0)
             {
                 yield return new Alert(nameof(Level), "Waste Water storage tank water level very low", AlertLevel.HighError);
             }
             else if (Level < 5)
             {
                 yield return new Alert(nameof(Level), "Waste Water storage tank water level low", AlertLevel.LowWarning);
+            }
+            else
+            {
+                yield return Alert.Safe(nameof(Level));
             }
         }
 

@@ -24,6 +24,10 @@ namespace Orbit.Models
         /// </summary>
         public IDictionary<string, object> Data { get; } = new Dictionary<string, object>();
 
+        public static Alert Safe(string propertyName) => new Alert(propertyName, "", AlertLevel.Safe);
+
+        public bool IsDefault() => this.Message.Length == 0 && this.AlertLevel == AlertLevel.Safe;
+
         public override string ToString() => $"({PropertyName} {AlertLevel}): {Message}";
     }
 }

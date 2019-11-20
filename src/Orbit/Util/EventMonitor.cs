@@ -7,7 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.DependencyInjection;
-
+using NLog;
 using Orbit.Components;
 using Orbit.Models;
 
@@ -34,6 +34,8 @@ namespace Orbit.Util
 
     public sealed class EventMonitor : IEventMonitor, IDisposable
     {
+        private static readonly Lazy<ILogger> _logger = new Lazy<ILogger>(LogManager.GetCurrentClassLogger);
+        private static ILogger Logger => _logger.Value;
         // TODO: Determine an appropriate wait period
 
         private const double SecondsDelay = 2.0;
@@ -57,12 +59,12 @@ namespace Orbit.Util
         /// </summary>
         private IReadOnlyCollection<Type> ReportTypes => this._reportTypes.Value;
 
-        private readonly Lazy<IReadOnlyCollection<Type>> _reportTypes =
-            new Lazy<IReadOnlyCollection<Type>>(() =>
-            {
-                IEnumerable<Type> allTypes = Assembly.GetExecutingAssembly().ExportedTypes;
-                return allTypes.Where(t => t.GetInterfaces().Contains(typeof(IModel))).ToList();
-            });
+        private readonly Lazy<IReadOnlyCollection<Type>> _reportTypes = new Lazy<IReadOnlyCollection<Type>>(
+            () =>
+                Assembly.GetExecutingAssembly()
+                    .ExportedTypes
+                    .Where(t => !t.IsInterface && t.GetInterfaces().Contains(typeof(IModel)))
+                    .ToList());
 
         /// <summary>
         /// Invoked when the event monitor thread starts.
@@ -75,15 +77,15 @@ namespace Orbit.Util
         public event EventHandler? Stopped;
 
         /// <summary>
-        /// Triggered for every newly returned point of data for each registered report.
+        /// Triggered for every newly returned point of data for each registered report. The sender param is the component reporting the data.
         /// </summary>
         public event EventHandler<ValueReadEventArgs>? NewValueRead;
 
         /// <summary>
-        /// Triggered when any alert is reported for a newly read value.
+        /// Triggered when any alert is reported for a newly read value. The sender param is the component reporting the data.
         /// </summary>
         public event EventHandler<AlertEventArgs>? AlertReported;
-        
+
         private static Type ExplicitlyMappedComponent(Type reportType)
         {
             var explicitType = typeof(IMonitoredComponent<>).MakeGenericType(reportType);
@@ -108,42 +110,48 @@ namespace Orbit.Util
         private async Task IterateReportedValues()
         {
             this.Started?.Invoke(this, EventArgs.Empty);
-            while (!this._cancellationTokenSource.IsCancellationRequested)
+            var token = this._cancellationTokenSource.Token;
+            while (!token.IsCancellationRequested)
             {
-                try
+                await Task.WhenAll(this.ReportTypes.Select(async reportType =>
                 {
-                    foreach (Type reportType in this.ReportTypes)
+                    try
                     {
+                        Logger.Debug("Iterating type {reportType}", reportType);
                         using IServiceScope scope = OrbitServiceProvider.Instance.CreateScope();
-                        Type componentType = this._componentByReportType.GetOrAdd(reportType, ExplicitlyMappedComponent);
+                        Type componentType =
+                                this._componentByReportType.GetOrAdd(reportType, ExplicitlyMappedComponent);
 
-                        var component = (IMonitoredComponent) scope.ServiceProvider.GetRequiredService(componentType);
+                        var component = (IMonitoredComponent)scope.ServiceProvider.GetRequiredService(componentType);
+                        token.ThrowIfCancellationRequested();
 
-                        if (this._cancellationTokenSource.IsCancellationRequested)
-                            break;
-                        
-                        foreach (var report in await component.GetReportsAsync())
+                        foreach (var report in await component.GetReportsAsync(10, token))
                         {
+                            token.ThrowIfCancellationRequested();
                             NewValueRead?.Invoke(component, new ValueReadEventArgs(report));
 
-                            if (report is IAlertableModel alertable)
+                            if (report is IAlertableModel a)
                             {
-                                foreach (var alert in alertable.GenerateAlerts())
+                                foreach (var alert in a.GenerateAlerts())
                                 {
-                                    var args = new AlertEventArgs(alertable, alert);
+                                    var args = new AlertEventArgs(a, alert);
 
-                                    AlertReported?.Invoke(this, args);
+                                    AlertReported?.Invoke(component, args);
                                 }
                             }
                         }
-                        
-                        await Task.Delay(TimeSpan.FromSeconds(SecondsDelay)).ConfigureAwait(false);
                     }
-                }
-                catch (Exception ex)
-                {
-                    Console.Error.WriteLine(ex);
-                }
+                    catch (OperationCanceledException)
+                    {
+                        // Ignore cancellation errors
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error(ex, "Error in EventMonitor loop");
+                    }
+                }));
+
+                await Task.Delay(TimeSpan.FromSeconds(SecondsDelay), token).ConfigureAwait(false);
             }
 
             this.Stopped?.Invoke(this, EventArgs.Empty);
@@ -196,7 +204,7 @@ namespace Orbit.Util
         {
             this.Alert = alert;
         }
-        
+
         public Alert Alert { get; }
     }
 }

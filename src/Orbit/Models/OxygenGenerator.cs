@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace Orbit.Models
 {
-    public class OxygenGenerator
+    public class OxygenGenerator: IAlertableModel
     {
-        public Guid ID { get; set; }
-        public DateTimeOffset DateTime { get; set; }
+        [NotMapped]
+        public string ComponentName => "CarbonDioxideRemediation";
+
+        public DateTimeOffset ReportDateTime { get; set; } = DateTimeOffset.Now;
 
         /// <summary>
         /// state of system; standby, processing, fail, etc
@@ -41,5 +44,11 @@ namespace Orbit.Models
         /// pH of water after leaving the pH balancing ACTEX unit
         /// </summary>
         public double RecirculatingWaterPhLevel { get; set; }
+
+
+        public IEnumerable<Alert> GenerateAlerts()
+        {
+            yield break;
+        }
     }
 }

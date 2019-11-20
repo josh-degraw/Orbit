@@ -3,8 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:Orbit.Desktop.Components"
-             xmlns:desktop="clr-namespace:Orbit.Desktop"
              mc:Ignorable="d" 
              d:DesignHeight="107.813" d:DesignWidth="180.313"
              >
@@ -20,9 +18,11 @@
             <ColumnDefinition/>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
-        <Label     Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Content="{Binding ComponentName, FallbackValue=Component}" HorizontalContentAlignment="Center" VerticalAlignment="Center"/>
-        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding ViewModel.Level, FallbackValue=0.0}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-        <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding CurrentValue.AlertLevel}" VerticalAlignment="Center"/>
+        <Label     Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Content="Waste Water Storage level" HorizontalContentAlignment="Center" VerticalAlignment="Center"/>
+        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Model.Level, FallbackValue=0.0, StringFormat='\{0:N2\}'}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+        <TextBlock Grid.Row="1" Grid.Column="2" Text="{Binding Alert.AlertLevel}" VerticalAlignment="Center"/>
+        <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Text="{Binding Alert.Message}">
+        </TextBlock>
         
     </Grid>
 </UserControl>

@@ -33,7 +33,7 @@ namespace Orbit.Components
 
             if (maxResults != null)
                 query = query.Take(maxResults.Value);
-
+            
             return await query.ToListAsync(cancellationToken).ConfigureAwait(false);
         }
 

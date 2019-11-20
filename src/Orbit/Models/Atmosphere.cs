@@ -1,13 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
 namespace Orbit.Models
 {
-    public class Atmosphere
+    public class Atmosphere: IAlertableModel
     {
-        public Guid ID { get; set; }
-        public DateTimeOffset DateTime { get; set; }
+        [NotMapped]
+        public string ComponentName => "Atmosphere";
+
+        public DateTimeOffset ReportDateTime { get; set; } = DateTimeOffset.Now;
        
         /// <summary>
         /// general status of lifesupport and environment as a whole
@@ -41,5 +44,9 @@ namespace Orbit.Models
         /// </summary>
         public double CabinAmbientNoiseLevel { get; set; }
 
+        public IEnumerable<Alert> GenerateAlerts()
+        {
+            yield break;
+        }
     }
 }

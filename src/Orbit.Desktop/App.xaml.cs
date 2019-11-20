@@ -1,10 +1,11 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
 using Microsoft.Extensions.DependencyInjection;
+
+using NLog;
 
 using Orbit.Data;
 using Orbit.Desktop.Components;
@@ -16,8 +17,11 @@ namespace Orbit.Desktop
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
-    public partial class App : Application
+    public partial class App : Application, IDisposable
     {
+        private static readonly Lazy<ILogger> _logger = new Lazy<ILogger>(LogManager.GetCurrentClassLogger);
+        private static ILogger Logger => _logger.Value;
+
         public static IServiceProvider ServiceProvider => OrbitServiceProvider.Instance;
 
         private Task? _thread;
@@ -33,7 +37,7 @@ namespace Orbit.Desktop
             //    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
             //this.Configuration = builder.Build();
-
+            Logger.Info("Starting program");
             OrbitServiceProvider.OnRegisteringServices += this.ConfigureServices;
 
             var mainWindow = ServiceProvider.GetRequiredService<MainWindow>();
@@ -47,22 +51,26 @@ namespace Orbit.Desktop
         /// <returns> </returns>
         private async Task SimulateDataGeneration()
         {
+            CancellationToken token = _tokenSource.Token;
             var rand = new Random();
             while (true)
             {
-                using (var scope = ServiceProvider.CreateScope())
-                await using (var db = scope.ServiceProvider.GetRequiredService<OrbitDbContext>())
-                {
-                    // TODO: Implement sample data generation
-                    //var next = new BatteryReport(DateTimeOffset.UtcNow, rand.Next(300, 400)) {
-                    //    LimitId = limit.Id,
-                    //};
+                await Task.Delay(TimeSpan.FromSeconds(3), token).ConfigureAwait(true);
 
-                    //db.BatteryReports.Add(next);
-                    //db.SaveChanges();
+                if (token.IsCancellationRequested)
+                {
+                    break;
                 }
 
-                await Task.Delay(TimeSpan.FromSeconds(3)).ConfigureAwait(true);
+                using var scope = ServiceProvider.CreateScope();
+                await using var db = scope.ServiceProvider.GetRequiredService<OrbitDbContext>();
+
+                var next = new WasteWaterStorageTankData {
+                    Level = rand.NextDouble() * 100
+                };
+
+                db.WasteWaterStorageTanks.Add(next);
+                await db.SaveChangesAsync(token);
             }
         }
 
@@ -70,6 +78,12 @@ namespace Orbit.Desktop
         {
             services.AddSingleton<MainWindow>();
             services.AddTransient<WasteWaterStorageTankDataComponentControl>();
+        }
+
+        public void Dispose()
+        {
+            this._thread?.Dispose();
+            this._tokenSource?.Dispose();
         }
     }
 }
