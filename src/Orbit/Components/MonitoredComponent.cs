@@ -40,17 +40,17 @@ namespace Orbit.Components
         /// <summary>
         /// Asynchronously returns the latest available report of type <typeparamref name="T"/> available.
         /// </summary>
-        public async ValueTask<T?> GetLatestReportAsync()
+        public async ValueTask<T?> GetLatestReportAsync(CancellationToken cancellationToken = default)
         {
             var set = this.Database.Set<T>();
-            T? val = await set.AsNoTracking().LastOrDefaultAsync().ConfigureAwait(false);
+            T? val = await set.AsNoTracking().LastOrDefaultAsync(cancellationToken).ConfigureAwait(false);
 
             return val;
         }
 
         #region Explicit implementation for simplification of EventMonitor
 
-        async ValueTask<IModel?> IMonitoredComponent.GetLatestReportAsync() => await this.GetLatestReportAsync().ConfigureAwait(false);
+        async ValueTask<IModel?> IMonitoredComponent.GetLatestReportAsync(CancellationToken cancellationToken) => await this.GetLatestReportAsync(cancellationToken).ConfigureAwait(false);
 
         async ValueTask<IReadOnlyCollection<IModel>> IMonitoredComponent.GetReportsAsync(int? maxResults, CancellationToken cancellationToken)
         {

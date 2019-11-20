@@ -9,17 +9,6 @@ using Orbit.Models;
 
 namespace Orbit.Util
 {
-    public interface IDataGenerator
-    {
-        void Start();
-
-        void Stop();
-
-        event EventHandler? Started;
-
-        event EventHandler? Stopped;
-    }
-
     public sealed class DataGenerator : IDataGenerator
     {
         private static readonly Lazy<IDataGenerator> _instance = new Lazy<IDataGenerator>(() => new DataGenerator());
@@ -27,6 +16,7 @@ namespace Orbit.Util
 
         private DataGenerator()
         {
+            AppDomain.CurrentDomain.ProcessExit += (s, e) => this._cancellationTokenSource.Cancel();
         }
 
         private Task? _eventThread;
@@ -37,7 +27,7 @@ namespace Orbit.Util
 
         public void Start()
         {
-            if (_eventThread != null)
+            if (_eventThread == null)
             {
                 _eventThread = Task.Run(SimulateDataGeneration, _cancellationTokenSource.Token);
             }
@@ -45,7 +35,7 @@ namespace Orbit.Util
 
         public void Stop()
         {
-            if (_eventThread != null)
+            if (!this._cancellationTokenSource.IsCancellationRequested)
             {
                 this._cancellationTokenSource.Cancel();
             }
@@ -74,9 +64,10 @@ namespace Orbit.Util
                 }
 
                 using var scope = ServiceProvider.CreateScope();
-                using var db = scope.ServiceProvider.GetRequiredService<OrbitDbContext>();
+                await using var db = scope.ServiceProvider.GetRequiredService<OrbitDbContext>();
 
                 var next = new WasteWaterStorageTankData {
+                    TankId = "Main",
                     Level = rand.NextDouble() * 100
                 };
 

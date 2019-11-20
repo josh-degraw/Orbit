@@ -16,7 +16,7 @@ namespace Orbit
         /// <summary>
         /// Get the latest available report, returned as the explicit type.
         /// </summary>
-        new ValueTask<T?> GetLatestReportAsync();
+        new ValueTask<T?> GetLatestReportAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Returns an enumeration of reports as the concrete type of the report. Can be utilized if a component
@@ -35,7 +35,7 @@ namespace Orbit
         /// Get the latest available report.
         /// </summary>
         /// <returns> </returns>
-        ValueTask<IModel?> GetLatestReportAsync();
+        ValueTask<IModel?> GetLatestReportAsync(CancellationToken cancellationToken = default);
 
         /// <summary>
         /// Returns an enumeration of reports. Can be utilized if a component retrieves more than one kind of data.

@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,25 +14,6 @@ using Orbit.Models;
 
 namespace Orbit.Util
 {
-    public interface IEventMonitor
-    {
-        void Start();
-
-        void Stop();
-
-        event EventHandler? Started;
-
-        event EventHandler? Stopped;
-
-        event EventHandler<ValueReadEventArgs>? NewValueRead;
-
-        /// <summary>
-        /// Triggered when any alert is reported for a newly read value.
-        /// </summary>
-        event EventHandler<AlertEventArgs>? AlertReported;
-
-    }
-
     public sealed class EventMonitor : IEventMonitor, IDisposable
     {
         private static readonly Lazy<ILogger> _logger = new Lazy<ILogger>(LogManager.GetCurrentClassLogger);
@@ -42,11 +24,16 @@ namespace Orbit.Util
 
         private Task? _eventThread;
 
+        private readonly Lazy<SynchronizationContext> _synchronization = new Lazy<SynchronizationContext>(() => OrbitServiceProvider.Instance.GetService<SynchronizationContext>());
+        private SynchronizationContext? SynchronizationContext => _synchronization.Value;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-
+      
         #region Singleton pattern
 
-        private EventMonitor() => AppDomain.CurrentDomain.ProcessExit += (s, e) => this._cancellationTokenSource.Cancel();
+        private EventMonitor()
+        {
+            AppDomain.CurrentDomain.ProcessExit += (s, e) => this._cancellationTokenSource.Cancel();
+        }
 
         private static readonly Lazy<EventMonitor> _instance = new Lazy<EventMonitor>(() => new EventMonitor());
 
@@ -103,6 +90,27 @@ namespace Orbit.Util
 
         private readonly ConcurrentDictionary<Type, Type> _componentByReportType = new ConcurrentDictionary<Type, Type>();
 
+        private async Task RunInCorrectSynchronizationContext(Action action)
+        {
+            // This is some complicated mumbo-jumbo that will really just make the WPF-side code cleaner.
+            // Basically this should help so that event-handlers on the client don't have to check what thread is calling and do a whole bunch of context switching.
+            var threadContext = SynchronizationContext;
+            if (threadContext != null)
+                await threadContext;
+
+            action();
+        }
+
+        private Task OnAlertReported(object sender, AlertEventArgs args)
+        {
+            return this.RunInCorrectSynchronizationContext(() => this.AlertReported?.Invoke(sender, args));
+        }
+
+        private Task OnNewValueRead(object sender, ValueReadEventArgs args)
+        {
+            return this.RunInCorrectSynchronizationContext(() => this.NewValueRead?.Invoke(sender, args));
+        }
+
         /// <summary>
         /// This method iterates through all known report types and generates alerts for them. It is then up to the
         /// consumer of said alerts as to how the alerts will be handled.
@@ -113,31 +121,36 @@ namespace Orbit.Util
             var token = this._cancellationTokenSource.Token;
             while (!token.IsCancellationRequested)
             {
+                using IServiceScope scope = OrbitServiceProvider.Instance.CreateScope();
+                var provider = scope.ServiceProvider;
+
+                // Task.WhenAll allows each of these to run concurrently, effectively making this loop run in parallel
                 await Task.WhenAll(this.ReportTypes.Select(async reportType =>
                 {
                     try
                     {
                         Logger.Debug("Iterating type {reportType}", reportType);
-                        using IServiceScope scope = OrbitServiceProvider.Instance.CreateScope();
                         Type componentType =
                                 this._componentByReportType.GetOrAdd(reportType, ExplicitlyMappedComponent);
 
-                        var component = (IMonitoredComponent)scope.ServiceProvider.GetRequiredService(componentType);
+                        var component = (IMonitoredComponent)provider.GetRequiredService(componentType);
                         token.ThrowIfCancellationRequested();
 
-                        foreach (var report in await component.GetReportsAsync(10, token))
+                        // TODO: Should we check here that the value is actually new?
+                        IModel? report = await component.GetLatestReportAsync(token);
+                        
+                        if (report == null)
+                            return;
+
+                        token.ThrowIfCancellationRequested();
+                        await this.OnNewValueRead(component, new ValueReadEventArgs(report)).ConfigureAwait(true);
+
+                        if (report is IAlertableModel a)
                         {
-                            token.ThrowIfCancellationRequested();
-                            NewValueRead?.Invoke(component, new ValueReadEventArgs(report));
-
-                            if (report is IAlertableModel a)
+                            foreach (var alert in a.GenerateAlerts())
                             {
-                                foreach (var alert in a.GenerateAlerts())
-                                {
-                                    var args = new AlertEventArgs(a, alert);
-
-                                    AlertReported?.Invoke(component, args);
-                                }
+                                var args = new AlertEventArgs(a, alert);
+                                await OnAlertReported(component, args).ConfigureAwait(true);
                             }
                         }
                     }
@@ -187,24 +200,4 @@ namespace Orbit.Util
         #endregion Implementation of IDisposable
     }
 
-    public class ValueReadEventArgs : EventArgs
-    {
-        public ValueReadEventArgs(IModel report)
-        {
-            this.Report = report;
-        }
-
-        public IModel Report { get; }
-    }
-
-
-    public class AlertEventArgs : ValueReadEventArgs
-    {
-        public AlertEventArgs(IModel report, Alert alert) : base(report)
-        {
-            this.Alert = alert;
-        }
-
-        public Alert Alert { get; }
-    }
 }

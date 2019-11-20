@@ -22,16 +22,13 @@ namespace Orbit.Desktop
         private static readonly Lazy<ILogger> _logger = new Lazy<ILogger>(LogManager.GetCurrentClassLogger);
         private static ILogger Logger => _logger.Value;
 
-        public static IServiceProvider ServiceProvider => OrbitServiceProvider.Instance;
-
-        private Task? _thread;
-
-        private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
+        private IServiceProvider ServiceProvider => OrbitServiceProvider.Instance;
 
         //public IConfiguration Configuration { get; private set; }
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            //var scope = OrbitServiceProvider.Instance.CreateScope();
             //IConfigurationBuilder builder = new ConfigurationBuilder()
             //    .SetBasePath(Directory.GetCurrentDirectory())
             //    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
@@ -42,48 +39,27 @@ namespace Orbit.Desktop
 
             var mainWindow = ServiceProvider.GetRequiredService<MainWindow>();
             mainWindow.Show();
-            _thread = Task.Run(this.SimulateDataGeneration, _tokenSource.Token);
-        }
-
-        /// <summary>
-        /// This method simulates generating real-world data and inserting it into the database.
-        /// </summary>
-        /// <returns> </returns>
-        private async Task SimulateDataGeneration()
-        {
-            CancellationToken token = _tokenSource.Token;
-            var rand = new Random();
-            while (true)
-            {
-                await Task.Delay(TimeSpan.FromSeconds(3), token).ConfigureAwait(true);
-
-                if (token.IsCancellationRequested)
-                {
-                    break;
-                }
-
-                using var scope = ServiceProvider.CreateScope();
-                await using var db = scope.ServiceProvider.GetRequiredService<OrbitDbContext>();
-
-                var next = new WasteWaterStorageTankData {
-                    Level = rand.NextDouble() * 100
-                };
-
-                db.WasteWaterStorageTanks.Add(next);
-                await db.SaveChangesAsync(token);
-            }
+            ServiceProvider.GetRequiredService<IDataGenerator>().Start();
         }
 
         private void ConfigureServices(object? sender, IServiceCollection services)
         {
             services.AddSingleton<MainWindow>();
             services.AddTransient<WasteWaterStorageTankDataComponentControl>();
+            services.AddSingleton(SynchronizationContext.Current);
+        }
+        protected void Dispose (bool disposing)
+        {
+            if (disposing)
+            {
+                (ServiceProvider as IDisposable)?.Dispose();
+            }
         }
 
         public void Dispose()
         {
-            this._thread?.Dispose();
-            this._tokenSource?.Dispose();
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

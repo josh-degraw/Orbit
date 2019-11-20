@@ -19,9 +19,9 @@ namespace Orbit.Models
         /// </summary>
         public double Level { get; set; }
 
-        public IEnumerable<Alert> GenerateAlerts()
+        IEnumerable<Alert> IAlertableModel.GenerateAlerts()
         {
-            if(Level >= 100)
+            if (Level >= 100)
             {
                 yield return new Alert(nameof(Level), "Waste Water storage tank overflowing", AlertLevel.HighError);
             }
@@ -41,6 +41,20 @@ namespace Orbit.Models
             {
                 yield return Alert.Safe(nameof(Level));
             }
+        }
+
+        public override bool Equals(object obj)
+        {
+            if (obj is WasteWaterStorageTankData data)
+            {
+                return data.TankId == this.TankId && Math.Abs(data.Level - this.Level) < 0.001;
+            }
+            return false;
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(TankId, Level);
         }
 
         #region Implementation of IModuleComponent

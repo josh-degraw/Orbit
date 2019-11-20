@@ -6,10 +6,11 @@ using Orbit.Models;
 using System;
 using System.Linq;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Threading.Tasks;
 
 namespace Orbit.Data
 {
-    public class OrbitDbContext : DbContext
+    public class OrbitDbContext : DbContext, IAsyncDisposable
     {
         public OrbitDbContext(DbContextOptions<OrbitDbContext> options) : base(options)
         {
@@ -74,6 +75,7 @@ namespace Orbit.Data
             if (modelBuilder == null)
                 throw new ArgumentNullException(nameof(modelBuilder));
 
+            // Do this for all of these so we don't need to worry about defining the ids in code
             modelBuilder.Entity<UrineSystemData>(MapModelCommonProps);
             modelBuilder.Entity<WaterProcessorData>(MapModelCommonProps);
             modelBuilder.Entity<WasteWaterStorageTankData>(MapModelCommonProps);
@@ -81,5 +83,13 @@ namespace Orbit.Data
             modelBuilder.Entity<CarbonDioxideRemediation>(MapModelCommonProps);
             modelBuilder.Entity<OxygenGenerator>(MapModelCommonProps);
         }
+
+#if !NETSTANDARD_21
+        public ValueTask DisposeAsync()
+        {
+            base.Dispose();
+            return new ValueTask();
+        }
+#endif
     }
 }

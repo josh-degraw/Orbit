@@ -33,7 +33,7 @@ namespace Orbit.Desktop
         public MainWindow(IServiceProvider serviceProvider)
         {
             this.InitializeComponent();
-            this.ServiceProvider = serviceProvider ?? App.ServiceProvider;
+            this.ServiceProvider = serviceProvider;
             this.Loaded += this.MainWindow_Loaded;
             
         }
