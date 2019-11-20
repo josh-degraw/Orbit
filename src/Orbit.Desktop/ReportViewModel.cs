@@ -3,17 +3,24 @@ using Orbit.Models;
 
 namespace Orbit.Desktop
 {
-    public class ReportViewModel : ViewModelBase
+    public static class ReportViewModel
     {
-        public ReportViewModel(string componentName, BoundedValue value)
+        public static ReportViewModel<T> Create<T>(T report) where T : IModel
+        {
+            return new ReportViewModel<T>(report.ComponentName, report);
+        }
+    }
+    public class ReportViewModel<T> : ViewModelBase where T: IModel
+    {
+        public ReportViewModel(string componentName, T report)
         {
             this.ComponentName = componentName;
-            this.CurrentValue = value;
-            this.ReportDate = DateTimeOffset.UtcNow;
+            this.CurrentReport = report;
+            this.ReportDate = report.ReportDateTime
         }
         
         private DateTimeOffset _reportDate;
-        private BoundedValue _currentValue;
+        private T _currentReport;
 
         public string ComponentName { get; }
 
@@ -22,9 +29,9 @@ namespace Orbit.Desktop
             set => OnPropertyChanged(ref _reportDate, value);
         }
 
-        public BoundedValue CurrentValue {
-            get => _currentValue;
-            set => OnPropertyChanged(ref _currentValue, value);
+        public T CurrentReport {
+            get => this._currentReport;
+            set => OnPropertyChanged(ref this._currentReport, value);
         }
     }
 }

@@ -23,9 +23,13 @@ namespace Orbit.Util
 
         event EventHandler? Stopped;
 
-        event EventHandler<CurrentValueReport>? NewValueRead;
+        event EventHandler<ValueReadEventArgs>? NewValueRead;
 
-        event EventHandler<ValueOutOfSafeRangeEventArgs>? ValueOutOfSafeRange;
+        /// <summary>
+        /// Triggered when any alert is reported for a newly read value.
+        /// </summary>
+        event EventHandler<AlertEventArgs>? AlertReported;
+
     }
 
     public sealed class EventMonitor : IEventMonitor, IDisposable
@@ -51,13 +55,13 @@ namespace Orbit.Util
         /// <summary>
         /// Returns a collection of the Report types defined in this assembly.
         /// </summary>
-        private IEnumerable<Type> ReportTypes => this._reportTypes.Value;
+        private IReadOnlyCollection<Type> ReportTypes => this._reportTypes.Value;
 
-        private readonly Lazy<ICollection<Type>> _reportTypes =
-            new Lazy<ICollection<Type>>(() =>
+        private readonly Lazy<IReadOnlyCollection<Type>> _reportTypes =
+            new Lazy<IReadOnlyCollection<Type>>(() =>
             {
                 IEnumerable<Type> allTypes = Assembly.GetExecutingAssembly().ExportedTypes;
-                return allTypes.Where(t => t.GetInterfaces().Contains(typeof(IBoundedReport))).ToList();
+                return allTypes.Where(t => t.GetInterfaces().Contains(typeof(IModel))).ToList();
             });
 
         /// <summary>
@@ -73,18 +77,21 @@ namespace Orbit.Util
         /// <summary>
         /// Triggered for every newly returned point of data for each registered report.
         /// </summary>
-        public event EventHandler<CurrentValueReport>? NewValueRead;
+        public event EventHandler<ValueReadEventArgs>? NewValueRead;
 
         /// <summary>
-        /// Triggered when new values are returned that are outside of the configured "safe" range.
+        /// Triggered when any alert is reported for a newly read value.
         /// </summary>
-        public event EventHandler<ValueOutOfSafeRangeEventArgs>? ValueOutOfSafeRange;
-
+        public event EventHandler<AlertEventArgs>? AlertReported;
+        
         private static Type ExplicitlyMappedComponent(Type reportType)
         {
-            Type explicitlyDefined = Assembly.GetExecutingAssembly().ExportedTypes
-                .SingleOrDefault(a => a.GetInterfaces().Contains(typeof(IBoundedReport))
-                                      && a.GetGenericArguments().Contains(reportType));
+            var explicitType = typeof(IMonitoredComponent<>).MakeGenericType(reportType);
+
+            Type explicitlyDefined = Assembly
+                .GetExecutingAssembly()
+                .ExportedTypes
+                .SingleOrDefault(a => a.GetInterfaces().Contains(explicitType));
 
             // If there exists a class explicitly defined to handle the given report, use that Otherwise, assume it only
             // generates one report and create a MonitoredComponent<T> of the given type to handle it
@@ -110,24 +117,26 @@ namespace Orbit.Util
                         using IServiceScope scope = OrbitServiceProvider.Instance.CreateScope();
                         Type componentType = this._componentByReportType.GetOrAdd(reportType, ExplicitlyMappedComponent);
 
-                        var component = (IModuleComponent)scope.ServiceProvider.GetRequiredService(componentType);
+                        var component = (IMonitoredComponent) scope.ServiceProvider.GetRequiredService(componentType);
 
                         if (this._cancellationTokenSource.IsCancellationRequested)
                             break;
-
-                        // A component could generate more than one report, so those will be looped through here
-                        await foreach (CurrentValueReport report in component.BuildCurrentValueReport(this._cancellationTokenSource.Token))
+                        
+                        foreach (var report in await component.GetReportsAsync())
                         {
-                            // Trigger the NewValueRead event
-                            this.NewValueRead?.Invoke(component, report);
+                            NewValueRead?.Invoke(component, new ValueReadEventArgs(report));
 
-                            if (!report.Value.IsSafe)
+                            if (report is IAlertableModel alertable)
                             {
-                                // Trigger the ValueOutOfSafeRangeEvent
-                                this.ValueOutOfSafeRange?.Invoke(component, new ValueOutOfSafeRangeEventArgs(report));
+                                foreach (var alert in alertable.GenerateAlerts())
+                                {
+                                    var args = new AlertEventArgs(alertable, alert);
+
+                                    AlertReported?.Invoke(this, args);
+                                }
                             }
                         }
-
+                        
                         await Task.Delay(TimeSpan.FromSeconds(SecondsDelay)).ConfigureAwait(false);
                     }
                 }
@@ -168,5 +177,26 @@ namespace Orbit.Util
         }
 
         #endregion Implementation of IDisposable
+    }
+
+    public class ValueReadEventArgs : EventArgs
+    {
+        public ValueReadEventArgs(IModel report)
+        {
+            this.Report = report;
+        }
+
+        public IModel Report { get; }
+    }
+
+
+    public class AlertEventArgs : ValueReadEventArgs
+    {
+        public AlertEventArgs(IModel report, Alert alert) : base(report)
+        {
+            this.Alert = alert;
+        }
+        
+        public Alert Alert { get; }
     }
 }

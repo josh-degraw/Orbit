@@ -10,25 +10,19 @@ namespace Orbit
     /// <summary>
     /// Indicates a component that will be monitored regularly via <see cref="EventMonitor"/>
     /// </summary>
-    public interface IMonitoredComponent<T> : IModuleComponent
-        where T : class, IBoundedReport
+    public interface IMonitoredComponent<T> : IMonitoredComponent
+        where T : class, IModel
     {
-        /// <summary>
-        /// Get the limit for the reports
-        /// </summary>
-        /// <returns> The limits for each report </returns>
-        Task<Limit> GetComponentValueLimitAsync();
-
         /// <summary>
         /// Get the latest available report, returned as the explicit type.
         /// </summary>
-        ValueTask<T?> GetLatestReportAsync();
+        new ValueTask<T?> GetLatestReportAsync();
 
         /// <summary>
         /// Returns an enumeration of reports as the concrete type of the report. Can be utilized if a component
         /// retrieves more than one kind of data.
         /// </summary>
-        IAsyncEnumerable<T> GetReportsAsync(int? maxResults = 10, CancellationToken cancellationToken = default);
+        new ValueTask<IReadOnlyCollection<T>> GetReportsAsync(int? maxResults = 10, CancellationToken cancellationToken = default);
     }
 
     /// <summary>
@@ -41,11 +35,11 @@ namespace Orbit
         /// Get the latest available report.
         /// </summary>
         /// <returns> </returns>
-        ValueTask<IBoundedReport?> GetLatestReportAsync();
+        ValueTask<IModel?> GetLatestReportAsync();
 
         /// <summary>
         /// Returns an enumeration of reports. Can be utilized if a component retrieves more than one kind of data.
         /// </summary>
-        IAsyncEnumerable<IBoundedReport> GetReportsAsync(int? maxResults = 10, CancellationToken cancellationToken = default);
+        ValueTask<IReadOnlyCollection<IModel>> GetReportsAsync(int? maxResults = 10, CancellationToken cancellationToken = default);
     }
 }

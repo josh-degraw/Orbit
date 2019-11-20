@@ -11,7 +11,7 @@ using Xunit;
 
 namespace Orbit.Tests.Components
 {
-    public class BatteryComponent_tests
+    public class WastWaterStorageTank_tests
     {
         [Fact]
         public void Can_return_default_value()
@@ -20,7 +20,7 @@ namespace Orbit.Tests.Components
 
             scope.ServiceProvider.GetRequiredService<OrbitDbContext>().InsertSeedData();
 
-            var service = scope.ServiceProvider.GetService<IMonitoredComponent<BatteryReport>>();
+            var service = scope.ServiceProvider.GetService<IMonitoredComponent<WasteWaterStorageTankData>>();
             service.Invoking(async s => await s.GetLatestReportAsync().ConfigureAwait(false)).Should().NotThrow();
         }
     }

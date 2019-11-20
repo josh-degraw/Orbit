@@ -1,12 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Orbit.Data;
-using System;
-using System.Linq;
-using System.Reflection;
+
 using Orbit.Components;
-using System.Resources;
-using Orbit.Models;
+using Orbit.Data;
 
 namespace Orbit.Util
 {
@@ -43,10 +41,7 @@ namespace Orbit.Util
              * services.AddScoped(typeof(IMonitoredComponent<>), typeof(MonitoredComponent<>));
              * services.AddScoped(typeof(MonitoredComponent<>));
              */
-
-            // This is how you can register a concrete implementation
-            // With only one valid report type (BatteryReport), the following is equivalent to the above commented out code
-            services.AddScoped<IMonitoredComponent<BatteryReport>, BatteryComponent>();
+            services.AddScoped(typeof(IMonitoredComponent<>), typeof(MonitoredComponent<>));
 
             // Another way could be just directly registering the concrete class
             //services.AddScoped<BatteryComponent>();
@@ -60,7 +55,7 @@ namespace Orbit.Util
                 o.UseInMemoryDatabase("OrbitDb");
             });
         }
-        
+
         object? IServiceProvider.GetService(Type serviceType) => this._provider.GetService(serviceType);
     }
 }
