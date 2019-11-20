@@ -10,6 +10,11 @@ namespace Orbit.Models
         public DateTimeOffset DateTime { get; set; }
 
         /// <summary>
+        /// state of system; standby, processing, fail, etc
+        /// </summary>
+        public string OxygenGeneratorStatus { get; set; }
+
+        /// <summary>
         /// seperats water from hydrogen. vents to carbon dioxide remediator, excess vents to space
         /// </summary>
         public string RotarySeperatorStatus { get; set; }
