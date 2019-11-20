@@ -10,28 +10,33 @@ using System.Threading.Tasks;
 
 namespace Orbit.Data
 {
-    public class OrbitDbContext : DbContext, IAsyncDisposable
+    public class OrbitDbContext : DbContext
     {
         public OrbitDbContext(DbContextOptions<OrbitDbContext> options) : base(options)
         {
         }
 
-        public DbSet<UrineSystemData> UrineProcessors { get; set; }
+        public DbSet<UrineSystemData> UrineProcessorData { get; set; }
 
-        public DbSet<WaterProcessorData> WaterProcessors { get; set; }
+        public DbSet<WaterProcessorData> WaterProcessorData { get; set; }
 
-        public DbSet<WasteWaterStorageTankData> WasteWaterStorageTanks { get; set; }
+        public DbSet<WasteWaterStorageTankData> WasteWaterStorageTankData { get; set; }
 
-        public DbSet<Atmosphere> CabinAtmosphere { get; set; }
+        public DbSet<Atmosphere> CabinAtmosphereData { get; set; }
 
-        public DbSet<OxygenGenerator> OxygenGenerator { get; set; }
+        public DbSet<OxygenGenerator> OxygenGeneratorData { get; set; }
 
-        public DbSet<CarbonDioxideRemediation> CarbonDioxideRemover { get; set; }
+        public DbSet<CarbonDioxideRemediation> CarbonDioxideRemoverData { get; set; }
+        
+        public DbSet<Battery> BatteryData { get; set; }
+        public DbSet<Radiator> RadiatorData { get; set; }
+        public DbSet<ShuntUnit> ShuntUnitData { get; set; }
+        public DbSet<SolarArray> SolarArrayData { get; set; }
 
         public void InsertSeedData()
         {
             //TODO: Use NSubstitute for generating random seed data
-            this.UrineProcessors.Add(new UrineSystemData {
+            this.UrineProcessorData.Add(new UrineSystemData {
                 BrineTankLevel = 5,
                 DistillerSpeed = 20,
                 DistillerTemp = 20,
@@ -41,12 +46,12 @@ namespace Orbit.Data
                 SystemStatus = "Ready",
                 UrineTankLevel = 40,
             });
-            this.WasteWaterStorageTanks.Add(new WasteWaterStorageTankData {
+            this.WasteWaterStorageTankData.Add(new WasteWaterStorageTankData {
                 TankId = "Main",
                 Level = 30,
             });
 
-            this.WaterProcessors.Add(new WaterProcessorData {
+            this.WaterProcessorData.Add(new WaterProcessorData {
                 CatalyticReactorTemp = 15,
                 DeliveryPump ="Carbonated",
                 PostFilterContaminateSensor = "Activated",
@@ -82,14 +87,11 @@ namespace Orbit.Data
             modelBuilder.Entity<Atmosphere>(MapModelCommonProps);
             modelBuilder.Entity<CarbonDioxideRemediation>(MapModelCommonProps);
             modelBuilder.Entity<OxygenGenerator>(MapModelCommonProps);
+            modelBuilder.Entity<Battery>(MapModelCommonProps);
+            modelBuilder.Entity<Radiator>(MapModelCommonProps);
+            modelBuilder.Entity<SolarArray>(MapModelCommonProps);
+            modelBuilder.Entity<ShuntUnit>(MapModelCommonProps);
         }
 
-#if !NETSTANDARD_21
-        public ValueTask DisposeAsync()
-        {
-            base.Dispose();
-            return new ValueTask();
-        }
-#endif
     }
 }

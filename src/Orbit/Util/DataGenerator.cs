@@ -64,14 +64,14 @@ namespace Orbit.Util
                 }
 
                 using var scope = ServiceProvider.CreateScope();
-                await using var db = scope.ServiceProvider.GetRequiredService<OrbitDbContext>();
+                using var db = scope.ServiceProvider.GetRequiredService<OrbitDbContext>();
 
                 var next = new WasteWaterStorageTankData {
                     TankId = "Main",
                     Level = rand.NextDouble() * 100
                 };
 
-                db.WasteWaterStorageTanks.Add(next);
+                db.WasteWaterStorageTankData.Add(next);
                 await db.SaveChangesAsync(token);
             }
 

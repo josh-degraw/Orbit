@@ -1,17 +1,24 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Text;
 
-namespace Orbit.Models.Power_System
+namespace Orbit.Models
 {
-    public class SolarArray
+    public class SolarArray : IAlertableModel
     {
-        
-        public double Voltage;
+        public double Voltage { get; set; }
 
         //In Kilowatts
-        public double Power;
+        public double Power { get; set; }
 
-        public bool Deployed;
+        public bool Deployed { get; set; }
+
+        public string ComponentName => "SolarArray";
+
+        public DateTimeOffset ReportDateTime { get; private set; } = DateTimeOffset.Now;
+
+        IEnumerable<Alert> IAlertableModel.GenerateAlerts()
+        {
+            yield break;
+        }
     }
 }
