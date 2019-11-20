@@ -61,7 +61,7 @@ namespace Orbit.Models
         /// </summary>
         public string DeliveryPump { get; set; }
 
-        public IEnumerable<Alert> GenerateAlerts()
+        IEnumerable<Alert> IAlertableModel.GenerateAlerts()
         {
             //TODO: Implement
             yield break;

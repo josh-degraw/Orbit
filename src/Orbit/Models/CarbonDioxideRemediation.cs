@@ -27,7 +27,7 @@ namespace Orbit.Models
         /// </summary>
         public double Temperature { get; set; }
 
-        public IEnumerable<Alert> GenerateAlerts()
+        IEnumerable<Alert> IAlertableModel.GenerateAlerts()
         {
             yield break;
         }

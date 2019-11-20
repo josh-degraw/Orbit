@@ -47,13 +47,12 @@ namespace Orbit.Models
         /// </summary>
         public int BrineTankLevel { get; set; }
 
-        public IEnumerable<Alert> GenerateAlerts()
+        IEnumerable<Alert> IAlertableModel.GenerateAlerts()
         {
             // Example:
 
             if (DistillerSpeed > 5000)
                 yield return new Alert(nameof(DistillerSpeed), "DistillerSpeed too high", AlertLevel.HighWarning);
-
         }
 
         #region Implementation of IModuleComponent
