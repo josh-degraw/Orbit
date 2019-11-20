@@ -17,16 +17,16 @@ namespace Orbit.Desktop
 
         public event PropertyChangedEventHandler? PropertyChanged;
 
-        private BatteryReport? _battery;
+        private WasteWaterStorageTankData? _wasteWater;
 
 
-        public BatteryReport? Battery {
-            get => _battery;
+        public WasteWaterStorageTankData? WasteWater {
+            get => this._wasteWater;
             set 
             {
                 // This stuff here is required to tell the UI to update anything that references this property
-                _battery = value;
-                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(Battery)));
+                this._wasteWater = value;
+                PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.WasteWater)));
             }
         }
 
@@ -44,9 +44,9 @@ namespace Orbit.Desktop
             using var scope = ServiceProvider.CreateScope();
             var db = scope.ServiceProvider.GetRequiredService<OrbitDbContext>();
             db.InsertSeedData();
-            var comp = scope.ServiceProvider.GetService<IMonitoredComponent<BatteryReport>>();
+            var comp = scope.ServiceProvider.GetService<IMonitoredComponent<WasteWaterStorageTankData>>();
             var rep = await comp.GetLatestReportAsync().ConfigureAwait(true);
-            this.Battery = rep;
+            this.WasteWater = rep;
         }
     }
 }

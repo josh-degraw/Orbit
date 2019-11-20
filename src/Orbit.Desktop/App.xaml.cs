@@ -47,25 +47,19 @@ namespace Orbit.Desktop
         /// <returns> </returns>
         private async Task SimulateDataGeneration()
         {
-            Limit limit;
-            await using (var db = ServiceProvider.GetRequiredService<OrbitDbContext>())
-            {
-                db.InsertSeedData();
-                limit = db.Limits.First();
-            }
-
             var rand = new Random();
             while (true)
             {
                 using (var scope = ServiceProvider.CreateScope())
                 await using (var db = scope.ServiceProvider.GetRequiredService<OrbitDbContext>())
                 {
-                    var next = new BatteryReport(DateTimeOffset.UtcNow, rand.Next(300, 400)) {
-                        LimitId = limit.Id,
-                    };
+                    // TODO: Implement sample data generation
+                    //var next = new BatteryReport(DateTimeOffset.UtcNow, rand.Next(300, 400)) {
+                    //    LimitId = limit.Id,
+                    //};
 
-                    db.BatteryReports.Add(next);
-                    db.SaveChanges();
+                    //db.BatteryReports.Add(next);
+                    //db.SaveChanges();
                 }
 
                 await Task.Delay(TimeSpan.FromSeconds(3)).ConfigureAwait(true);
@@ -75,7 +69,7 @@ namespace Orbit.Desktop
         private void ConfigureServices(object? sender, IServiceCollection services)
         {
             services.AddSingleton<MainWindow>();
-            services.AddTransient<ModuleComponentControl>();
+            services.AddTransient<WasteWaterStorageTankDataComponentControl>();
         }
     }
 }

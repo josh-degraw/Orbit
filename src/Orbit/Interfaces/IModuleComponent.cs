@@ -13,10 +13,5 @@ namespace Orbit
         /// The name of the component.
         /// </summary>
         string ComponentName { get; }
-
-        /// <summary>
-        /// Generate one or more informational reports for a component.
-        /// </summary>
-        IAsyncEnumerable<CurrentValueReport> BuildCurrentValueReport(CancellationToken cancellationToken = default);
     }
 }

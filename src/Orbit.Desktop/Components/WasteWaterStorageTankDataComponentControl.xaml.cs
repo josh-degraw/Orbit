@@ -9,27 +9,32 @@ using Orbit.Util;
 namespace Orbit.Desktop.Components
 {
     /// <summary>
-    /// Interaction logic for ModuleComponentControl.xaml
+    /// Interaction logic for WasteWaterStorageTankDataComponentControl.xaml
     /// </summary>
-    public partial class ModuleComponentControl : UserControl
+    public partial class WasteWaterStorageTankDataComponentControl : UserControl
     {
-        public ReportViewModel ViewModel {
-            get => (ReportViewModel)DataContext;
+        public ReportViewModel<WasteWaterStorageTankData> ViewModel {
+            get => (ReportViewModel<WasteWaterStorageTankData>)DataContext;
             set => DataContext = value;
         }
 
         public string? ComponentName { get; set; }
 
-        public ModuleComponentControl()
+        public WasteWaterStorageTankDataComponentControl()
         {
             InitializeComponent();
 
             // Subscribe to updates
             EventMonitor.Instance.NewValueRead += this.Instance_NewValueRead;
+            EventMonitor.Instance.AlertReported += this.Instance_AlertReported;
         }
 
+        private void Instance_AlertReported(object? sender, AlertEventArgs e)
+        {
 
-        private void Instance_NewValueRead(object? sender, CurrentValueReport e)
+        }
+
+        private void Instance_NewValueRead(object? sender, ValueReadEventArgs e)
         {
             if (!Dispatcher.CheckAccess())
             {
@@ -38,15 +43,15 @@ namespace Orbit.Desktop.Components
             }
             
             //else 
-            if (e.ComponentName == ComponentName)
+            if (e.Report is WasteWaterStorageTankData data)
             {
                 if (ViewModel == null)
                 {
-                    ViewModel = new ReportViewModel(e.ComponentName, e.Value);
+                    ViewModel = ReportViewModel.Create(data);
                 }
                 else
                 {
-                    ViewModel.CurrentValue = e.Value;
+                    ViewModel.CurrentReport = data;
                     ViewModel.ReportDate = e.Report.ReportDateTime;
                 }
             }
