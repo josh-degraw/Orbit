@@ -1,10 +1,11 @@
 ﻿using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
 using Microsoft.Extensions.DependencyInjection;
+
+using NLog;
 
 using Orbit.Data;
 using Orbit.Desktop.Components;
@@ -16,66 +17,49 @@ namespace Orbit.Desktop
     /// <summary>
     /// Interaction logic for App.xaml
     /// </summary>
-    public partial class App : Application
+    public partial class App : Application, IDisposable
     {
-        public static IServiceProvider ServiceProvider => OrbitServiceProvider.Instance;
+        private static readonly Lazy<ILogger> _logger = new Lazy<ILogger>(LogManager.GetCurrentClassLogger);
+        private static ILogger Logger => _logger.Value;
 
-        private Task? _thread;
-
-        private readonly CancellationTokenSource _tokenSource = new CancellationTokenSource();
+        private IServiceProvider ServiceProvider => OrbitServiceProvider.Instance;
 
         //public IConfiguration Configuration { get; private set; }
 
         protected override void OnStartup(StartupEventArgs e)
         {
+            //var scope = OrbitServiceProvider.Instance.CreateScope();
             //IConfigurationBuilder builder = new ConfigurationBuilder()
             //    .SetBasePath(Directory.GetCurrentDirectory())
             //    .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
 
             //this.Configuration = builder.Build();
-
+            Logger.Info("Starting program");
             OrbitServiceProvider.OnRegisteringServices += this.ConfigureServices;
 
             var mainWindow = ServiceProvider.GetRequiredService<MainWindow>();
             mainWindow.Show();
-            _thread = Task.Run(this.SimulateDataGeneration, _tokenSource.Token);
-        }
-
-        /// <summary>
-        /// This method simulates generating real-world data and inserting it into the database.
-        /// </summary>
-        /// <returns> </returns>
-        private async Task SimulateDataGeneration()
-        {
-            Limit limit;
-            await using (var db = ServiceProvider.GetRequiredService<OrbitDbContext>())
-            {
-                db.InsertSeedData();
-                limit = db.Limits.First();
-            }
-
-            var rand = new Random();
-            while (true)
-            {
-                using (var scope = ServiceProvider.CreateScope())
-                await using (var db = scope.ServiceProvider.GetRequiredService<OrbitDbContext>())
-                {
-                    var next = new BatteryReport(DateTimeOffset.UtcNow, rand.Next(300, 400)) {
-                        LimitId = limit.Id,
-                    };
-
-                    db.BatteryReports.Add(next);
-                    db.SaveChanges();
-                }
-
-                await Task.Delay(TimeSpan.FromSeconds(3)).ConfigureAwait(true);
-            }
+            ServiceProvider.GetRequiredService<IDataGenerator>().Start();
         }
 
         private void ConfigureServices(object? sender, IServiceCollection services)
         {
             services.AddSingleton<MainWindow>();
-            services.AddTransient<ModuleComponentControl>();
+            services.AddTransient<WasteWaterStorageTankDataComponentControl>();
+            services.AddSingleton(SynchronizationContext.Current);
+        }
+        protected void Dispose (bool disposing)
+        {
+            if (disposing)
+            {
+                (ServiceProvider as IDisposable)?.Dispose();
+            }
+        }
+
+        public void Dispose()
+        {
+            this.Dispose(true);
+            GC.SuppressFinalize(this);
         }
     }
 }

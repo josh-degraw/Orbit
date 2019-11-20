@@ -3,44 +3,37 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.Extensions.DependencyInjection;
-
+using NLog;
 using Orbit.Components;
 using Orbit.Models;
 
 namespace Orbit.Util
 {
-    public interface IEventMonitor
-    {
-        void Start();
-
-        void Stop();
-
-        event EventHandler? Started;
-
-        event EventHandler? Stopped;
-
-        event EventHandler<CurrentValueReport>? NewValueRead;
-
-        event EventHandler<ValueOutOfSafeRangeEventArgs>? ValueOutOfSafeRange;
-    }
-
     public sealed class EventMonitor : IEventMonitor, IDisposable
     {
+        private static readonly Lazy<ILogger> _logger = new Lazy<ILogger>(LogManager.GetCurrentClassLogger);
+        private static ILogger Logger => _logger.Value;
         // TODO: Determine an appropriate wait period
 
         private const double SecondsDelay = 2.0;
 
         private Task? _eventThread;
 
+        private readonly Lazy<SynchronizationContext> _synchronization = new Lazy<SynchronizationContext>(() => OrbitServiceProvider.Instance.GetService<SynchronizationContext>());
+        private SynchronizationContext? SynchronizationContext => _synchronization.Value;
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
-
+      
         #region Singleton pattern
 
-        private EventMonitor() => AppDomain.CurrentDomain.ProcessExit += (s, e) => this._cancellationTokenSource.Cancel();
+        private EventMonitor()
+        {
+            AppDomain.CurrentDomain.ProcessExit += (s, e) => this._cancellationTokenSource.Cancel();
+        }
 
         private static readonly Lazy<EventMonitor> _instance = new Lazy<EventMonitor>(() => new EventMonitor());
 
@@ -51,14 +44,14 @@ namespace Orbit.Util
         /// <summary>
         /// Returns a collection of the Report types defined in this assembly.
         /// </summary>
-        private IEnumerable<Type> ReportTypes => this._reportTypes.Value;
+        private IReadOnlyCollection<Type> ReportTypes => this._reportTypes.Value;
 
-        private readonly Lazy<ICollection<Type>> _reportTypes =
-            new Lazy<ICollection<Type>>(() =>
-            {
-                IEnumerable<Type> allTypes = Assembly.GetExecutingAssembly().ExportedTypes;
-                return allTypes.Where(t => t.GetInterfaces().Contains(typeof(IBoundedReport))).ToList();
-            });
+        private readonly Lazy<IReadOnlyCollection<Type>> _reportTypes = new Lazy<IReadOnlyCollection<Type>>(
+            () =>
+                Assembly.GetExecutingAssembly()
+                    .ExportedTypes
+                    .Where(t => !t.IsInterface && t.GetInterfaces().Contains(typeof(IModel)))
+                    .ToList());
 
         /// <summary>
         /// Invoked when the event monitor thread starts.
@@ -71,20 +64,23 @@ namespace Orbit.Util
         public event EventHandler? Stopped;
 
         /// <summary>
-        /// Triggered for every newly returned point of data for each registered report.
+        /// Triggered for every newly returned point of data for each registered report. The sender param is the component reporting the data.
         /// </summary>
-        public event EventHandler<CurrentValueReport>? NewValueRead;
+        public event EventHandler<ValueReadEventArgs>? NewValueRead;
 
         /// <summary>
-        /// Triggered when new values are returned that are outside of the configured "safe" range.
+        /// Triggered when any alert is reported for a newly read value. The sender param is the component reporting the data.
         /// </summary>
-        public event EventHandler<ValueOutOfSafeRangeEventArgs>? ValueOutOfSafeRange;
+        public event EventHandler<AlertEventArgs>? AlertReported;
 
         private static Type ExplicitlyMappedComponent(Type reportType)
         {
-            Type explicitlyDefined = Assembly.GetExecutingAssembly().ExportedTypes
-                .SingleOrDefault(a => a.GetInterfaces().Contains(typeof(IBoundedReport))
-                                      && a.GetGenericArguments().Contains(reportType));
+            var explicitType = typeof(IMonitoredComponent<>).MakeGenericType(reportType);
+
+            Type explicitlyDefined = Assembly
+                .GetExecutingAssembly()
+                .ExportedTypes
+                .SingleOrDefault(a => a.GetInterfaces().Contains(explicitType));
 
             // If there exists a class explicitly defined to handle the given report, use that Otherwise, assume it only
             // generates one report and create a MonitoredComponent<T> of the given type to handle it
@@ -94,6 +90,27 @@ namespace Orbit.Util
 
         private readonly ConcurrentDictionary<Type, Type> _componentByReportType = new ConcurrentDictionary<Type, Type>();
 
+        private async Task RunInCorrectSynchronizationContext(Action action)
+        {
+            // This is some complicated mumbo-jumbo that will really just make the WPF-side code cleaner.
+            // Basically this should help so that event-handlers on the client don't have to check what thread is calling and do a whole bunch of context switching.
+            var threadContext = SynchronizationContext;
+            if (threadContext != null)
+                await threadContext;
+
+            action();
+        }
+
+        private Task OnAlertReported(object sender, AlertEventArgs args)
+        {
+            return this.RunInCorrectSynchronizationContext(() => this.AlertReported?.Invoke(sender, args));
+        }
+
+        private Task OnNewValueRead(object sender, ValueReadEventArgs args)
+        {
+            return this.RunInCorrectSynchronizationContext(() => this.NewValueRead?.Invoke(sender, args));
+        }
+
         /// <summary>
         /// This method iterates through all known report types and generates alerts for them. It is then up to the
         /// consumer of said alerts as to how the alerts will be handled.
@@ -101,40 +118,53 @@ namespace Orbit.Util
         private async Task IterateReportedValues()
         {
             this.Started?.Invoke(this, EventArgs.Empty);
-            while (!this._cancellationTokenSource.IsCancellationRequested)
+            var token = this._cancellationTokenSource.Token;
+            while (!token.IsCancellationRequested)
             {
-                try
+                using IServiceScope scope = OrbitServiceProvider.Instance.CreateScope();
+                var provider = scope.ServiceProvider;
+
+                // Task.WhenAll allows each of these to run concurrently, effectively making this loop run in parallel
+                await Task.WhenAll(this.ReportTypes.Select(async reportType =>
                 {
-                    foreach (Type reportType in this.ReportTypes)
+                    try
                     {
-                        using IServiceScope scope = OrbitServiceProvider.Instance.CreateScope();
-                        Type componentType = this._componentByReportType.GetOrAdd(reportType, ExplicitlyMappedComponent);
+                        Logger.Debug("Iterating type {reportType}", reportType);
+                        Type componentType =
+                                this._componentByReportType.GetOrAdd(reportType, ExplicitlyMappedComponent);
 
-                        var component = (IModuleComponent)scope.ServiceProvider.GetRequiredService(componentType);
+                        var component = (IMonitoredComponent)provider.GetRequiredService(componentType);
+                        token.ThrowIfCancellationRequested();
 
-                        if (this._cancellationTokenSource.IsCancellationRequested)
-                            break;
+                        // TODO: Should we check here that the value is actually new?
+                        IModel? report = await component.GetLatestReportAsync(token);
+                        
+                        if (report == null)
+                            return;
 
-                        // A component could generate more than one report, so those will be looped through here
-                        await foreach (CurrentValueReport report in component.BuildCurrentValueReport(this._cancellationTokenSource.Token))
+                        token.ThrowIfCancellationRequested();
+                        await this.OnNewValueRead(component, new ValueReadEventArgs(report)).ConfigureAwait(true);
+
+                        if (report is IAlertableModel a)
                         {
-                            // Trigger the NewValueRead event
-                            this.NewValueRead?.Invoke(component, report);
-
-                            if (!report.Value.IsSafe)
+                            foreach (var alert in a.GenerateAlerts())
                             {
-                                // Trigger the ValueOutOfSafeRangeEvent
-                                this.ValueOutOfSafeRange?.Invoke(component, new ValueOutOfSafeRangeEventArgs(report));
+                                var args = new AlertEventArgs(a, alert);
+                                await OnAlertReported(component, args).ConfigureAwait(true);
                             }
                         }
-
-                        await Task.Delay(TimeSpan.FromSeconds(SecondsDelay)).ConfigureAwait(false);
                     }
-                }
-                catch (Exception ex)
-                {
-                    Console.Error.WriteLine(ex);
-                }
+                    catch (OperationCanceledException)
+                    {
+                        // Ignore cancellation errors
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.Error(ex, "Error in EventMonitor loop");
+                    }
+                }));
+
+                await Task.Delay(TimeSpan.FromSeconds(SecondsDelay), token).ConfigureAwait(false);
             }
 
             this.Stopped?.Invoke(this, EventArgs.Empty);
@@ -169,4 +199,5 @@ namespace Orbit.Util
 
         #endregion Implementation of IDisposable
     }
+
 }

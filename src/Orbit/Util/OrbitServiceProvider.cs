@@ -1,12 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Runtime.ExceptionServices;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Orbit.Data;
-using System;
-using System.Linq;
-using System.Reflection;
+using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
 using Orbit.Components;
-using System.Resources;
-using Orbit.Models;
+using Orbit.Data;
 
 namespace Orbit.Util
 {
@@ -35,6 +34,7 @@ namespace Orbit.Util
             return prov;
         }
 
+
         private void RegisterServices(IServiceCollection services)
         {
             /* Registering "open" types allows the provider to map the requested type parameter appropriately,
@@ -43,24 +43,33 @@ namespace Orbit.Util
              * services.AddScoped(typeof(IMonitoredComponent<>), typeof(MonitoredComponent<>));
              * services.AddScoped(typeof(MonitoredComponent<>));
              */
-
-            // This is how you can register a concrete implementation
-            // With only one valid report type (BatteryReport), the following is equivalent to the above commented out code
-            services.AddScoped<IMonitoredComponent<BatteryReport>, BatteryComponent>();
+            services.AddScoped(typeof(MonitoredComponent<>));
+            services.AddScoped(typeof(IMonitoredComponent<>), typeof(MonitoredComponent<>));
 
             // Another way could be just directly registering the concrete class
             //services.AddScoped<BatteryComponent>();
 
             // Allow the singleton instance of the event monitor to be retrieved by the service provider if desired
             services.AddSingleton(_ => EventMonitor.Instance);
+            services.AddSingleton(_ => DataGenerator.Instance);
 
             //TODO: Replace the following with actual database implementation when ready
             services.AddDbContext<OrbitDbContext>(o =>
             {
                 o.UseInMemoryDatabase("OrbitDb");
             });
+
+            // Reroutes EF Core logs to go through NLog
+            services.AddLogging(b =>
+            {
+                b.ClearProviders();
+                // Capture all logs into NLog, let the config file decide what to do about them.
+                b.SetMinimumLevel(LogLevel.Trace);
+                b.AddNLog();
+            });
+
         }
-        
+
         object? IServiceProvider.GetService(Type serviceType) => this._provider.GetService(serviceType);
     }
 }

@@ -38,7 +38,7 @@ csharp_preserve_single_line_blocks = true
 #Style - expression bodied member options
 csharp_style_expression_bodied_accessors = true:suggestion
 csharp_style_expression_bodied_constructors = true:silent
-csharp_style_expression_bodied_methods = true:suggestion
+csharp_style_expression_bodied_methods = true:silent
 csharp_style_expression_bodied_operators = true:suggestion
 csharp_style_expression_bodied_properties = true:suggestion
 
