@@ -1,11 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 
 namespace Orbit.Models
 {
     public class WasteWaterStorageTankData : IAlertableModel
     {
+        /// <summary>
+        /// The name of the component.
+        /// </summary>
+        [NotMapped]
+        public string ComponentName => "WasteWaterStorageTank";
+
         public DateTimeOffset ReportDateTime { get; set; } = DateTimeOffset.Now;
 
         /// <summary>
@@ -19,29 +26,43 @@ namespace Orbit.Models
         /// </summary>
         public double Level { get; set; }
 
-        IEnumerable<Alert> IAlertableModel.GenerateAlerts()
+        // Sample helper method
+        private IEnumerable<Alert> GetLevels()
         {
             if (Level >= 100)
             {
-                yield return new Alert(nameof(Level), "Waste Water storage tank overflowing", AlertLevel.HighError);
+                yield return new Alert(nameof(Level), "Tank overflowing", AlertLevel.HighError);
             }
             else if (Level >= 70)
             {
-                yield return new Alert(nameof(Level), "Waste Water storage tank water level high", AlertLevel.HighWarning);
+                yield return new Alert(nameof(Level), "Water level high", AlertLevel.HighWarning);
             }
             else if (Level <= 0)
             {
-                yield return new Alert(nameof(Level), "Waste Water storage tank water level very low", AlertLevel.HighError);
+                yield return new Alert(nameof(Level), "Water level very low", AlertLevel.HighError);
             }
             else if (Level < 5)
             {
-                yield return new Alert(nameof(Level), "Waste Water storage tank water level low", AlertLevel.LowWarning);
+                yield return new Alert(nameof(Level), "Water level low", AlertLevel.LowWarning);
             }
             else
             {
                 yield return Alert.Safe(nameof(Level));
             }
         }
+
+        private IEnumerable<Alert> GetOtherAlerts()
+        {
+            yield break; // Equivalent to an empty collection
+        }
+
+        IEnumerable<Alert> IAlertableModel.GenerateAlerts()
+        {
+            // Example of how to enumerate helper methods
+            return GetLevels().Concat(GetOtherAlerts()).Concat(GetOtherAlerts());
+        }
+
+        #region Equality members
 
         public override bool Equals(object obj)
         {
@@ -57,14 +78,6 @@ namespace Orbit.Models
             return HashCode.Combine(TankId, Level);
         }
 
-        #region Implementation of IModuleComponent
-
-        /// <summary>
-        /// The name of the component.
-        /// </summary>
-        [NotMapped]
-        public string ComponentName => "WasteWaterStorageTank";
-
-        #endregion Implementation of IModuleComponent
+        #endregion Equality members
     }
 }
