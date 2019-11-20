@@ -21,8 +21,23 @@ namespace Orbit.Models
 
         public IEnumerable<Alert> GenerateAlerts()
         {
-            //TODO: Implement
-            yield break;
+            if(Level >= 100)
+            {
+                yield return new Alert(nameof(Level), "Waste Water storage tank overflowing", AlertLevel.HighError);
+            }
+            else if (Level > 80)
+            {
+                yield return new Alert(nameof(Level), "Waste Water storage tank water level high", AlertLevel.HighWarning);
+            }
+
+            if (Level <= 0)
+            {
+                yield return new Alert(nameof(Level), "Waste Water storage tank water level very low", AlertLevel.HighError);
+            }
+            else if (Level < 5)
+            {
+                yield return new Alert(nameof(Level), "Waste Water storage tank water level low", AlertLevel.LowWarning);
+            }
         }
 
         #region Implementation of IModuleComponent

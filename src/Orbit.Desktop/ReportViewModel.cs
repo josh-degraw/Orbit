@@ -10,13 +10,14 @@ namespace Orbit.Desktop
             return new ReportViewModel<T>(report.ComponentName, report);
         }
     }
+
     public class ReportViewModel<T> : ViewModelBase where T: IModel
     {
         public ReportViewModel(string componentName, T report)
         {
             this.ComponentName = componentName;
             this.CurrentReport = report;
-            this.ReportDate = report.ReportDateTime
+            this.ReportDate = report.ReportDateTime;
         }
         
         private DateTimeOffset _reportDate;
