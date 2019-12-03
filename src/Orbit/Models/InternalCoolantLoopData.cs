@@ -9,7 +9,7 @@ namespace Orbit.Models
 {
     public class InternalCoolantLoopData : IAlertableModel
     {
-        public DateTimeOffset DateTime { get; set; }
+        public DateTimeOffset ReportDateTime { get; set; } = DateTimeOffset.Now;
 
         /// <summary>
         /// basically on/off/failure(on by not working)
@@ -32,7 +32,7 @@ namespace Orbit.Models
 
 
         [NotMapped]
-        public string ComponentName = "InternalCoolantSystem";
+        public string ComponentName => "InternalCoolantSystem";
 
         [NotMapped]
         private double _alertTolerance = 5;
@@ -68,7 +68,7 @@ namespace Orbit.Models
             }
             else
             {
-                yield return new Alert.Safe(nameof(TempLowCoolantLoop));
+                yield return Alert.Safe(nameof(TempLowCoolantLoop));
                 PumpOn = true;
             }
         }
@@ -97,7 +97,7 @@ namespace Orbit.Models
             }
             else
             {
-                yield return new Alert.Safe(nameof(TempMedCoolantLoop));
+                yield return Alert.Safe(nameof(TempMedCoolantLoop));
                 PumpOn = true;
             }
         }

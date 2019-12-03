@@ -7,9 +7,9 @@ using System.Linq;
 
 namespace Orbit.Models
 {
-    public class ExternalCoolantLooop : IAlertableModel
+    public class ExternalCoolantLoopData : IAlertableModel
     {
-        public DateTimeOffset DateTime { get; set; }
+        public DateTimeOffset ReportDateTime { get; set; } = DateTimeOffset.Now;
 
         /// <summary>
         /// basically on/off/failure(on by not working)
@@ -48,7 +48,7 @@ namespace Orbit.Models
         public int TankLevel { get; set; }
 
 
-        public string ComponentName = "ExternalCoolantSystem";
+        public string ComponentName => "ExternalCoolantSystem";
 
         [NotMapped]
         int radiatorRotationUpperAlarm = 215;
@@ -76,7 +76,7 @@ namespace Orbit.Models
             }
             else
             {
-                yield return new Alert.Safe(nameof(RadiatorRotation));
+                yield return Alert.Safe(nameof(RadiatorRotation));
             }
         }
 
@@ -111,7 +111,7 @@ namespace Orbit.Models
             }
             else
             {
-                yield return new Alert.Safe(nameof(FluidLinePressure));
+                yield return Alert.Safe(nameof(FluidLinePressure));
                 PumpOn = true;
             }
         }
@@ -146,7 +146,7 @@ namespace Orbit.Models
             }
             else
             {
-                yield return new Alert.Safe(nameof(TempFluidToHeatExchanger));
+                yield return Alert.Safe(nameof(TempFluidToHeatExchanger));
                 LineHeaterOn = false;
             }
 
@@ -166,7 +166,7 @@ namespace Orbit.Models
             }
             else
             {
-                yield return new Alert.Safe(nameof(TankLevel));
+                yield return Alert.Safe(nameof(TankLevel));
             }
         }
 
