@@ -17,7 +17,7 @@ namespace Orbit.Tests.Util
         {
             using var scope = OrbitServiceProvider.Instance.CreateScope();
 
-            var service = scope.ServiceProvider.GetService<IMonitoredComponent<BatteryReport>>();
+            var service = scope.ServiceProvider.GetService<IMonitoredComponent<WaterProcessorData>>();
             service.Should().NotBeNull();
         }
     }

@@ -1,11 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using System.Runtime.ExceptionServices;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Orbit.Data;
-using System;
-using System.Linq;
-using System.Reflection;
+using Microsoft.Extensions.Logging;
+using NLog.Extensions.Logging;
 using Orbit.Components;
-using System.Resources;
+using Orbit.Data;
 
 namespace Orbit.Util
 {
@@ -18,14 +18,12 @@ namespace Orbit.Util
             this._provider = this.Build();
         }
 
-        public string LanguageCulture { get; set; } = "en-US";
-
         private static readonly Lazy<OrbitServiceProvider> _instance = new Lazy<OrbitServiceProvider>(() => new OrbitServiceProvider());
 
         public static IServiceProvider Instance => _instance.Value;
-        
+
         public static event EventHandler<IServiceCollection>? OnRegisteringServices;
-        
+
         private IServiceProvider Build()
         {
             var services = new ServiceCollection();
@@ -36,23 +34,40 @@ namespace Orbit.Util
             return prov;
         }
 
-        public static ResourceManager ResourceManager => Instance.GetService<ResourceManager>();
 
         private void RegisterServices(IServiceCollection services)
         {
-            // Registering "open" types allows the provider to map the requested type parameter appropriately, assuming it exists in the database
-            services.AddScoped(typeof(IMonitoredComponent<>), typeof(MonitoredComponent<>));
+            /* Registering "open" types allows the provider to map the requested type parameter appropriately,
+             * assuming it exists in the database
+             *
+             * services.AddScoped(typeof(IMonitoredComponent<>), typeof(MonitoredComponent<>));
+             * services.AddScoped(typeof(MonitoredComponent<>));
+             */
             services.AddScoped(typeof(MonitoredComponent<>));
+            services.AddScoped(typeof(IMonitoredComponent<>), typeof(MonitoredComponent<>));
 
+            // Another way could be just directly registering the concrete class
+            //services.AddScoped<BatteryComponent>();
+
+            // Allow the singleton instance of the event monitor to be retrieved by the service provider if desired
             services.AddSingleton(_ => EventMonitor.Instance);
-
-            services.AddSingleton(_ => new ResourceManager(LanguageCulture, Assembly.GetExecutingAssembly()));
+            services.AddSingleton(_ => DataGenerator.Instance);
 
             //TODO: Replace the following with actual database implementation when ready
             services.AddDbContext<OrbitDbContext>(o =>
             {
                 o.UseInMemoryDatabase("OrbitDb");
             });
+
+            // Reroutes EF Core logs to go through NLog
+            services.AddLogging(b =>
+            {
+                b.ClearProviders();
+                // Capture all logs into NLog, let the config file decide what to do about them.
+                b.SetMinimumLevel(LogLevel.Trace);
+                b.AddNLog();
+            });
+
         }
 
         object? IServiceProvider.GetService(Type serviceType) => this._provider.GetService(serviceType);

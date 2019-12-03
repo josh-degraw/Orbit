@@ -8,74 +8,55 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 
 using Orbit.Data;
-using Orbit.Models;
 using Orbit.Util;
 
 namespace Orbit.Components
 {
-    public class MonitoredComponent<T> : IMonitoredComponent<T>, IMonitoredComponent
-        where T : class, IBoundedReport
+    public class MonitoredComponent<T> : IMonitoredComponent<T>
+        where T : class, IModel
     {
         private readonly Lazy<string> _componentName;
 
         public string ComponentName => _componentName.Value;
 
-        private readonly OrbitDbContext _database;
+        protected OrbitDbContext Database { get; }
 
         public MonitoredComponent(OrbitDbContext db)
         {
-            this._database = db;
-            _componentName = new Lazy<string>(() => _database.Set<T>().AsNoTracking().Select(r => r.ReportType).First());
+            this.Database = db;
+            _componentName = new Lazy<string>(() => this.Database.Set<T>().AsNoTracking().Select(r => r.ComponentName).First());
         }
 
-        async ValueTask<IBoundedReport?> IMonitoredComponent.GetLatestReportAsync() => await this.GetLatestReportAsync().ConfigureAwait(false);
-
-        IAsyncEnumerable<IBoundedReport> IMonitoredComponent.GetReportsAsync(int? maxResults, CancellationToken cancellationToken)
+        public virtual async ValueTask<IReadOnlyCollection<T>> GetReportsAsync(int? maxResults = 10, CancellationToken cancellationToken = default)
         {
-            return this.GetReportsAsync(maxResults, cancellationToken);
-        }
-
-        public async IAsyncEnumerable<T> GetReportsAsync(int? maxResults = 10, [EnumeratorCancellation] CancellationToken cancellationToken = default)
-        {
-            IQueryable<T> query = _database.Set<T>().AsNoTracking();
+            IQueryable<T> query = this.Database.Set<T>();
 
             if (maxResults != null)
                 query = query.Take(maxResults.Value);
-
-            await foreach (T item in query.ToAsyncEnumerable().WithCancellation(cancellationToken))
-            {
-                yield return item;
-            }
+            
+            return await query.ToListAsync(cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
         /// Asynchronously returns the latest available report of type <typeparamref name="T"/> available.
         /// </summary>
-        public async ValueTask<T?> GetLatestReportAsync()
+        public async ValueTask<T?> GetLatestReportAsync(CancellationToken cancellationToken = default)
         {
-            var set = this._database.Set<T>();
-            T? val = await set.AsNoTracking().LastOrDefaultAsync().ConfigureAwait(false);
+            var set = this.Database.Set<T>();
+            T? val = await set.AsNoTracking().LastOrDefaultAsync(cancellationToken).ConfigureAwait(false);
 
             return val;
         }
 
-        public Task<Limit> GetComponentValueLimitAsync() => this._database.Set<T>().AsNoTracking().Include(r => r.Limit).Select(r => r.Limit!).FirstAsync();
+        #region Explicit implementation for simplification of EventMonitor
 
+        async ValueTask<IModel?> IMonitoredComponent.GetLatestReportAsync(CancellationToken cancellationToken) => await this.GetLatestReportAsync(cancellationToken).ConfigureAwait(false);
 
-        public virtual async IAsyncEnumerable<CurrentValueReport> BuildCurrentValueReport([EnumeratorCancellation] CancellationToken cancellationToken = default)
+        async ValueTask<IReadOnlyCollection<IModel>> IMonitoredComponent.GetReportsAsync(int? maxResults, CancellationToken cancellationToken)
         {
-            Limit limit = await this.GetComponentValueLimitAsync().ConfigureAwait(false);
-            T? report = await this.GetLatestReportAsync().ConfigureAwait(false);
-
-            if (report == null)
-                yield break;
-
-            //throw Exceptions.NoDataFound();
-
-            var boundedValue = BoundedValue.Create(report.CurrentValue, limit);
-
-            yield return new CurrentValueReport(this.ComponentName, report, boundedValue);
+            return await this.GetReportsAsync(maxResults, cancellationToken).ConfigureAwait(false);
         }
 
+        #endregion Explicit implementation for simplification of EventMonitor
     }
 }

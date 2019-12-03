@@ -4,6 +4,9 @@ using Microsoft.EntityFrameworkCore;
 using Orbit.Models;
 
 using System;
+using System.Linq;
+using Microsoft.EntityFrameworkCore.Metadata.Builders;
+using System.Threading.Tasks;
 
 namespace Orbit.Data
 {
@@ -13,9 +16,22 @@ namespace Orbit.Data
         {
         }
 
-        public DbSet<Limit> Limits { get; set; }
+        public DbSet<UrineSystemData> UrineProcessorData { get; set; }
 
-        public DbSet<BatteryReport> BatteryReports { get; set; }
+        public DbSet<WaterProcessorData> WaterProcessorData { get; set; }
+
+        public DbSet<WasteWaterStorageTankData> WasteWaterStorageTankData { get; set; }
+
+        public DbSet<Atmosphere> CabinAtmosphereData { get; set; }
+
+        public DbSet<OxygenGenerator> OxygenGeneratorData { get; set; }
+
+        public DbSet<CarbonDioxideRemediation> CarbonDioxideRemoverData { get; set; }
+        
+        public DbSet<Battery> BatteryData { get; set; }
+        public DbSet<Radiator> RadiatorData { get; set; }
+        public DbSet<ShuntUnit> ShuntUnitData { get; set; }
+        public DbSet<SolarArray> SolarArrayData { get; set; }
 
         public DbSet<InternalCoolantLoop> InternalCoolantLoop { get; set; }
 
@@ -23,39 +39,63 @@ namespace Orbit.Data
 
         public void InsertSeedData()
         {
-            var lim = new Limit(Guid.NewGuid(), 400, 300, 50);
+            //TODO: Use NSubstitute for generating random seed data
+            this.UrineProcessorData.Add(new UrineSystemData {
+                BrineTankLevel = 5,
+                DistillerSpeed = 20,
+                DistillerTemp = 20,
+                FluidControlPump = "Ok",
+                ProcessorId = "Main",
+                PurgePump = "Online",
+                SystemStatus = "Ready",
+                UrineTankLevel = 40,
+            });
+            this.WasteWaterStorageTankData.Add(new WasteWaterStorageTankData {
+                TankId = "Main",
+                Level = 30,
+            });
 
-            this.Limits.Add(lim);
-            this.BatteryReports.Add(new BatteryReport(DateTimeOffset.Now, 360) { Limit = lim });
+            this.WaterProcessorData.Add(new WaterProcessorData {
+                CatalyticReactorTemp = 15,
+                DeliveryPump ="Carbonated",
+                PostFilterContaminateSensor = "Activated",
+                PreHeaterTemp= 20,
+                ProductTankLevel = 80.5,
+                ProcessorId = "Main",
+                ReactorHealthSensor = "Healthy",
+                ReprocessDiverterValve = "Active",
+                SupplyPump = "Supplied",
+                SystemStatus= "Ready",
+            });
             this.SaveChanges();
+        }
+
+        private static void MapModelCommonProps<T>(EntityTypeBuilder<T> e) where T : class, IModel
+        {
+            e.Property<Guid>("Id").ValueGeneratedOnAdd();
+            e.HasKey("Id");
+
+            e.Property(p => p.ReportDateTime).ValueGeneratedOnAdd();
+            e.HasAlternateKey(p => p.ReportDateTime);
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            if (modelBuilder == null) throw new ArgumentNullException(nameof(modelBuilder));
-            modelBuilder.Entity<Limit>(e =>
-            {
-                // Members like this one are "shadow" properties that are represented in the database, but we don't need
-                // to define as visible class members
-                e.Property<Guid>("Id").ValueGeneratedOnAdd();
-                e.HasKey("Id");
-            });
+            if (modelBuilder == null)
+                throw new ArgumentNullException(nameof(modelBuilder));
 
-            modelBuilder.Entity<ReportBase>(e =>
-            {
-                e.Property<Guid>("Id").ValueGeneratedOnAdd();
-                e.HasKey("Id");
-                
-                e.HasOne(d => d.Limit).WithMany().HasForeignKey("LimitId");
-
-                e.Property(p => p.ReportDateTime).ValueGeneratedOnAdd();
-                e.HasAlternateKey(p => p.ReportDateTime);
-            });
-
-            modelBuilder.Entity<BatteryReport>(e =>
-            {
-                e.HasBaseType<ReportBase>();
-            });
+            // Do this for all of these so we don't need to worry about defining the ids in code
+            modelBuilder.Entity<UrineSystemData>(MapModelCommonProps);
+            modelBuilder.Entity<WaterProcessorData>(MapModelCommonProps);
+            modelBuilder.Entity<WasteWaterStorageTankData>(MapModelCommonProps);
+            modelBuilder.Entity<Atmosphere>(MapModelCommonProps);
+            modelBuilder.Entity<CarbonDioxideRemediation>(MapModelCommonProps);
+            modelBuilder.Entity<OxygenGenerator>(MapModelCommonProps);
+            modelBuilder.Entity<Battery>(MapModelCommonProps);
+            modelBuilder.Entity<Radiator>(MapModelCommonProps);
+            modelBuilder.Entity<SolarArray>(MapModelCommonProps);
+            modelBuilder.Entity<ShuntUnit>(MapModelCommonProps);
         }
+
     }
 }
