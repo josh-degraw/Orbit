@@ -7,7 +7,7 @@ namespace Orbit.Models
     public class OxygenGenerator : IAlertableModel
     {
         [NotMapped]
-        public string ComponentName => "CarbonDioxideRemediation";
+        public string ComponentName => "OxygenGenerator";
 
         public DateTimeOffset ReportDateTime { get; set; } = DateTimeOffset.Now;
 
@@ -17,32 +17,43 @@ namespace Orbit.Models
         public string OxygenGeneratorStatus { get; set; }
 
         /// <summary>
-        /// seperats water from hydrogen. vents to carbon dioxide remediator, excess vents to space
+        /// sensor that checks for bubbles in inflow water, water is sent back to water processor if bubbles are present
         /// </summary>
-        public string RotarySeperatorStatus { get; set; }
+        public bool BubblesPresent { get; set; }
 
         /// <summary>
-        /// elctrolysis unit responsible for seperating water into oxygen (vent to cabin) and hydrogen (used for CO2
-        /// remediation, excess vented to space)
+        /// switches water from going to reaction to water processor if bubbles are present
         /// </summary>
-        public double CellStackVoltage { get; set; }
+        public DiverterValvePositions DiverterValvePosition { get; set; }
+        
+        /// <summary>
+        /// checks if hydrogen is present in product oxygen flow, if yes then there is a problem in the system and it 
+        /// shuts down
+        /// </summary>
+        public bool HydrogeninOxygenFlow { get; set; }
 
-        public double RecirculationFlowPressure { get; set; }
+        /// <summary>
+        /// seperates hydrogen from water outflow, water is recirculated back into water generator
+        /// hydrogen is sent to water generator or vented to space
+        /// </summary>
+        public bool RotarySeperatorOn { get; set; }
 
         /// <summary>
         /// circulates water from clean water feed and rotary seperator to electrolysis cell stack
         /// </summary>
-        public string RecirculationPumpStatus { get; set; }
+        public bool RecirculationPumpOn { get; set; }
 
-        /// <summary>
-        /// 'ACTEX' unit, balances pH of recirculating water
-        /// </summary>
-        public string PhBalancerStatus { get; set; }
-
-        /// <summary>
-        /// pH of water after leaving the pH balancing ACTEX unit
-        /// </summary>
-        public double RecirculatingWaterPhLevel { get; set; }
+        private IEnumerable<Alert> CheckHydrogeninOxygenFlow()
+        {
+            if (HydrogeninOxygenFlow)
+            {
+                yield return new Alert(nameof(OxygenGenerator), "Hydrogen detected in outflow", AlertLevel.HighError);
+            }
+            else
+            {
+                yield return Alert.Safe(nameof(OxygenGenerator));
+            }
+        }
 
         IEnumerable<Alert> IAlertableModel.GenerateAlerts()
         {
