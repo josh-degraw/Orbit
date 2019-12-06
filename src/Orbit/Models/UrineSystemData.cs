@@ -22,7 +22,9 @@ namespace Orbit.Models
         public int UrineTankLevel { get; set; }
 
         [NotMapped]
-        public int urineTankUpperAlarm = 100;
+        public int urineTankUpperLimit = 100;
+        [NotMapped]
+        public int urineTankLevelTolerance = 5;
 
         /// <summary>
         /// status of pump assembly used to pull fluid from weewee tank to the distiller assembly then from distiller
@@ -42,9 +44,11 @@ namespace Orbit.Models
         public int DistillerSpeed { get; set; }
         
         [NotMapped]
-        public int DistillerSpeedUpperAlarm = 1300;
+        public int distillerSpeedUpperLimit = 1300;
         [NotMapped]
-        public int DistillerSpeedLowerAlarm = 1100;
+        public int distillerSpeedLowerLimit = 1100;
+        [NotMapped]
+        public int distillerSpeedTolerance = 100;
 
         /// <summary>
         /// Temp of weewee in the distiller; nominal 45C
@@ -53,9 +57,11 @@ namespace Orbit.Models
         public double DistillerTemp { get; set; }
         
         [NotMapped]
-        public double DistillerTempUpperAlarm = 50;
+        public double distillerTempUpperLimit = 55;
         [NotMapped]
-        public double DistillerTempLowerAlarm = 40;
+        public double distillerTempLowerlimit = 35;
+        [NotMapped]
+        public double distillerTempTolerance = 5;
 
         /// <summary>
         /// routes distillate and gasses from distiller to gas/liquid seperator cooled assembly aids condensation of
@@ -71,20 +77,20 @@ namespace Orbit.Models
         public int BrineTankLevel { get; set; }
 
         [NotMapped]
-        public int BrineTankLevelUpperAlarm = 100;
+        public int brineTankLevelUpperLimit = 100;
+        [NotMapped]
+        public int brineTankLevelTolerance = 5; 
 
 
         #region CheckValueMethods
         private IEnumerable<Alert> CheckUrineTankLevel()
         {
-            if(UrineTankLevel >= 100)  // system should start/be processing if wastetank < 95%, else shut down 
+            if(UrineTankLevel >= urineTankUpperLimit)  // system should start/be processing if wastetank < 95%, else shut down 
             {
-                // TODO: system start
                 yield return new Alert(nameof(UrineTankLevel), "Urine tank level is at capacity", AlertLevel.HighError);                
             }
-            else if(UrineTankLevel >= 95) 
+            else if(UrineTankLevel >= (urineTankUpperLimit - urineTankLevelTolerance)) 
             {
-                // TODO: system start
                 yield return new Alert(nameof(UrineTankLevel), "Urine tank level is nearing capacity", AlertLevel.HighWarning);
             }
             else
@@ -95,23 +101,23 @@ namespace Orbit.Models
 
         IEnumerable<Alert> CheckDistillerSpeed()
         {
-            if (DistillerSpeed >= 1300)
+            if (DistillerSpeed >= distillerSpeedUpperLimit)
             {
                 //TODO: shut down system
                 yield return new Alert(nameof(DistillerSpeed), "Distiller speed above maximum", AlertLevel.HighError);
             }
-            else if (DistillerSpeed > 1250)
+            else if (DistillerSpeed > (distillerSpeedUpperLimit - distillerSpeedTolerance))
             {
                 yield return new Alert(nameof(DistillerSpeed), "Distiller speed is too high", AlertLevel.HighWarning);
             }
-            else if (DistillerOn && (DistillerSpeed < 1150))
+            else if (DistillerOn && (DistillerSpeed < distillerSpeedLowerLimit))
             {
-                yield return new Alert(nameof(DistillerSpeed), "Distiller speed is too low", AlertLevel.LowWarning);
+                yield return new Alert(nameof(DistillerSpeed), "Distiller speed is below minimum", AlertLevel.LowError);
             }
-            else if (DistillerOn && (DistillerSpeed <= 1100))
+            else if (DistillerOn && (DistillerSpeed <= (distillerSpeedLowerLimit + distillerSpeedTolerance)))
             {
                 // TODO: shut down system
-                yield return new Alert(nameof(DistillerSpeed), "Distiller speed is below minimum", AlertLevel.LowError);
+                yield return new Alert(nameof(DistillerSpeed), "Distiller speed is too low", AlertLevel.LowWarning);
             }
             else
             {
@@ -121,23 +127,21 @@ namespace Orbit.Models
 
         IEnumerable<Alert> CheckDistillerTemp()
         {
-            if (DistillerTemp >= 50)
+            if (DistillerTemp >= distillerTempUpperLimit)
             {
-                //TODO: shut down system
                 yield return new Alert(nameof(DistillerTemp), "Distiller temp above maximum", AlertLevel.HighError);
             }
-            else if (DistillerTemp > 45.5)
+            else if (DistillerTemp > (distillerTempUpperLimit - distillerTempTolerance))
             {
                 yield return new Alert(nameof(DistillerTemp), "Distiller temp is too high", AlertLevel.HighWarning);
             }
-            else if (DistillerOn && (DistillerTemp < 45.5))
+            else if (DistillerOn && (DistillerTemp < distillerTempLowerlimit))
             {
-                yield return new Alert(nameof(DistillerTemp), "Distiller temp is too low", AlertLevel.LowWarning);
+                yield return new Alert(nameof(DistillerTemp), "Distiller temp is below minimum", AlertLevel.LowError);
             }
-            else if (DistillerOn && (DistillerTemp <= 40))
+            else if (DistillerOn && (DistillerTemp <= (distillerTempLowerlimit + distillerTempTolerance)))
             {   
-                // TODO: shut down system
-                yield return new Alert(nameof(DistillerTemp), "Distiller Temp is below minimum", AlertLevel.LowError);
+                yield return new Alert(nameof(DistillerTemp), "Distiller Temp is too low", AlertLevel.LowWarning);
             }
             else
             {
@@ -147,12 +151,12 @@ namespace Orbit.Models
 
         private IEnumerable<Alert> CheckBrineTankLevel()
         {
-            if(BrineTankLevel >= 100)
+            if(BrineTankLevel >= brineTankLevelUpperLimit)
             {
                 // TODO: shut down system
                 yield return new Alert(nameof(BrineTankLevel), "Brine tank is at capacity", AlertLevel.HighError);
             }
-            else if(BrineTankLevel >= 95)
+            else if(BrineTankLevel >= (brineTankLevelUpperLimit - brineTankLevelTolerance))
             {
                 yield return new Alert(nameof(BrineTankLevel), "Brine tank is nearing capacity", AlertLevel.HighWarning);
             }

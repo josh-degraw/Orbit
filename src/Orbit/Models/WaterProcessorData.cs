@@ -40,11 +40,12 @@ namespace Orbit.Models
         public double PostHeaterTemp { get; set; }
 
         [NotMapped]
-        public double PostHeaterTempNominal = 130.5;
+        public double postHeaterTempUpperLimit = 130.5;
         [NotMapped]
-        public double PostHeaterTempUpperAlarm = 135.5;
+        public double postHeaterTempLowerLimit = 120.5;
         [NotMapped]
-        public double PostHeaterTempLowerAlarm = 125.5;
+        public double postHeaterTempTolerance = 5;
+
 
         /// <summary>
         /// this is a sensor(s) which is assumed will provide detailed water quality info on Gateway. 
@@ -64,21 +65,19 @@ namespace Orbit.Models
         public int ProductTankLevel { get; set; }
 
         [NotMapped]
-        public int ProductTankLevelUpperAlarm = 100;
+        public int productTankLevelUpperLimit = 100;
+        [NotMapped]
+        public int productTankLevelTolerance = 5;
 
         
         #region ValueCheckMethods
         private IEnumerable<Alert> CheckProductTankLevel()
         {
-            if(ProductTankLevel >= 100)
+            if(ProductTankLevel >= productTankLevelUpperLimit)
             {
-                PumpOn = false;
-                HeaterOn = false;
-                DiverterValvePosition = DiverterValvePositions.Reprocess;
-                SystemStatus = SystemStatus.Trouble;
                 yield return new Alert(nameof(ProductTankLevel), "Clean water tank is at capacity", AlertLevel.HighError);
             }
-            else if(ProductTankLevel >= 95)
+            else if(ProductTankLevel >= (productTankLevelUpperLimit -  productTankLevelTolerance))
             {
                 yield return new Alert(nameof(ProductTankLevel), "Clean water tank is nearing capacity", AlertLevel.HighWarning);
             }
@@ -101,25 +100,21 @@ namespace Orbit.Models
             
         private IEnumerable<Alert> CheckPostHeaterTemp()
         {
-            if(PostHeaterTemp >= 135.5)
+            if(PostHeaterTemp >= postHeaterTempUpperLimit)
             {
-                // TODO: system shutdown
                 yield return new Alert(nameof(PostHeaterTemp), "Pre reactor water temp is above maximum", AlertLevel.HighError);
             }
-            else if(PostHeaterTemp >= 133)
+            else if(PostHeaterTemp >= (postHeaterTempUpperLimit - postHeaterTempTolerance))
             {
-                HeaterOn = false;
                 yield return new Alert(nameof(PostHeaterTemp), "Pre reactor water temp is too high", AlertLevel.HighWarning);
 
             }
-            else if(PostHeaterTemp <= 125.5)
+            else if(PostHeaterTemp <= postHeaterTempLowerLimit)
             {
-                HeaterOn = true;
                 yield return new Alert(nameof(PostHeaterTemp), "Pre reactor water temp is below minimum", AlertLevel.LowError);
             }
-            else if(PostHeaterTemp <= 128)
+            else if(PostHeaterTemp <= (postHeaterTempLowerLimit + postHeaterTempTolerance))
             {
-                // TODO: system shutdown
                 yield return new Alert(nameof(PostHeaterTemp), "Pre reactor water temp is too low", AlertLevel.LowWarning);
             }
             else
@@ -132,12 +127,10 @@ namespace Orbit.Models
         {
             if(PostReactorQualityOK == true)
             {
-                DiverterValvePosition = DiverterValvePositions.ToStorage;
                 yield return Alert.Safe(nameof(PostReactorQualityOK));
             }
             else
             {
-                DiverterValvePosition = DiverterValvePositions.Reprocess;
                 yield return new Alert(nameof(PostReactorQualityOK), "Post reactor water quality is below limit(s). Reprocessing", AlertLevel.HighWarning);
             }
         }
