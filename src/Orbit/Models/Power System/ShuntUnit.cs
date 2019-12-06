@@ -51,11 +51,11 @@ namespace Orbit.Models
             }
             else if (VoltageReducerOutput < voltageReducerOutputLowerLimit)
             {
-                yield return new Alert(nameof(VoltageReducerOutput), "Voltage reducer output has exceeded minimum allowed voltage", AlertLevel.HighError);
+                yield return new Alert(nameof(VoltageReducerOutput), "Voltage reducer output has exceeded minimum allowed voltage", AlertLevel.LowError);
             }
             else if (VoltageReducerOutput <= (voltageReducerOutputLowerLimit + voltageReducerOutputTolerance))
             {
-                yield return new Alert(nameof(VoltageReducerOutput), "Voltage reducer output is low", AlertLevel.HighWarning);
+                yield return new Alert(nameof(VoltageReducerOutput), "Voltage reducer output is low", AlertLevel.LowWarning);
             }
             else
             {

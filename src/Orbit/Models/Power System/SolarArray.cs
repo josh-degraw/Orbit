@@ -34,11 +34,11 @@ namespace Orbit.Models
         [NotMapped]
         public double solarArrayVoltageTolerance = 5;
 
-        //In Kilowatts      
+        //In Kilowatts       What is this for?
         public double Power { get; set; }
 
         /// <summary>
-        /// True f array is extened, false if not
+        /// True if array is extened, false if not
         /// </summary>
         public bool Deployed { get; set; }
 
@@ -59,11 +59,11 @@ namespace Orbit.Models
             }
             else if (SolarArrayRotation < solarArrayRotationUpperLimit)
             {
-                yield return new Alert(nameof(SolarArrayRotation), "Solar Array Rotation has exceeded maximum available rotation", AlertLevel.HighError);
+                yield return new Alert(nameof(SolarArrayRotation), "Solar Array Rotation has exceeded maximum available rotation", AlertLevel.LowError);
             }
             else if (SolarArrayRotation <= (solarArrayRotationUpperLimit + solarArrayRotationTolerance))
             {
-                yield return new Alert(nameof(SolarArrayRotation), "Solar Array Rotation has exceeded allowed rotation", AlertLevel.HighWarning);
+                yield return new Alert(nameof(SolarArrayRotation), "Solar Array Rotation has exceeded allowed rotation", AlertLevel.LowWarning);
             }
             else
             {
@@ -83,11 +83,11 @@ namespace Orbit.Models
             }
             else if (SolarArrayVoltage < solarArrayVoltageUpperLimit)
             {
-                yield return new Alert(nameof(SolarArrayVoltage), "Solar array voltage has exceeded maximum available rotation", AlertLevel.HighError);
+                yield return new Alert(nameof(SolarArrayVoltage), "Solar array voltage has exceeded maximum available rotation", AlertLevel.LowError);
             }
             else if (SolarArrayVoltage <= (solarArrayVoltageUpperLimit + solarArrayVoltageTolerance))
             {
-                yield return new Alert(nameof(SolarArrayVoltage), "Solar array voltage has exceeded allowed rotation", AlertLevel.HighWarning);
+                yield return new Alert(nameof(SolarArrayVoltage), "Solar array voltage has exceeded allowed rotation", AlertLevel.LowWarning);
             }
             else
             {

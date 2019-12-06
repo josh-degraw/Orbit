@@ -32,7 +32,7 @@ namespace Orbit.Models
         public int FluidTemperature { get; set; }
 
         [NotMapped]
-        public double FluidTemperatureUpperLimit = 18.22;
+        public double fluidTemperatureUpperLimit = 18.22;
         [NotMapped]
         public double fluidTemperatureLowerLimit = 1.67;
         [NotMapped]
@@ -67,6 +67,7 @@ namespace Orbit.Models
         /// </summary>
         [Range(0, 100)]
         public int TankLevel { get; set; }
+
         [NotMapped]
         int tankLevelUpperLimit = 95;
         [NotMapped]
@@ -89,11 +90,11 @@ namespace Orbit.Models
             }
             else if (Rotation < radiatorRotationLowerLimit)
             {
-                yield return new Alert(nameof(Rotation), "Coolant radiator has exceeded minimum available rotation", AlertLevel.HighError);
+                yield return new Alert(nameof(Rotation), "Coolant radiator has exceeded minimum available rotation", AlertLevel.LowError);
             }
             else if (Rotation <= (radiatorRotationLowerLimit + radiatorRotationTolerance))
             {
-                yield return new Alert(nameof(Rotation), "Coolant radiator has exceeded allowed rotation", AlertLevel.HighWarning);
+                yield return new Alert(nameof(Rotation), "Coolant radiator has exceeded allowed rotation", AlertLevel.LowWarning);
             }
             else
             {
@@ -117,12 +118,12 @@ namespace Orbit.Models
             else if (FluidPressure < fluidPressureLowerLimit)
             {
                 PumpOn = false;
-                yield return new Alert(nameof(FluidPressure), "Coolant line pressure is below minimum", AlertLevel.HighError);
+                yield return new Alert(nameof(FluidPressure), "Coolant line pressure is below minimum", AlertLevel.LowError);
             }
             else if (FluidPressure <= (fluidPressureLowerLimit + fluidPressureTolerance))
             {
                 PumpOn = true;
-                yield return new Alert(nameof(FluidPressure), "Coolant line pressure is too low", AlertLevel.HighWarning);
+                yield return new Alert(nameof(FluidPressure), "Coolant line pressure is too low", AlertLevel.LowWarning);
             }
             else
             {
@@ -133,21 +134,21 @@ namespace Orbit.Models
 
         private IEnumerable<Alert> CheckFluidTemp()
         {
-            if (FluidTemperature >= FluidTemperatureUpperLimit)
+            if (FluidTemperature >= fluidTemperatureUpperLimit)
             {
                 yield return new Alert(nameof(FluidTemperature), "External coolant temperature is above maximum", AlertLevel.HighWarning);
             }
             else if (FluidTemperature >= (fluidPressureUpperLimit - fluidTemperatureTolerance))
             {
-                yield return new Alert(nameof(FluidTemperatureUpperLimit), "External coolant temperature is too high", AlertLevel.HighError);
+                yield return new Alert(nameof(fluidTemperatureUpperLimit), "External coolant temperature is too high", AlertLevel.HighError);
             }
             else if (FluidTemperature <= fluidTemperatureLowerLimit)
             {
-                yield return new Alert(nameof(FluidTemperature), "External coolant temperature is below minimum", AlertLevel.HighWarning);
+                yield return new Alert(nameof(FluidTemperature), "External coolant temperature is below minimum", AlertLevel.LowWarning);
             }
-            else if (FluidTemperature <= 2.2)
+            else if (FluidTemperature <= (fluidTemperatureLowerLimit + fluidTemperatureTolerance))
             {
-                yield return new Alert(nameof(FluidTemperature), "External coolant temperature is low", AlertLevel.HighError);
+                yield return new Alert(nameof(FluidTemperature), "External coolant temperature is low", AlertLevel.LowError);
             }
             else
             {

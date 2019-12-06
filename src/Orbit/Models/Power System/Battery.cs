@@ -36,9 +36,12 @@ namespace Orbit.Models
         [Range(0, 105)]
         public double ChargeLevel { get; set; }
 
-        public int ChargeLevelUpperLimit = 105;
-        public int ChargeLevelLowerLimit = 60;
-        public int ChargeLevelTolerance = 5;
+        [NotMapped]
+        public int chargeLevelUpperLimit = 105;
+        [NotMapped]
+        public int chargeLevelLowerLimit = 60;
+        [NotMapped]
+        public int chargeLevelTolerance = 5;
 
         /// <summary>
         /// Nominal is 160v recieved from solar array
@@ -46,9 +49,12 @@ namespace Orbit.Models
         [Range(0, 170)]
         public double Voltage { get; set; }
 
-        public int VoltageUpperLimit = 165;
-        public int VoltageLowerLimit = 155;
-        public int VoltageTolerance = 2;
+        [NotMapped]
+        public int voltageUpperLimit = 165;
+        [NotMapped]
+        public int voltageLowerLimit = 155;
+        [NotMapped]
+        public int voltageTolerance = 2;
 
     private IEnumerable<Alert> CheckTemperature()
         {
@@ -64,7 +70,7 @@ namespace Orbit.Models
             {
                 yield return new Alert(nameof(Temperature), "Temperature is below minimum", AlertLevel.LowError);
             }
-            else if(Temperature <= (temperatureLowerLimit - temperatureTolerance))
+            else if(Temperature <= (temperatureLowerLimit + temperatureTolerance))
             {
                 yield return new Alert(nameof(Temperature), "Temperature is low", AlertLevel.LowWarning);
             }
@@ -76,19 +82,19 @@ namespace Orbit.Models
 
         private IEnumerable<Alert> CheckChargeLevel()
         {
-            if (ChargeLevel >= ChargeLevelUpperLimit)
+            if (ChargeLevel >= chargeLevelUpperLimit)
             {
                 yield return new Alert(nameof(ChargeLevel), "Charge level is above maximum", AlertLevel.HighError);
             }
-            else if (ChargeLevel >= (ChargeLevel - ChargeLevelTolerance))
+            else if (ChargeLevel >= (ChargeLevel - chargeLevelTolerance))
             {
                 yield return new Alert(nameof(ChargeLevel), "Charge level is elevated", AlertLevel.HighWarning);
             }
-            else if (ChargeLevel <= ChargeLevelLowerLimit)
+            else if (ChargeLevel <= chargeLevelLowerLimit)
             {
                 yield return new Alert(nameof(ChargeLevel), "Charge level is below minimum", AlertLevel.LowError);
             }
-            else if (ChargeLevel <= (ChargeLevelLowerLimit - ChargeLevelTolerance))
+            else if (ChargeLevel <= (chargeLevelLowerLimit + chargeLevelTolerance))
             {
                 yield return new Alert(nameof(ChargeLevel), "Charge level is low", AlertLevel.LowWarning);
             }
@@ -100,19 +106,19 @@ namespace Orbit.Models
 
         private IEnumerable<Alert> CheckBattery()
         {
-            if(Voltage >= VoltageUpperLimit)
+            if(Voltage >= voltageUpperLimit)
             {
                 yield return new Alert(nameof(Battery), "Battery voltage is above maximum", AlertLevel.HighError);
             }
-            else if(Voltage >= (VoltageUpperLimit - VoltageTolerance))
+            else if(Voltage >= (voltageUpperLimit - voltageTolerance))
             {
                 yield return new Alert(nameof(Battery), "Battery voltage is elevated", AlertLevel.HighWarning);
             }
-            else if(Voltage <= VoltageLowerLimit)
+            else if(Voltage <= voltageLowerLimit)
             {
                 yield return new Alert(nameof(Battery), "Battery voltage is below minimum", AlertLevel.LowError);
             }
-            else if(Voltage <= (Voltage - VoltageTolerance))
+            else if(Voltage <= (voltageLowerLimit + voltageTolerance))
             {
                 yield return new Alert(nameof(Battery), "Battery voltage is low", AlertLevel.LowWarning);
             }
