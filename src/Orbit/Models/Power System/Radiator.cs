@@ -144,11 +144,11 @@ namespace Orbit.Models
             }
             else if (FluidTemperature <= fluidTemperatureLowerLimit)
             {
-                yield return new Alert(nameof(FluidTemperature), "External coolant temperature is below minimum", AlertLevel.LowWarning);
+                yield return new Alert(nameof(FluidTemperature), "External coolant temperature is below minimum", AlertLevel.LowError);
             }
             else if (FluidTemperature <= (fluidTemperatureLowerLimit + fluidTemperatureTolerance))
             {
-                yield return new Alert(nameof(FluidTemperature), "External coolant temperature is low", AlertLevel.LowError);
+                yield return new Alert(nameof(FluidTemperature), "External coolant temperature is low", AlertLevel.LowWarning);
             }
             else
             {
