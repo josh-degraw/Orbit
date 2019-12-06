@@ -23,82 +23,77 @@ namespace Orbit.Models
         [Range(0, 47)]
         public double TempMedCoolantLoop { get; set; }
 
+        [NotMapped]
+        private double medCoolantLoopUpperLimit = 22;
+        [NotMapped]
+        private double medCoolantLoopLowerLimit = 12;
+        [NotMapped]
+        private double medCoolantLoopTolerance = 5;
+
+
         /// <summary>
         /// colder coolant loop for life support and, cabin air assembly, and some experiments
-        /// nominal is 17C
+        /// nominal is 4C
         /// </summary>
         [Range(0, 47)]
         public double TempLowCoolantLoop { get; set; }
 
+        [NotMapped]
+        private double lowTempCoolantLoopUpperLimit = 10;
+        [NotMapped]
+        private double lowTempCoolantLoopLowerLimit = 2;
+        [NotMapped]
+        private double lowTempCoolantLoopTolerance = 2;
 
         [NotMapped]
         public string ComponentName => "InternalCoolantSystem";
 
-        [NotMapped]
-        private double _alertTolerance = 5;
-        [NotMapped]
-        private double _alarmTolerance = 10;
-        [NotMapped]
-        private double _lowTempLoopNominal = 10.5;
-        [NotMapped]
-        private double _medTempLoopNominal = 17;
-
 
         private IEnumerable<Alert> CheckLowTempLoopStatus()
         {
-            if(TempLowCoolantLoop >= (TempLowCoolantLoop + _alarmTolerance))
+            if(TempLowCoolantLoop >= lowTempCoolantLoopUpperLimit)
             {
                 yield return new Alert(nameof(TempLowCoolantLoop), "Low coolant loop temperature is above maximum", AlertLevel.HighError);
-                PumpOn = false;
             }
-            else if (TempLowCoolantLoop >= (TempLowCoolantLoop + _alertTolerance))
+            else if (TempLowCoolantLoop >= (lowTempCoolantLoopUpperLimit - lowTempCoolantLoopTolerance))
             {
                 yield return new Alert(nameof(TempLowCoolantLoop), "Low coolant loop temperature is high", AlertLevel.HighWarning);
-                PumpOn = true;
             }
-            else if(TempLowCoolantLoop <=(TempLowCoolantLoop - _alertTolerance))
+            else if(TempLowCoolantLoop <= lowTempCoolantLoopLowerLimit)
             {
-                yield return new Alert(nameof(TempLowCoolantLoop), "Low coolant loop temperature is low", AlertLevel.HighWarning);
-                PumpOn = true;
+                yield return new Alert(nameof(TempLowCoolantLoop), "Low coolant loop temperature is low", AlertLevel.LowError);
             }
-            else if(TempLowCoolantLoop <= (TempLowCoolantLoop - _alarmTolerance))
+            else if(TempLowCoolantLoop <= (lowTempCoolantLoopLowerLimit + lowTempCoolantLoopTolerance))
             {
-                yield return new Alert(nameof(TempLowCoolantLoop), "Low coolant loop temperature is below minimum", AlertLevel.HighError);
-                PumpOn = false;
+                yield return new Alert(nameof(TempLowCoolantLoop), "Low coolant loop temperature is below minimum", AlertLevel.LowWarning);
             }
             else
             {
                 yield return Alert.Safe(nameof(TempLowCoolantLoop));
-                PumpOn = true;
             }
         }
 
         private IEnumerable<Alert> CheckMedTempLoopStatus()
         {
-            if (TempMedCoolantLoop >= (TempMedCoolantLoop + _alarmTolerance))
+            if (TempMedCoolantLoop >= medCoolantLoopUpperLimit)
             {
                 yield return new Alert(nameof(TempMedCoolantLoop), "Med coolant loop temperature is above maximum", AlertLevel.HighError);
-                PumpOn = false;
             }
-            else if (TempMedCoolantLoop >= (TempMedCoolantLoop + _alertTolerance))
+            else if (TempMedCoolantLoop >= (medCoolantLoopUpperLimit - medCoolantLoopTolerance))
             {
                 yield return new Alert(nameof(TempMedCoolantLoop), "Med coolant loop temperature is high", AlertLevel.HighWarning);
-                PumpOn = true;
             }
-            else if (TempMedCoolantLoop <= (TempMedCoolantLoop - _alertTolerance))
+            else if (TempMedCoolantLoop <= medCoolantLoopLowerLimit)
             {
-                yield return new Alert(nameof(TempMedCoolantLoop), "Med coolant loop temperature is low", AlertLevel.HighWarning);
-                PumpOn = true;
+                yield return new Alert(nameof(TempMedCoolantLoop), "Med coolant loop temperature is low", AlertLevel.LowError);
             }
-            else if (TempMedCoolantLoop <= (TempMedCoolantLoop - _alarmTolerance))
+            else if (TempMedCoolantLoop <= (medCoolantLoopLowerLimit + medCoolantLoopTolerance))
             {
-                yield return new Alert(nameof(TempMedCoolantLoop), "Med coolant loop temperature is below minimum", AlertLevel.HighError);
-                PumpOn = false;
+                yield return new Alert(nameof(TempMedCoolantLoop), "Med coolant loop temperature is below minimum", AlertLevel.LowWarning);
             }
             else
             {
                 yield return Alert.Safe(nameof(TempMedCoolantLoop));
-                PumpOn = true;
             }
         }
 

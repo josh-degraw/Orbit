@@ -22,17 +22,38 @@ namespace Orbit.Models
         [Range(-215, 215)]
         public int RadiatorRotation { get; set; }
 
+        [NotMapped]
+        int radiatorRotationUpperLimit = 215;
+        [NotMapped]
+        int radiatorRotationLowerLimit = -215;
+        [NotMapped]
+        int radiatorRotationTolerance = 10;
+
         /// <summary>
         /// pressure of fluid in the lines
         /// </summary>
         [Range(0, 600)]
         public int FluidLinePressure { get; set; }
 
+        [NotMapped]
+        int fluidLinePressureUpperLimit = 480;
+        [NotMapped]
+        int fluidLinePressureLowerLimit = 170;
+        [NotMapped]
+        int fluidLinePressureTolerance = 30;
+
         /// <summary>
         /// temperature of fluid returning from radiator flow control valve to internal/external heat exchanger
         /// </summary>
         [Range(-157, 121)]
         public double TempFluidToHeatExchanger { get; set; }
+
+        [NotMapped]
+        double tempFluidToHeatExchangerUpperLimit = 18.22;
+        [NotMapped]
+        double tempFluidToHeatExchangerLowerLimit = 1.67;
+        [NotMapped]
+        double tempFluidToHeatExchangerTolerance = 5;
 
         /// <summary>
         /// heats the external coolant if the heat offload from the station is too low to warm the -40F degree
@@ -47,32 +68,29 @@ namespace Orbit.Models
         [Range(0, 100)]
         public int TankLevel { get; set; }
 
+        int tankLevelUpperLimit = 95;
+        int tankLevelTolerance = 5;
+
 
         public string ComponentName => "ExternalCoolantSystem";
 
-        [NotMapped]
-        int radiatorRotationUpperAlarm = 215;
-        [NotMapped]
-        int radiatorRotationLowerAlarm = -215;
-        [NotMapped]
-        int radiatorRotationTolerance = 9;
         private IEnumerable<Alert> CheckRadiatorRotation()
         {
-            if(RadiatorRotation > radiatorRotationUpperAlarm)
+            if(RadiatorRotation > radiatorRotationUpperLimit)
             {
                 yield return new Alert(nameof(RadiatorRotation), "Coolant radiator has exceeded maximum available rotation", AlertLevel.HighError);
             }
-            else if(RadiatorRotation >= (radiatorRotationUpperAlarm - radiatorRotationTolerance))
+            else if(RadiatorRotation >= (radiatorRotationUpperLimit - radiatorRotationTolerance))
             {
                 yield return new Alert(nameof(RadiatorRotation), "Coolant radiator has exceeded allowed rotation", AlertLevel.HighWarning);
             }
-            else if(RadiatorRotation < radiatorRotationLowerAlarm)
+            else if(RadiatorRotation < radiatorRotationLowerLimit)
             {
-                yield return new Alert(nameof(RadiatorRotation), "Coolant radiator has exceeded maximum available rotation", AlertLevel.HighError);
+                yield return new Alert(nameof(RadiatorRotation), "Coolant radiator has exceeded maximum available rotation", AlertLevel.LowError);
             }
-            else if(RadiatorRotation <= (radiatorRotationLowerAlarm + radiatorRotationTolerance))    
+            else if(RadiatorRotation <= (radiatorRotationLowerLimit + radiatorRotationTolerance))    
             {
-                yield return new Alert(nameof(RadiatorRotation), "Coolant radiator has exceeded allowed rotation", AlertLevel.HighWarning);
+                yield return new Alert(nameof(RadiatorRotation), "Coolant radiator has exceeded allowed rotation", AlertLevel.LowWarning);
             }
             else
             {
@@ -80,87 +98,61 @@ namespace Orbit.Models
             }
         }
 
-        [NotMapped]
-        int fluidLinePressureUpperAlarm = 480;
-        [NotMapped]
-        int fluidLinePressureLowerAlarm = 170;
-        [NotMapped]
-        int fluidLinePressureTolerance = 30;
         private IEnumerable<Alert> CheckLinePressure()
         {
-            if (FluidLinePressure >= fluidLinePressureUpperAlarm)
+            if (FluidLinePressure >= fluidLinePressureUpperLimit)
             {
                 yield return new Alert(nameof(FluidLinePressure), "Coolant line pressure is above maximum", AlertLevel.HighError);
-                PumpOn = false;
-
             }
-            else if (FluidLinePressure >= (fluidLinePressureUpperAlarm - fluidLinePressureTolerance))
+            else if (FluidLinePressure >= (fluidLinePressureUpperLimit - fluidLinePressureTolerance))
             {
                 yield return new Alert(nameof(FluidLinePressure), "Coolant line pressure is too high", AlertLevel.HighWarning);
-                PumpOn = true;
             }
-            else if (FluidLinePressure < fluidLinePressureLowerAlarm)
+            else if (FluidLinePressure < fluidLinePressureLowerLimit)
             {
-                yield return new Alert(nameof(FluidLinePressure), "Coolant line pressure is below minimum", AlertLevel.HighError);
-                PumpOn = false;
+                yield return new Alert(nameof(FluidLinePressure), "Coolant line pressure is below minimum", AlertLevel.LowError);
             }
-            else if (FluidLinePressure <= (fluidLinePressureLowerAlarm + fluidLinePressureTolerance))
+            else if (FluidLinePressure <= (fluidLinePressureLowerLimit + fluidLinePressureTolerance))
             {
-                yield return new Alert(nameof(FluidLinePressure), "Coolant line pressure is too low", AlertLevel.HighWarning);
-                PumpOn = true;
+                yield return new Alert(nameof(FluidLinePressure), "Coolant line pressure is too low", AlertLevel.LowWarning);
             }
             else
             {
                 yield return Alert.Safe(nameof(FluidLinePressure));
-                PumpOn = true;
             }
         }
 
-        [NotMapped]
-        double tempFluidToHeatExchangerUpperAlarm = 18.22;
-        [NotMapped]
-        double tempFluidToHeatExchangerLowerAlarm = 1.67;
-        [NotMapped]
-        double tempFluidToHeatExchangerTolerance = 5;
         private IEnumerable<Alert> CheckFluidTemp()
         {
-            if(TempFluidToHeatExchanger >= tempFluidToHeatExchangerUpperAlarm)
+            if(TempFluidToHeatExchanger >= tempFluidToHeatExchangerUpperLimit)
             {
-                yield return new Alert(nameof(TempFluidToHeatExchanger), "External coolant temperature is above maximum", AlertLevel.HighWarning);
-                LineHeaterOn = false;
+                yield return new Alert(nameof(TempFluidToHeatExchanger), "External coolant temperature is above maximum", AlertLevel.HighError);
             }
-            else if(TempFluidToHeatExchanger >= (tempFluidToHeatExchangerUpperAlarm - tempFluidToHeatExchangerTolerance))
+            else if(TempFluidToHeatExchanger >= (tempFluidToHeatExchangerUpperLimit - tempFluidToHeatExchangerTolerance))
             {
-                yield return new Alert(nameof(TempFluidToHeatExchanger), "External coolant temperature is too high", AlertLevel.HighError);
-                LineHeaterOn = false;
+                yield return new Alert(nameof(TempFluidToHeatExchanger), "External coolant temperature is too high", AlertLevel.HighWarning);
             }
-            else if (TempFluidToHeatExchanger <= tempFluidToHeatExchangerLowerAlarm)
+            else if (TempFluidToHeatExchanger <= tempFluidToHeatExchangerLowerLimit)
             {
-                yield return new Alert(nameof(TempFluidToHeatExchanger), "External coolant temperature is below minimum", AlertLevel.HighWarning);
-                LineHeaterOn = false;
+                yield return new Alert(nameof(TempFluidToHeatExchanger), "External coolant temperature is below minimum", AlertLevel.LowError);
             }
-            else if (TempFluidToHeatExchanger <= 2.2)
+            else if (TempFluidToHeatExchanger <= (tempFluidToHeatExchangerLowerLimit + tempFluidToHeatExchangerTolerance))
             {
-                yield return new Alert(nameof(TempFluidToHeatExchanger), "External coolant temperature is low", AlertLevel.HighError);
-                LineHeaterOn = true;
+                yield return new Alert(nameof(TempFluidToHeatExchanger), "External coolant temperature is low", AlertLevel.LowWarning);
             }
             else
             {
                 yield return Alert.Safe(nameof(TempFluidToHeatExchanger));
-                LineHeaterOn = false;
             }
-
         }
 
-        int tankLevelUpperAlarm = 95;
-        int tankLevelTolerance = 5;
         private IEnumerable<Alert> CheckTankLevel()
         {
-            if (TankLevel >= 100)
+            if (TankLevel >= tankLevelUpperLimit)
             {
                 yield return new Alert(nameof(TankLevel), "Tank level at capacity", AlertLevel.HighError);
             }
-            else if (TankLevel >= 95)
+            else if (TankLevel >= (tankLevelUpperLimit - tankLevelTolerance))
             {
                 yield return new Alert(nameof(TankLevel), "Tank level nearing capacity", AlertLevel.HighWarning);
             }
