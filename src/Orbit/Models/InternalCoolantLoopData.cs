@@ -8,6 +8,18 @@ namespace Orbit.Models
 {
     public class InternalCoolantLoopData : IAlertableModel
     {
+        #region Limits
+
+        private const double medCoolantLoopUpperLimit = 22;
+        private const double medCoolantLoopLowerLimit = 12;
+        private const double medCoolantLoopTolerance = 5;
+
+        private const double lowTempCoolantLoopUpperLimit = 10;
+        private const double lowTempCoolantLoopLowerLimit = 2;
+        private const double lowTempCoolantLoopTolerance = 2;
+
+        #endregion Limits
+
         public DateTimeOffset ReportDateTime { get; set; } = DateTimeOffset.Now;
 
         /// <summary>
@@ -21,19 +33,13 @@ namespace Orbit.Models
         [Range(0, 47)]
         public double TempMedCoolantLoop { get; set; }
 
-        private const double medCoolantLoopUpperLimit = 22;
-        private const double medCoolantLoopLowerLimit = 12;
-        private const double medCoolantLoopTolerance = 5;
-
         /// <summary>
         /// colder coolant loop for life support and, cabin air assembly, and some experiments nominal is 4C
         /// </summary>
         [Range(0, 47)]
         public double TempLowCoolantLoop { get; set; }
 
-        private const double lowTempCoolantLoopUpperLimit = 10;
-        private const double lowTempCoolantLoopLowerLimit = 2;
-        private const double lowTempCoolantLoopTolerance = 2;
+        #region IAlertableModel implementation
 
         [NotMapped]
         public string ComponentName => "InternalCoolantSystem";
@@ -91,5 +97,7 @@ namespace Orbit.Models
             return this.CheckLowTempLoopStatus()
                 .Concat(this.CheckMedTempLoopStatus());
         }
+
+        #endregion IAlertableModel implementation
     }
 }
