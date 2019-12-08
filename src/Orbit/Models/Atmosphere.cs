@@ -8,31 +8,54 @@ namespace Orbit.Models
 {
     public class Atmosphere : IAlertableModel
     {
-        [NotMapped]
-        public string ComponentName => "Atmosphere";
+        #region Private Fields
 
-        public DateTimeOffset ReportDateTime { get; set; } = DateTimeOffset.Now;
+        private const int cabinAmbientNoiseTolerance = 5;
+        private const int cabinAmbientNoiseUpperLimit = 72;
 
-        /// <summary>
-        /// general status of life support and environment as a whole
-        /// </summary>
-        public SystemStatus CabinStatus { get; set; }
+        private const double cabinCarbonDioxideTolerance = 600;
+        private const double cabinCarbonDioxideUpperLimit = 2600;
 
-        /// <summary>
-        /// denotes if station is occupied (false) or not (true)
-        /// </summary>
-        public bool UncrewedModeOn { get; set; }
+        private const double cabinHumidityLevelLowerLimit = 30;
+        private const double cabinHumidityLevelTolerance = 10;
+        private const double cabinHumidityLevelUpperLimit = 80;
 
-        /// <summary>
-        /// Pressure used are in kPa and is what is listed as nominal for low EVA modules per interoperability standards
-        /// Nominal is 101kpa
-        /// </summary>
-        [Range(0, 120)]
-        public double CabinPressure { get; set; }
+        private const double cabinOxygenLevelLowerLimit = 17;
+        private const double cabinOxygenLevelTolerance = 3;
+        private const double cabinOxygenLevelUpperLimit = 25.9;
 
-        private const double cabinPressureUpperLimit = 110;
         private const double cabinPressureLowerLimit = 50;
         private const double cabinPressureTolerance = 5;
+        private const double cabinPressureUpperLimit = 110;
+
+        private const int cabinTemperatureCrewedLowerLimit = 17;
+        private const int cabinTemperatureTolerance = 3;
+
+        private const int cabinTemperatureUncrewedLowerLimit = 4;
+        private const int cabinTemperatureUpperLimit = 30;
+
+        private const int fanSpeedLowerLimit = 20;
+        private const int fanSpeedTolerance = 10;
+        private const int fanSpeedUpperLimit = 100;
+
+        #endregion Private Fields
+
+        #region Public Properties
+
+        /// <summary>
+        /// Decibel value of cabin noise
+        /// </summary>
+        [Range(0, 90)]
+        public double CabinAmbientNoiseLevel { get; set; }
+
+        /// <summary> Goal is &lt; 267 Pa/mm hg (2600ppm) per 24hr period as a maximum </summary>
+        public double CabinCarbonDioxideLevel { get; set; }
+
+        /// <summary>
+        /// Crewed: 40-75%; uncrewed: 30-80% (is allowed for up to 24hrs while crewed)
+        /// </summary>
+        [Range(0, 100)]
+        public double CabinHumidityLevel { get; set; }
 
         /// <summary>
         /// link to Oxygen Generation System values used here are concentrations as a percentage for operational
@@ -41,25 +64,17 @@ namespace Orbit.Models
         [Range(0, 100)]
         public double CabinOxygenLevel { get; set; }
 
-        private const double cabinOxygenLevelUpperLimit = 25.9;
-        private const double cabinOxygenLevelLowerLimit = 17;
-        private const double cabinOxygenLevelTolerance = 3;
-
-        /// <summary> Goal is &lt; 267 Pa/mm hg (2600ppm) per 24hr period as a maximum </summary>
-        public double CabinCarbonDioxideLevel { get; set; }
-
-        private const double cabinCarbonDioxideUpperLimit = 2600;
-        private const double cabinCarbonDioxideTolerance = 600;
+        /// <summary>
+        /// Pressure used are in kPa and is what is listed as nominal for low EVA modules per interoperability standards
+        /// Nominal is 101kpa
+        /// </summary>
+        [Range(0, 120)]
+        public double CabinPressure { get; set; }
 
         /// <summary>
-        /// Air circulation fan speed
+        /// general status of life support and environment as a whole
         /// </summary>
-        [Range(0, 100)]
-        public int FanSpeed { get; set; }
-
-        private const int fanSpeedUpperLimit = 100;
-        private const int fanSpeedLowerLimit = 20;
-        private const int fanSpeedTolerance = 10;
+        public SystemStatus CabinStatus { get; set; }
 
         /// <summary>
         /// Ambient air temperature Nominal range is 20-27C uncrewed min is 4C
@@ -67,53 +82,78 @@ namespace Orbit.Models
         [Range(-10, 100)]
         public int CabinTemperature { get; set; }
 
-        private const int cabinTemperatureUpperLimit = 30;
-        private const int cabinTemperatureCrewedLowerLimit = 17;
-        private const int cabinTemperatureUncrewedLowerLimit = 4;
-        private const int cabinTemperatureTolerance = 3;
+        [NotMapped]
+        public string ComponentName => "Atmosphere";
 
         /// <summary>
-        /// Crewed: 40-75%; uncrewed: 30-80% (is allowed for up to 24hrs while crewed)
+        /// Air circulation fan speed
         /// </summary>
         [Range(0, 100)]
-        public double CabinHumidityLevel { get; set; }
+        public int FanSpeed { get; set; }
 
-        private const double cabinHumidityLevelUpperLimit = 80;
-        private const double cabinHumidityLevelLowerLimit = 30;
-        private const double cabinHumidityLevelTolerance = 10;
-
+        public DateTimeOffset ReportDateTime { get; set; } = DateTimeOffset.Now;
         /// <summary>
-        /// Decibel value of cabin noise
+        /// denotes if station is occupied (false) or not (true)
         /// </summary>
-        [Range(0, 90)]
-        public double CabinAmbientNoiseLevel { get; set; }
+        public bool UncrewedModeOn { get; set; }
 
-        private const int cabinAmbientNoiseUpperLimit = 72;
-        private const int cabinAmbientNoiseTolerance = 5;
+        #endregion Public Properties
 
-        #region CheckLevelMethods
+        #region Private Methods
 
-        private IEnumerable<Alert> CheckCabinPressure()
+        private IEnumerable<Alert> CheckCabinAmbientNoiseLevel()
         {
-            if (CabinPressure >= cabinPressureUpperLimit)
+            if (CabinAmbientNoiseLevel > cabinAmbientNoiseUpperLimit)
             {
-                yield return new Alert(nameof(CabinPressure), "Cabin pressure has exceeded maximum", AlertLevel.HighError);
+                yield return new Alert(nameof(CabinAmbientNoiseLevel), "Cabin noise has exceeded maximum", AlertLevel.HighError);
             }
-            else if (CabinPressure >= (cabinPressureUpperLimit - cabinPressureTolerance))
+            else if (CabinAmbientNoiseLevel >= (cabinAmbientNoiseUpperLimit - cabinAmbientNoiseTolerance))
             {
-                yield return new Alert(nameof(CabinPressure), "Cabin pressure is elevated", AlertLevel.HighWarning);
-            }
-            else if (CabinPressure <= cabinPressureLowerLimit)
-            {
-                yield return new Alert(nameof(CabinPressure), "Cabin pressure below minimum", AlertLevel.LowError);
-            }
-            else if (CabinPressure < (cabinPressureLowerLimit + cabinPressureTolerance))
-            {
-                yield return new Alert(nameof(CabinPressure), "Cabin pressure is low", AlertLevel.LowWarning);
+                yield return new Alert(nameof(CabinAmbientNoiseLevel), "Cabin noise is elevated", AlertLevel.HighWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(CabinPressure));
+                yield return Alert.Safe(nameof(CabinAmbientNoiseLevel));
+            }
+        }
+
+        private IEnumerable<Alert> CheckCabinCarbonDioxideLevel()
+        {
+            if (CabinCarbonDioxideLevel >= cabinCarbonDioxideUpperLimit)
+            {
+                yield return new Alert(nameof(CabinCarbonDioxideLevel), "Carbon dioxide level is above maximum", AlertLevel.HighError);
+            }
+            else if (CabinCarbonDioxideLevel >= (cabinCarbonDioxideUpperLimit - cabinCarbonDioxideTolerance))
+            {
+                yield return new Alert(nameof(CabinCarbonDioxideLevel), "Cabin carbon dioxide is nearing maximum", AlertLevel.HighWarning);
+            }
+            else
+            {
+                yield return Alert.Safe(nameof(CabinCarbonDioxideLevel));
+            }
+        }
+
+        private IEnumerable<Alert> CheckCabinHumidityLevel()
+        {
+            if (CabinHumidityLevel >= cabinHumidityLevelUpperLimit)
+            {
+                yield return new Alert(nameof(CabinHumidityLevel), "Cabin humidity is above maximum", AlertLevel.HighError);
+            }
+            else if (CabinHumidityLevel >= (cabinHumidityLevelUpperLimit - cabinHumidityLevelTolerance))
+            {
+                yield return new Alert(nameof(CabinHumidityLevel), "Cabin humidity is elevated", AlertLevel.HighWarning);
+            }
+            else if (CabinHumidityLevel <= cabinHumidityLevelLowerLimit)
+            {
+                yield return new Alert(nameof(CabinHumidityLevel), "Cabin humidity is below minimum", AlertLevel.LowError);
+            }
+            else if (CabinHumidityLevel <= (cabinHumidityLevelLowerLimit + cabinHumidityLevelTolerance))
+            {
+                yield return new Alert(nameof(CabinHumidityLevel), "Cabin humidity is low", AlertLevel.LowWarning);
+            }
+            else
+            {
+                yield return Alert.Safe(nameof(CabinHumidityLevel));
             }
         }
 
@@ -141,46 +181,29 @@ namespace Orbit.Models
             }
         }
 
-        private IEnumerable<Alert> CheckCabinCarbonDioxideLevel()
+        private IEnumerable<Alert> CheckCabinPressure()
         {
-            if (CabinCarbonDioxideLevel >= cabinCarbonDioxideUpperLimit)
+            if (CabinPressure >= cabinPressureUpperLimit)
             {
-                yield return new Alert(nameof(CabinCarbonDioxideLevel), "Carbon dioxide level is above maximum", AlertLevel.HighError);
+                yield return new Alert(nameof(CabinPressure), "Cabin pressure has exceeded maximum", AlertLevel.HighError);
             }
-            else if (CabinCarbonDioxideLevel >= (cabinCarbonDioxideUpperLimit - cabinCarbonDioxideTolerance))
+            else if (CabinPressure >= (cabinPressureUpperLimit - cabinPressureTolerance))
             {
-                yield return new Alert(nameof(CabinCarbonDioxideLevel), "Cabin carbon dioxide is nearing maximum", AlertLevel.HighWarning);
+                yield return new Alert(nameof(CabinPressure), "Cabin pressure is elevated", AlertLevel.HighWarning);
+            }
+            else if (CabinPressure <= cabinPressureLowerLimit)
+            {
+                yield return new Alert(nameof(CabinPressure), "Cabin pressure below minimum", AlertLevel.LowError);
+            }
+            else if (CabinPressure < (cabinPressureLowerLimit + cabinPressureTolerance))
+            {
+                yield return new Alert(nameof(CabinPressure), "Cabin pressure is low", AlertLevel.LowWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(CabinCarbonDioxideLevel));
+                yield return Alert.Safe(nameof(CabinPressure));
             }
         }
-
-        private IEnumerable<Alert> CheckFanSpeed()
-        {
-            if (FanSpeed > fanSpeedUpperLimit)
-            {
-                yield return new Alert(nameof(FanSpeed), "Fan speed is above maximum", AlertLevel.HighError);
-            }
-            else if (FanSpeed >= (fanSpeedUpperLimit - fanSpeedTolerance))
-            {
-                yield return new Alert(nameof(FanSpeed), "Fan speed is high", AlertLevel.HighWarning);
-            }
-            else if (FanSpeed < fanSpeedLowerLimit)
-            {
-                yield return new Alert(nameof(FanSpeed), "Fan speed is below minimum", AlertLevel.LowError);
-            }
-            else if (FanSpeed <= (fanSpeedLowerLimit - fanSpeedTolerance))
-            {
-                yield return new Alert(nameof(FanSpeed), "Fan speed is low", AlertLevel.LowWarning);
-            }
-            else
-            {
-                yield return Alert.Safe(nameof(FanSpeed));
-            }
-        }
-
         private IEnumerable<Alert> CheckCabinTemperature()
         {
             if (CabinTemperature > cabinTemperatureUpperLimit)
@@ -209,55 +232,45 @@ namespace Orbit.Models
             }
         }
 
-        private IEnumerable<Alert> CheckCabinHumidityLevel()
+        private IEnumerable<Alert> CheckFanSpeed()
         {
-            if (CabinHumidityLevel >= cabinHumidityLevelUpperLimit)
+            if (FanSpeed > fanSpeedUpperLimit)
             {
-                yield return new Alert(nameof(CabinHumidityLevel), "Cabin humidity is above maximum", AlertLevel.HighError);
+                yield return new Alert(nameof(FanSpeed), "Fan speed is above maximum", AlertLevel.HighError);
             }
-            else if (CabinHumidityLevel >= (cabinHumidityLevelUpperLimit - cabinHumidityLevelTolerance))
+            else if (FanSpeed >= (fanSpeedUpperLimit - fanSpeedTolerance))
             {
-                yield return new Alert(nameof(CabinHumidityLevel), "Cabin humidity is elevated", AlertLevel.HighWarning);
+                yield return new Alert(nameof(FanSpeed), "Fan speed is high", AlertLevel.HighWarning);
             }
-            else if (CabinHumidityLevel <= cabinHumidityLevelLowerLimit)
+            else if (FanSpeed < fanSpeedLowerLimit)
             {
-                yield return new Alert(nameof(CabinHumidityLevel), "Cabin humidity is below minimum", AlertLevel.LowError);
+                yield return new Alert(nameof(FanSpeed), "Fan speed is below minimum", AlertLevel.LowError);
             }
-            else if (CabinHumidityLevel <= (cabinHumidityLevelLowerLimit + cabinHumidityLevelTolerance))
+            else if (FanSpeed <= (fanSpeedLowerLimit - fanSpeedTolerance))
             {
-                yield return new Alert(nameof(CabinHumidityLevel), "Cabin humidity is low", AlertLevel.LowWarning);
+                yield return new Alert(nameof(FanSpeed), "Fan speed is low", AlertLevel.LowWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(CabinHumidityLevel));
+                yield return Alert.Safe(nameof(FanSpeed));
             }
         }
 
-        private IEnumerable<Alert> CheckCabinAmbientNoiseLevel()
-        {
-            if (CabinAmbientNoiseLevel > cabinAmbientNoiseUpperLimit)
-            {
-                yield return new Alert(nameof(CabinAmbientNoiseLevel), "Cabin noise has exceeded maximum", AlertLevel.HighError);
-            }
-            else if (CabinAmbientNoiseLevel >= (cabinAmbientNoiseUpperLimit - cabinAmbientNoiseTolerance))
-            {
-                yield return new Alert(nameof(CabinAmbientNoiseLevel), "Cabin noise is elevated", AlertLevel.HighWarning);
-            }
-            else
-            {
-                yield return Alert.Safe(nameof(CabinAmbientNoiseLevel));
-            }
-        }
+        #endregion Private Methods
 
-        #endregion CheckLevelMethods
+        #region Public Methods
 
         IEnumerable<Alert> IAlertableModel.GenerateAlerts()
         {
-            return CheckCabinPressure()
-                .Concat(CheckCabinOxygenLevel())
-                .Concat(CheckCabinCarbonDioxideLevel())
-                .Concat(CheckCabinHumidityLevel())
-                .Concat(CheckCabinAmbientNoiseLevel());
+            return this.CheckCabinPressure()
+                .Concat(this.CheckCabinOxygenLevel())
+                .Concat(this.CheckCabinCarbonDioxideLevel())
+                .Concat(this.CheckCabinHumidityLevel())
+                .Concat(this.CheckCabinAmbientNoiseLevel())
+                .Concat(this.CheckCabinTemperature())
+                .Concat(this.CheckFanSpeed());
         }
+
+        #endregion Public Methods
     }
 }
