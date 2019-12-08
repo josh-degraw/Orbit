@@ -4,9 +4,9 @@ using System.Text;
 
 namespace Orbit.Models
 {
-    public enum DiverterValvePositions
+    public enum  DiverterValvePositions
     {
-        ToStorage,
-        Reprocess
+        ToWaterProcessor,
+        ToOxygenGenerator
     }
 }
