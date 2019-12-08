@@ -127,13 +127,13 @@ namespace Orbit.Models
             {
                 yield return new Alert(nameof(CabinPressure), "Cabin pressure is elevated", AlertLevel.HighWarning);
             }
-            else if(CabinPressure <= (cabinPressureLowerLimit + cabinPressureTolerance))
+            else if(CabinPressure <= cabinPressureLowerLimit)
             {
-                yield return new Alert(nameof(CabinPressure), "Cabin pressure has decreased", AlertLevel.LowError);
+                yield return new Alert(nameof(CabinPressure), "Cabin pressure below minimum", AlertLevel.LowError);
             }
-            else if(CabinPressure < cabinPressureLowerLimit)
+            else if(CabinPressure < (cabinPressureLowerLimit + cabinPressureTolerance))
             {
-                yield return new Alert(nameof(CabinPressure), "Cabin pressure is below minimum", AlertLevel.LowError);
+                yield return new Alert(nameof(CabinPressure), "Cabin pressure is low", AlertLevel.LowWarning);
             }
             else
             {
@@ -151,13 +151,13 @@ namespace Orbit.Models
             {
                 yield return new Alert(nameof(CheckCabinOxygenLevel), "Cabin oxygen concentration is elevated", AlertLevel.HighWarning);
             }
-            else if(CabinOxygenLevel <= (cabinOxygenLevelLowerLimit + cabinOxygenLevelTolerance))
-            {
-                yield return new Alert(nameof(CheckCabinOxygenLevel), "Cabin oxygen concentration is decreased", AlertLevel.HighError);
-            }
             else if(CabinOxygenLevel <= cabinOxygenLevelLowerLimit)
             {
-                yield return new Alert(nameof(CheckCabinOxygenLevel), "Cabin oxygen concentration is below minimum", AlertLevel.LowError);
+                yield return new Alert(nameof(CheckCabinOxygenLevel), "Cabin oxygen concentration below minimum", AlertLevel.LowError);
+            }
+            else if(CabinOxygenLevel <= (cabinOxygenLevelLowerLimit + cabinOxygenLevelTolerance))
+            {
+                yield return new Alert(nameof(CheckCabinOxygenLevel), "Cabin oxygen concentration is low", AlertLevel.LowWarning);
             }
             else
             {
@@ -217,13 +217,13 @@ namespace Orbit.Models
             }
             else if (UncrewedModeOn && (CabinTemperature <= cabinTemperatureUncrewedLowerLimit))
             {
-                yield return new Alert(nameof(CabinTemperature), "Cabin temperature is below minimum for uncrewed mode", AlertLevel.HighError);
+                yield return new Alert(nameof(CabinTemperature), "Cabin temperature is below minimum for uncrewed mode", AlertLevel.LowError);
             }
-            else if (CabinTemperature < cabinTemperatureCrewedLowerLimit)
+            else if (!UncrewedModeOn && (CabinTemperature < cabinTemperatureCrewedLowerLimit))
             {
                 yield return new Alert(nameof(CabinTemperature), "Cabin temperature is below minimum", AlertLevel.LowError);
             }
-            else if (CabinTemperature <= (cabinTemperatureCrewedLowerLimit - cabinTemperatureTolerance))
+            else if (!UncrewedModeOn && (CabinTemperature <= (cabinTemperatureCrewedLowerLimit - cabinTemperatureTolerance)))
             {
                 yield return new Alert(nameof(CabinTemperature), "Cabin temperature is low", AlertLevel.LowWarning);
             }
@@ -244,13 +244,13 @@ namespace Orbit.Models
             {
                 yield return new Alert(nameof(CabinHumidityLevel), "Cabin humidity is elevated", AlertLevel.HighWarning);
             }
-            else if(CabinHumidityLevel <= (cabinHumidityLevelLowerLimit + cabinHumidityLevelTolerance))
-            {
-                yield return new Alert(nameof(CabinHumidityLevel), "Cabin humidity is low", AlertLevel.LowWarning);
-            }
-            else if (CabinHumidityLevel <= cabinHumidityLevelLowerLimit)
+            else if(CabinHumidityLevel <= cabinHumidityLevelLowerLimit)
             {
                 yield return new Alert(nameof(CabinHumidityLevel), "Cabin humidity is below minimum", AlertLevel.LowError);
+            }
+            else if (CabinHumidityLevel <= (cabinHumidityLevelLowerLimit + cabinHumidityLevelTolerance))
+            {
+                yield return new Alert(nameof(CabinHumidityLevel), "Cabin humidity is low", AlertLevel.LowWarning);
             }
             else
             {
