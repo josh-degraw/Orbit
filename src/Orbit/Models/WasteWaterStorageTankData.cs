@@ -26,6 +26,18 @@ namespace Orbit.Models
         /// </summary>
         public double Level { get; set; }
 
+        public void ProcessData(SystemStatus waterStatus, SystemStatus urineStatus)
+        {
+            if(waterStatus == SystemStatus.Processing)
+            {
+                Level -= 5;
+            }
+            if(urineStatus == SystemStatus.Processing)
+            {
+                Level += 5;
+            }
+        }
+
         // Sample helper method
         private IEnumerable<Alert> GetLevels()
         {

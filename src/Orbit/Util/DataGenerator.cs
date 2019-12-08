@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using System.Linq;
 using Orbit.Data;
 using Orbit.Models;
 
@@ -66,9 +67,34 @@ namespace Orbit.Util
                 using var scope = ServiceProvider.CreateScope();
                 using var db = scope.ServiceProvider.GetRequiredService<OrbitDbContext>();
 
+                WasteWaterStorageTankData wt = db.WasteWaterStorageTankData.First();
+               
                 var next = new WasteWaterStorageTankData {
                     TankId = "Main",
                     Level = rand.NextDouble() * 100
+                };
+
+                UrineSystemData up = db.UrineProcessorData.First();
+                var nextup = new UrineSystemData {
+                    SystemStatus = up.SystemStatus,
+                    UrineTankLevel = up.UrineTankLevel + 5,
+                    SupplyPumpOn = up.SupplyPumpOn,
+                    DistillerOn = up.DistillerOn,
+                    DistillerTemp = (double)rand.NextDouble() * 1000,
+                    PurgePumpOn = up.PurgePumpOn,
+                    BrineTankLevel = up.BrineTankLevel + 2
+                };
+
+                WaterProcessorData wp = db.WaterProcessorData.First();
+                var nextwp = new WaterProcessorData {
+                    SystemStatus = wp.SystemStatus,
+                    PumpOn = wp.PumpOn,
+                    FiltersOK = wp.FiltersOK,
+                    HeaterOn = wp.HeaterOn,
+                    PostHeaterTemp = (double)rand.NextDouble() * 1000,
+                    PostReactorQualityOK = wp.PostReactorQualityOK,
+                    DiverterValvePosition = wp.DiverterValvePosition,
+                    ProductTankLevel = rand.Next(0, 100)
                 };
 
                 db.WasteWaterStorageTankData.Add(next);

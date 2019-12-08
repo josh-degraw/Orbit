@@ -79,8 +79,32 @@ namespace Orbit.Models
         [NotMapped]
         public int brineTankLevelUpperLimit = 100;
         [NotMapped]
-        public int brineTankLevelTolerance = 5; 
+        public int brineTankLevelTolerance = 5;
 
+        public void ProcessData(double temp, int speed)
+        {
+            if(UrineTankLevel > 80)
+            {
+                SystemStatus = SystemStatus.Processing;
+                UrineTankLevel -= 5;
+                SupplyPumpOn = true;
+                DistillerOn = true;
+                DistillerTemp = temp;
+                DistillerSpeed = speed;
+                PurgePumpOn = true;
+                BrineTankLevel += 2;
+            }
+            else
+            {
+                SystemStatus = SystemStatus.Standby;
+                UrineTankLevel += 5;
+                SupplyPumpOn = false;
+                DistillerOn = false;
+                DistillerTemp = temp;
+                DistillerSpeed = speed;
+                PurgePumpOn = false;
+            }
+        }
 
         #region CheckValueMethods
         private IEnumerable<Alert> CheckUrineTankLevel()

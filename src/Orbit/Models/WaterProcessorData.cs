@@ -3,6 +3,10 @@ using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Microsoft.Extensions.DependencyInjection;
+using Orbit.Util;
+using Orbit.Data;
+
 
 namespace Orbit.Models
 {
@@ -13,7 +17,7 @@ namespace Orbit.Models
         /// <summary>
         /// indicator of overall system status (Standby, Processing, Failure...)
         /// </summary>
-        public SystemStatus SystemStatus { get; set; } 
+        public SystemStatus SystemStatus { get; set; }
 
         /// <summary>
         /// draws water from dirty storage tank and pushes into the water processing system
@@ -36,7 +40,7 @@ namespace Orbit.Models
         /// temp of water leaving heater and before entering reactor
         /// Nominal is 130.5
         /// </summary>
-        [Range(32,150)]
+        [Range(32, 150)]
         public double PostHeaterTemp { get; set; }
 
         [NotMapped]
@@ -69,7 +73,64 @@ namespace Orbit.Models
         [NotMapped]
         public int productTankLevelTolerance = 5;
 
-        
+        public void ProcessData(double wasteTankLevel, double heaterTemp)
+        {
+            if(SystemStatus == SystemStatus.Trouble)
+            {
+            }
+            else if(wasteTankLevel > 80)
+            {
+                SystemStatus = SystemStatus.Processing;
+                PumpOn = true;
+                FiltersOK = true;
+                HeaterOn = true;
+                PostHeaterTemp = heaterTemp;
+                PostReactorQualityOK = true;
+                DiverterValvePosition = DiverterValvePositions.ToStorage;
+                ProductTankLevel += 5;
+            }
+            else //(wasteTankLevel <= 0)
+            {
+                SystemStatus = SystemStatus.Standby;
+                PumpOn = false;
+                FiltersOK = false;
+                HeaterOn = false;
+                PostHeaterTemp = heaterTemp;
+                PostReactorQualityOK = true;
+                DiverterValvePosition = DiverterValvePositions.ToStorage;
+            }
+        }
+
+
+        public void ChangeSystemStatus()
+        {
+            if((SystemStatus == SystemStatus.Standby) || (SystemStatus == SystemStatus.Ready)){
+                this.SystemStatus = SystemStatus.Processing;
+                PumpOn = true;
+                HeaterOn = true;
+            }
+            else
+            {
+                this.SystemStatus = SystemStatus.Standby;
+                PumpOn = false;
+                HeaterOn = false;
+            }
+        }
+
+        private IServiceProvider sp => OrbitServiceProvider.Instance;
+        private void ProcessWasteWater()
+        {
+            using var scope = sp.CreateScope();
+            using var db = scope.ServiceProvider.GetRequiredService<OrbitDbContext>();
+
+            WasteWaterStorageTankData wasteTank = db.WasteWaterStorageTankData.First();
+
+            if (wasteTank.Level <= 10)
+            { 
+                SystemStatus = SystemStatus.Standby;
+            }
+        }
+
         #region ValueCheckMethods
         private IEnumerable<Alert> CheckProductTankLevel()
         {
@@ -137,7 +198,6 @@ namespace Orbit.Models
 
         #endregion ValueCheckMethods
 
-
         IEnumerable<Alert> IAlertableModel.GenerateAlerts()
         {
             //TODO: Implement
@@ -154,4 +214,5 @@ namespace Orbit.Models
 
         #endregion Implementation of IModuleComponent
     }
+
 }
