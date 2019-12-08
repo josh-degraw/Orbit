@@ -39,12 +39,9 @@ namespace Orbit.Models
         [Range(32,150)]
         public double PostHeaterTemp { get; set; }
 
-        [NotMapped]
-        public double postHeaterTempUpperLimit = 130.5;
-        [NotMapped]
-        public double postHeaterTempLowerLimit = 120.5;
-        [NotMapped]
-        public double postHeaterTempTolerance = 5;
+        private const double postHeaterTempUpperLimit = 130.5;
+        private const double postHeaterTempLowerLimit = 120.5;
+        private const double postHeaterTempTolerance = 5;
 
 
         /// <summary>
@@ -64,10 +61,8 @@ namespace Orbit.Models
         [Range(0, 100)]
         public int ProductTankLevel { get; set; }
 
-        [NotMapped]
-        public int productTankLevelUpperLimit = 100;
-        [NotMapped]
-        public int productTankLevelTolerance = 5;
+        private const int productTankLevelUpperLimit = 100;
+        private const int productTankLevelTolerance = 5;
 
         
         #region ValueCheckMethods
