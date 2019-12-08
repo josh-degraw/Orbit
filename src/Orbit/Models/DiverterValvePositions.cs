@@ -1,12 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace Orbit.Models
+﻿namespace Orbit.Models
 {
-    public enum  DiverterValvePositions
+    public enum DiverterValvePositions
     {
-        ToWaterProcessor,
-        ToOxygenGenerator
+        ToStorage,
+        Reprocess
     }
 }
