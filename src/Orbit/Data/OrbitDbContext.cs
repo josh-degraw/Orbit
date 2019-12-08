@@ -59,7 +59,7 @@ namespace Orbit.Data
             });
 
             this.WaterProcessorData.Add(new WaterProcessorData {
-                FiltersOK = true,
+                FiltersOk = true,
                 PostHeaterTemp = 20,
                 ProductTankLevel = 80,
                 PostReactorQualityOK = false,
