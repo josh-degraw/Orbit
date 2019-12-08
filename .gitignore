@@ -338,3 +338,5 @@ ASALocalRun/
 
 # BeatPulse healthcheck temp database
 healthchecksdb
+/src/Orbit/Models/StatusValue.cs
+/src/Orbit/Models/DiverterValvePositions.cs
