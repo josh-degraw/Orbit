@@ -44,28 +44,25 @@ namespace Orbit.Data
                 BrineTankLevel = 5,
                 DistillerSpeed = 20,
                 DistillerTemp = 20,
-                FluidControlPump = "Ok",
-                ProcessorId = "Main",
-                PurgePump = "Online",
-                SystemStatus = "Ready",
+                DistillerOn = false,
+                SupplyPumpOn = false,
+                PurgePumpOn = false,
+                SystemStatus = SystemStatus.Standby,
                 UrineTankLevel = 40,
-            });
+            }); ; ;
             this.WasteWaterStorageTankData.Add(new WasteWaterStorageTankData {
                 TankId = "Main",
                 Level = 30,
             });
 
             this.WaterProcessorData.Add(new WaterProcessorData {
-                CatalyticReactorTemp = 15,
-                DeliveryPump ="Carbonated",
-                PostFilterContaminateSensor = "Activated",
-                PreHeaterTemp= 20,
-                ProductTankLevel = 80.5,
-                ProcessorId = "Main",
-                ReactorHealthSensor = "Healthy",
-                ReprocessDiverterValve = "Active",
-                SupplyPump = "Supplied",
-                SystemStatus= "Ready",
+                FiltersOK = true,
+                PostHeaterTemp= 20,
+                ProductTankLevel = 80,
+                PostReactorQualityOK = false,
+                DiverterValvePosition = DiverterValvePositions.Reprocess,
+                PumpOn = false,
+                SystemStatus= SystemStatus.Standby,
             });
             this.SaveChanges();
         }

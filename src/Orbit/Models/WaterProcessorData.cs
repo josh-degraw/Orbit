@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Orbit.Models
@@ -9,62 +11,137 @@ namespace Orbit.Models
         public DateTimeOffset ReportDateTime { get; private set; } = DateTimeOffset.Now;
 
         /// <summary>
-        /// distinguish between seperate redundant processors ('MainProcessor', 'Backup 1')
+        /// indicator of overall system status (Standby, Processing, Failure...)
         /// </summary>
-        public string ProcessorId { get; set; }
-
-        /// <summary>
-        /// indicator of overall system status (Ready, Processing, Failure...)
-        /// </summary>
-        public string SystemStatus { get; set; }
+        public SystemStatus SystemStatus { get; set; } 
 
         /// <summary>
         /// draws water from dirty storage tank and pushes into the water processing system
         /// </summary>
-        public string SupplyPump { get; set; }
+        public bool PumpOn { get; set; }
 
         /// <summary>
         /// This sensor is located between two identical filter beds. It will trigger if contaminates are detected which
         /// indicates the first filter bed is saturated and needs to be changed by personal. The second filter is then
         /// moved to the first position and a new filter is then installed into the second filter position.
         /// </summary>
-        public string PostFilterContaminateSensor { get; set; }
+        public bool FiltersOK { get; set; }
 
         /// <summary>
-        /// warms incoming water before entering the reactor
+        /// Heats water to temp before entering the reactor
         /// </summary>
-        public double PreHeaterTemp { get; set; }
+        public bool HeaterOn { get; set; }
 
         /// <summary>
-        /// uses heat and oxygen to oxidize any remaining organic contaminates
+        /// temp of water leaving heater and before entering reactor
+        /// Nominal is 130.5
         /// </summary>
-        public double CatalyticReactorTemp { get; set; }
+        [Range(32,150)]
+        public double PostHeaterTemp { get; set; }
+
+        [NotMapped]
+        public double postHeaterTempUpperLimit = 130.5;
+        [NotMapped]
+        public double postHeaterTempLowerLimit = 120.5;
+        [NotMapped]
+        public double postHeaterTempTolerance = 5;
+
 
         /// <summary>
-        /// uses conductivity to measure the amount of organic contaminates after water has been treated by the reactor
+        /// this is a sensor(s) which is assumed will provide detailed water quality info on Gateway. 
+        /// for now I'm assuming it returns the results as a pass/fail check
         /// </summary>
-        public string ReactorHealthSensor { get; set; }
+        public bool PostReactorQualityOK { get; set; }
 
         /// <summary>
-        /// will divert water to product tank if contaminate and Reactor health sensors pass, or back into process line
-        /// if either sensor indicates failure/contaminates
+        /// valve diverts water to product tank if PostRectorQualityOK is true, or back into process assembly if false
         /// </summary>
-        public string ReprocessDiverterValve { get; set; }
+        public DiverterValvePositions DiverterValvePosition { get; set; } = DiverterValvePositions.Reprocess;
 
         /// <summary>
         /// Stores clean water ready for consumption
         /// </summary>
-        public double ProductTankLevel { get; set; }
+        [Range(0, 100)]
+        public int ProductTankLevel { get; set; }
 
-        /// <summary>
-        /// moves potable water to drinkin dispenser and various other systems?
-        /// </summary>
-        public string DeliveryPump { get; set; }
+        [NotMapped]
+        public int productTankLevelUpperLimit = 100;
+        [NotMapped]
+        public int productTankLevelTolerance = 5;
+
+        
+        #region ValueCheckMethods
+        private IEnumerable<Alert> CheckProductTankLevel()
+        {
+            if(ProductTankLevel >= productTankLevelUpperLimit)
+            {
+                yield return new Alert(nameof(ProductTankLevel), "Clean water tank is at capacity", AlertLevel.HighError);
+            }
+            else if(ProductTankLevel >= (productTankLevelUpperLimit -  productTankLevelTolerance))
+            {
+                yield return new Alert(nameof(ProductTankLevel), "Clean water tank is nearing capacity", AlertLevel.HighWarning);
+            }
+            else
+            {
+                yield return Alert.Safe(nameof(ProductTankLevel));
+            }
+        }
+        private IEnumerable<Alert> CheckFiltersOK()
+        {
+            if(FiltersOK == true)
+            {
+                yield return Alert.Safe(nameof(FiltersOK));
+            }
+            else
+            {
+                yield return new Alert(nameof(FiltersOK), "Filters in need of changing", AlertLevel.HighWarning);
+            }
+        }
+            
+        private IEnumerable<Alert> CheckPostHeaterTemp()
+        {
+            if(PostHeaterTemp >= postHeaterTempUpperLimit)
+            {
+                yield return new Alert(nameof(PostHeaterTemp), "Pre reactor water temp is above maximum", AlertLevel.HighError);
+            }
+            else if(PostHeaterTemp >= (postHeaterTempUpperLimit - postHeaterTempTolerance))
+            {
+                yield return new Alert(nameof(PostHeaterTemp), "Pre reactor water temp is too high", AlertLevel.HighWarning);
+
+            }
+            else if(PostHeaterTemp <= postHeaterTempLowerLimit)
+            {
+                yield return new Alert(nameof(PostHeaterTemp), "Pre reactor water temp is below minimum", AlertLevel.LowError);
+            }
+            else if(PostHeaterTemp <= (postHeaterTempLowerLimit + postHeaterTempTolerance))
+            {
+                yield return new Alert(nameof(PostHeaterTemp), "Pre reactor water temp is too low", AlertLevel.LowWarning);
+            }
+            else
+            {
+                yield return Alert.Safe(nameof(PostHeaterTemp));
+            }
+        }
+
+        private IEnumerable<Alert> CheckPostReactorQuality()
+        {
+            if(PostReactorQualityOK == true)
+            {
+                yield return Alert.Safe(nameof(PostReactorQualityOK));
+            }
+            else
+            {
+                yield return new Alert(nameof(PostReactorQualityOK), "Post reactor water quality is below limit(s). Reprocessing", AlertLevel.HighWarning);
+            }
+        }
+
+        #endregion ValueCheckMethods
+
 
         IEnumerable<Alert> IAlertableModel.GenerateAlerts()
         {
             //TODO: Implement
-            yield break;
+            return CheckProductTankLevel().Concat(CheckFiltersOK()).Concat(CheckPostHeaterTemp()).Concat(CheckPostReactorQuality());
         }
 
         #region Implementation of IModuleComponent
