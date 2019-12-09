@@ -1,14 +1,25 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Collections.Generic;
-using System.Text;
 using System.Linq;
 
 namespace Orbit.Models
 {
     public class InternalCoolantLoopData : IAlertableModel
     {
+        #region Limits
+
+        private const double medCoolantLoopUpperLimit = 22;
+        private const double medCoolantLoopLowerLimit = 12;
+        private const double medCoolantLoopTolerance = 5;
+
+        private const double lowTempCoolantLoopUpperLimit = 10;
+        private const double lowTempCoolantLoopLowerLimit = 2;
+        private const double lowTempCoolantLoopTolerance = 2;
+
+        #endregion Limits
+
         public DateTimeOffset ReportDateTime { get; set; } = DateTimeOffset.Now;
 
         /// <summary>
@@ -17,41 +28,25 @@ namespace Orbit.Models
         public bool PumpOn { get; set; }
 
         /// <summary>
-        /// warmer coolant loop for experiments and avionics
-        /// nominal is 10.5C
+        /// warmer coolant loop for experiments and avionics nominal is 10.5C
         /// </summary>
         [Range(0, 47)]
         public double TempMedCoolantLoop { get; set; }
 
-        [NotMapped]
-        private double medCoolantLoopUpperLimit = 22;
-        [NotMapped]
-        private double medCoolantLoopLowerLimit = 12;
-        [NotMapped]
-        private double medCoolantLoopTolerance = 5;
-
-
         /// <summary>
-        /// colder coolant loop for life support and, cabin air assembly, and some experiments
-        /// nominal is 4C
+        /// colder coolant loop for life support and, cabin air assembly, and some experiments nominal is 4C
         /// </summary>
         [Range(0, 47)]
         public double TempLowCoolantLoop { get; set; }
 
-        [NotMapped]
-        private double lowTempCoolantLoopUpperLimit = 10;
-        [NotMapped]
-        private double lowTempCoolantLoopLowerLimit = 2;
-        [NotMapped]
-        private double lowTempCoolantLoopTolerance = 2;
+        #region IAlertableModel implementation
 
         [NotMapped]
         public string ComponentName => "InternalCoolantSystem";
 
-
         private IEnumerable<Alert> CheckLowTempLoopStatus()
         {
-            if(TempLowCoolantLoop >= lowTempCoolantLoopUpperLimit)
+            if (TempLowCoolantLoop >= lowTempCoolantLoopUpperLimit)
             {
                 yield return new Alert(nameof(TempLowCoolantLoop), "Low coolant loop temperature is above maximum", AlertLevel.HighError);
             }
@@ -59,11 +54,11 @@ namespace Orbit.Models
             {
                 yield return new Alert(nameof(TempLowCoolantLoop), "Low coolant loop temperature is high", AlertLevel.HighWarning);
             }
-            else if(TempLowCoolantLoop <= lowTempCoolantLoopLowerLimit)
+            else if (TempLowCoolantLoop <= lowTempCoolantLoopLowerLimit)
             {
                 yield return new Alert(nameof(TempLowCoolantLoop), "Low coolant loop temperature is low", AlertLevel.LowError);
             }
-            else if(TempLowCoolantLoop <= (lowTempCoolantLoopLowerLimit + lowTempCoolantLoopTolerance))
+            else if (TempLowCoolantLoop <= (lowTempCoolantLoopLowerLimit + lowTempCoolantLoopTolerance))
             {
                 yield return new Alert(nameof(TempLowCoolantLoop), "Low coolant loop temperature is below minimum", AlertLevel.LowWarning);
             }
@@ -99,7 +94,10 @@ namespace Orbit.Models
 
         IEnumerable<Alert> IAlertableModel.GenerateAlerts()
         {
-            return CheckLowTempLoopStatus().Concat(CheckMedTempLoopStatus());
+            return this.CheckLowTempLoopStatus()
+                .Concat(this.CheckMedTempLoopStatus());
         }
+
+        #endregion IAlertableModel implementation
     }
 }

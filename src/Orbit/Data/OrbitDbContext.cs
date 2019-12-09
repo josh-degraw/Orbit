@@ -1,12 +1,11 @@
 ﻿#nullable disable warnings
-using Microsoft.EntityFrameworkCore;
-
-using Orbit.Models;
 
 using System;
-using System.Linq;
+
+using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using System.Threading.Tasks;
+
+using Orbit.Models;
 
 namespace Orbit.Data
 {
@@ -27,10 +26,13 @@ namespace Orbit.Data
         public DbSet<OxygenGenerator> OxygenGeneratorData { get; set; }
 
         public DbSet<CarbonDioxideRemediation> CarbonDioxideRemoverData { get; set; }
-        
+
         public DbSet<Battery> BatteryData { get; set; }
+
         public DbSet<Radiator> RadiatorData { get; set; }
+
         public DbSet<ShuntUnit> ShuntUnitData { get; set; }
+
         public DbSet<SolarArray> SolarArrayData { get; set; }
 
         public DbSet<InternalCoolantLoopData> InternalCoolantLoopData { get; set; }
@@ -49,7 +51,8 @@ namespace Orbit.Data
                 PurgePumpOn = false,
                 SystemStatus = SystemStatus.Standby,
                 UrineTankLevel = 40,
-            }); ; ;
+            });
+
             this.WasteWaterStorageTankData.Add(new WasteWaterStorageTankData {
                 TankId = "Main",
                 Level = 30,
@@ -62,7 +65,7 @@ namespace Orbit.Data
                 PostReactorQualityOK = false,
                 DiverterValvePosition = DiverterValvePositions.Reprocess,
                 PumpOn = false,
-                SystemStatus= SystemStatus.Standby,
+                SystemStatus = SystemStatus.Standby,
             });
             this.SaveChanges();
         }
@@ -94,9 +97,6 @@ namespace Orbit.Data
             modelBuilder.Entity<ShuntUnit>(MapModelCommonProps);
             modelBuilder.Entity<ExternalCoolantLoopData>(MapModelCommonProps);
             modelBuilder.Entity<InternalCoolantLoopData>(MapModelCommonProps);
-
-
         }
-
     }
 }

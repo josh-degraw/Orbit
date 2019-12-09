@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Linq;
 
 namespace Orbit.Models
 {
@@ -11,20 +12,18 @@ namespace Orbit.Models
         public DateTimeOffset ReportDateTime { get; private set; } = DateTimeOffset.Now;
 
         /// <summary>
-        /// indicator of overall system status (Ready, Processing, Failure...)
+        /// Indicator of overall system status (Ready, Processing, Failure...)
         /// </summary>
         public SystemStatus SystemStatus { get; set; }
 
         /// <summary>
-        /// fullness of treated weewee holding tank as a percentage
+        /// Fullness of treated weewee holding tank as a percentage
         /// </summary>
         [Range(0, 100)]
         public int UrineTankLevel { get; set; }
 
-        [NotMapped]
-        public int urineTankUpperLimit = 100;
-        [NotMapped]
-        public int urineTankLevelTolerance = 5;
+        private const int urineTankUpperLimit = 100;
+        private const int urineTankLevelTolerance = 5;
 
         /// <summary>
         /// status of pump assembly used to pull fluid from weewee tank to the distiller assembly then from distiller
@@ -33,7 +32,7 @@ namespace Orbit.Models
         public bool SupplyPumpOn { get; set; }
 
         /// <summary>
-        /// turining distiller on or off also turns on/off distiller motor and heater
+        /// Turning distiller on or off also turns on/off distiller motor and heater
         /// </summary>
         public bool DistillerOn { get; set; }
 
@@ -41,46 +40,38 @@ namespace Orbit.Models
         /// Motor speed; nominal 1200 rpm
         /// </summary>
         [Range(0, 1400)]
-        public int DistillerSpeed { get; set; }
-        
-        [NotMapped]
-        public int distillerSpeedUpperLimit = 1300;
-        [NotMapped]
-        public int distillerSpeedLowerLimit = 1100;
-        [NotMapped]
-        public int distillerSpeedTolerance = 100;
+        public int DistillerSpeed { get; set; }        
 
+        private const int distillerSpeedUpperLimit = 1300;
+        private const int distillerSpeedLowerLimit = 1100;
+        private const int distillerSpeedTolerance = 100;
+        
         /// <summary>
         /// Temp of weewee in the distiller; nominal 45C
         /// </summary>
         [Range(0, 60)]
         public double DistillerTemp { get; set; }
         
-        [NotMapped]
-        public double distillerTempUpperLimit = 55;
-        [NotMapped]
-        public double distillerTempLowerlimit = 35;
-        [NotMapped]
-        public double distillerTempTolerance = 5;
+        private const double distillerTempUpperLimit = 55;
+
+        private const double distillerTempLowerlimit = 35;
+
+        private const double distillerTempTolerance = 5;
 
         /// <summary>
-        /// routes distillate and gasses from distiller to gas/liquid seperator cooled assembly aids condensation of
+        /// Routes distillate and gasses from distiller to gas/liquid separator cooled assembly aids condensation of
         /// water from gas
         /// </summary>
         public bool PurgePumpOn { get; set; }
 
         /// <summary>
-        /// stores concentrated minerals and contaminates from weewee distillation process for later disposal
-        /// shown as percentage
+        /// Stores concentrated minerals and contaminates from weewee distillation process for later disposal shown as percentage
         /// </summary>
         [Range(0, 100)]
         public int BrineTankLevel { get; set; }
 
-        [NotMapped]
-        public int brineTankLevelUpperLimit = 100;
-        [NotMapped]
-        public int brineTankLevelTolerance = 5;
-
+        private const int brineTankLevelUpperLimit = 100;
+        private const int brineTankLevelTolerance = 5;
         public void ProcessData(double wasteTankLevel, double temp, int speed)
         {
             if (SystemStatus == SystemStatus.Standby)
@@ -141,13 +132,14 @@ namespace Orbit.Models
         }
 
         #region CheckValueMethods
+
         private IEnumerable<Alert> CheckUrineTankLevel()
         {
-            if(UrineTankLevel >= urineTankUpperLimit)  // system should start/be processing if wastetank < 95%, else shut down 
+            if (UrineTankLevel >= urineTankUpperLimit)  // system should start/be processing if wastetank < 95%, else shut down
             {
-                yield return new Alert(nameof(UrineTankLevel), "Urine tank level is at capacity", AlertLevel.HighError);                
+                yield return new Alert(nameof(UrineTankLevel), "Urine tank level is at capacity", AlertLevel.HighError);
             }
-            else if(UrineTankLevel >= (urineTankUpperLimit - urineTankLevelTolerance)) 
+            else if (UrineTankLevel >= (urineTankUpperLimit - urineTankLevelTolerance))
             {
                 yield return new Alert(nameof(UrineTankLevel), "Urine tank level is nearing capacity", AlertLevel.HighWarning);
             }
@@ -157,7 +149,7 @@ namespace Orbit.Models
             }
         }
 
-        IEnumerable<Alert> CheckDistillerSpeed()
+        private IEnumerable<Alert> CheckDistillerSpeed()
         {
             if (DistillerSpeed >= distillerSpeedUpperLimit)
             {
@@ -183,7 +175,7 @@ namespace Orbit.Models
             }
         }
 
-        IEnumerable<Alert> CheckDistillerTemp()
+        private IEnumerable<Alert> CheckDistillerTemp()
         {
             if (DistillerTemp >= distillerTempUpperLimit)
             {
@@ -198,7 +190,7 @@ namespace Orbit.Models
                 yield return new Alert(nameof(DistillerTemp), "Distiller temp is below minimum", AlertLevel.LowError);
             }
             else if (DistillerOn && (DistillerTemp <= (distillerTempLowerlimit + distillerTempTolerance)))
-            {   
+            {
                 yield return new Alert(nameof(DistillerTemp), "Distiller Temp is too low", AlertLevel.LowWarning);
             }
             else
@@ -209,12 +201,12 @@ namespace Orbit.Models
 
         private IEnumerable<Alert> CheckBrineTankLevel()
         {
-            if(BrineTankLevel >= brineTankLevelUpperLimit)
+            if (BrineTankLevel >= brineTankLevelUpperLimit)
             {
                 // TODO: shut down system
                 yield return new Alert(nameof(BrineTankLevel), "Brine tank is at capacity", AlertLevel.HighError);
             }
-            else if(BrineTankLevel >= (brineTankLevelUpperLimit - brineTankLevelTolerance))
+            else if (BrineTankLevel >= (brineTankLevelUpperLimit - brineTankLevelTolerance))
             {
                 yield return new Alert(nameof(BrineTankLevel), "Brine tank is nearing capacity", AlertLevel.HighWarning);
             }
@@ -223,12 +215,15 @@ namespace Orbit.Models
                 yield return Alert.Safe(nameof(BrineTankLevel));
             }
         }
+
         #endregion CheckValueMethods
 
         IEnumerable<Alert> IAlertableModel.GenerateAlerts()
         {
-            // Example:
-            return CheckUrineTankLevel().Concat(CheckDistillerTemp()).Concat(CheckBrineTankLevel());
+            return this.CheckUrineTankLevel()
+                .Concat(this.CheckDistillerTemp())
+                .Concat(this.CheckDistillerSpeed())
+                .Concat(this.CheckBrineTankLevel());
         }
 
         #region Implementation of IModuleComponent

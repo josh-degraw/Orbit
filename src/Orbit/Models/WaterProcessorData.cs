@@ -7,11 +7,21 @@ using Microsoft.Extensions.DependencyInjection;
 using Orbit.Util;
 using Orbit.Data;
 
-
 namespace Orbit.Models
 {
     public class WaterProcessorData : IAlertableModel
     {
+        #region Limits
+
+        private const double postHeaterTempUpperLimit = 130.5;
+        private const double postHeaterTempLowerLimit = 120.5;
+        private const double postHeaterTempTolerance = 5;
+
+        private const int productTankLevelUpperLimit = 100;
+        private const int productTankLevelTolerance = 5;
+
+        #endregion Limits
+
         public DateTimeOffset ReportDateTime { get; private set; } = DateTimeOffset.Now;
 
         /// <summary>
@@ -35,25 +45,18 @@ namespace Orbit.Models
         /// Heats water to temp before entering the reactor
         /// </summary>
         public bool HeaterOn { get; set; }
-
+        
         /// <summary>
-        /// temp of water leaving heater and before entering reactor
-        /// Nominal is 130.5
+        /// this is a sensor(s) which is assumed will provide detailed water quality info on Gateway. 
+        /// for now I'm assuming it returns the results as a pass/fail check
+        /// temp of water leaving heater and before entering reactor Nominal is 130.5
         /// </summary>
         [Range(32, 150)]
         public double PostHeaterTemp { get; set; }
 
-        [NotMapped]
-        public double postHeaterTempUpperLimit = 130.5;
-        [NotMapped]
-        public double postHeaterTempLowerLimit = 120.5;
-        [NotMapped]
-        public double postHeaterTempTolerance = 5;
-
-
         /// <summary>
-        /// this is a sensor(s) which is assumed will provide detailed water quality info on Gateway. 
-        /// for now I'm assuming it returns the results as a pass/fail check
+        /// this is a sensor(s) which is assumed will provide detailed water quality info on Gateway. for now I'm
+        /// assuming it returns the results as a pass/fail check
         /// </summary>
         public bool PostReactorQualityOK { get; set; }
 
@@ -67,11 +70,6 @@ namespace Orbit.Models
         /// </summary>
         [Range(0, 100)]
         public int ProductTankLevel { get; set; }
-
-        [NotMapped]
-        public int productTankLevelUpperLimit = 100;
-        [NotMapped]
-        public int productTankLevelTolerance = 5;
 
         public void ProcessData(double wasteTankLevel, double heaterTemp)
         {
@@ -142,15 +140,16 @@ namespace Orbit.Models
                 HeaterOn = false;
             }
         }
-
+        
         #region ValueCheckMethods
+
         private IEnumerable<Alert> CheckProductTankLevel()
         {
-            if(ProductTankLevel >= productTankLevelUpperLimit)
+            if (ProductTankLevel >= productTankLevelUpperLimit)
             {
                 yield return new Alert(nameof(ProductTankLevel), "Clean water tank is at capacity", AlertLevel.HighError);
             }
-            else if(ProductTankLevel >= (productTankLevelUpperLimit -  productTankLevelTolerance))
+            else if (ProductTankLevel >= (productTankLevelUpperLimit - productTankLevelTolerance))
             {
                 yield return new Alert(nameof(ProductTankLevel), "Clean water tank is nearing capacity", AlertLevel.HighWarning);
             }
@@ -159,34 +158,34 @@ namespace Orbit.Models
                 yield return Alert.Safe(nameof(ProductTankLevel));
             }
         }
-        private IEnumerable<Alert> CheckFiltersOK()
+
+        private IEnumerable<Alert> CheckFiltersOk()
         {
-            if(FiltersOK == true)
+            if (this.FiltersOk)
             {
-                yield return Alert.Safe(nameof(FiltersOK));
+                yield return Alert.Safe(nameof(this.FiltersOk));
             }
             else
             {
-                yield return new Alert(nameof(FiltersOK), "Filters in need of changing", AlertLevel.HighWarning);
+                yield return new Alert(nameof(this.FiltersOk), "Filters in need of changing", AlertLevel.HighWarning);
             }
         }
-            
+
         private IEnumerable<Alert> CheckPostHeaterTemp()
         {
-            if(PostHeaterTemp >= postHeaterTempUpperLimit)
+            if (PostHeaterTemp >= postHeaterTempUpperLimit)
             {
                 yield return new Alert(nameof(PostHeaterTemp), "Pre reactor water temp is above maximum", AlertLevel.HighError);
             }
-            else if(PostHeaterTemp >= (postHeaterTempUpperLimit - postHeaterTempTolerance))
+            else if (PostHeaterTemp >= (postHeaterTempUpperLimit - postHeaterTempTolerance))
             {
                 yield return new Alert(nameof(PostHeaterTemp), "Pre reactor water temp is too high", AlertLevel.HighWarning);
-
             }
-            else if(PostHeaterTemp <= postHeaterTempLowerLimit)
+            else if (PostHeaterTemp <= postHeaterTempLowerLimit)
             {
                 yield return new Alert(nameof(PostHeaterTemp), "Pre reactor water temp is below minimum", AlertLevel.LowError);
             }
-            else if(PostHeaterTemp <= (postHeaterTempLowerLimit + postHeaterTempTolerance))
+            else if (PostHeaterTemp <= (postHeaterTempLowerLimit + postHeaterTempTolerance))
             {
                 yield return new Alert(nameof(PostHeaterTemp), "Pre reactor water temp is too low", AlertLevel.LowWarning);
             }
@@ -198,7 +197,7 @@ namespace Orbit.Models
 
         private IEnumerable<Alert> CheckPostReactorQuality()
         {
-            if(PostReactorQualityOK == true)
+            if (PostReactorQualityOK)
             {
                 yield return Alert.Safe(nameof(PostReactorQualityOK));
             }
@@ -212,8 +211,10 @@ namespace Orbit.Models
 
         IEnumerable<Alert> IAlertableModel.GenerateAlerts()
         {
-            //TODO: Implement
-            return CheckProductTankLevel().Concat(CheckFiltersOK()).Concat(CheckPostHeaterTemp()).Concat(CheckPostReactorQuality());
+            return this.CheckProductTankLevel()
+                .Concat(this.CheckFiltersOk())
+                .Concat(this.CheckPostHeaterTemp())
+                .Concat(this.CheckPostReactorQuality());
         }
 
         #region Implementation of IModuleComponent

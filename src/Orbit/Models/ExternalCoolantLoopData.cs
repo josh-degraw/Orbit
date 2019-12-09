@@ -1,8 +1,6 @@
 ﻿using System;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 using System.Collections.Generic;
-using System.Text;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 
 namespace Orbit.Models
@@ -17,17 +15,14 @@ namespace Orbit.Models
         public bool PumpOn { get; set; }
 
         /// <summary>
-        /// position in degrees from neutral point. 
+        /// position in degrees from neutral point.
         /// </summary>
         [Range(-215, 215)]
         public int RadiatorRotation { get; set; }
 
-        [NotMapped]
-        int radiatorRotationUpperLimit = 215;
-        [NotMapped]
-        int radiatorRotationLowerLimit = -215;
-        [NotMapped]
-        int radiatorRotationTolerance = 10;
+        private const int radiatorRotationUpperLimit = 215;
+        private const int radiatorRotationLowerLimit = -215;
+        private const int radiatorRotationTolerance = 10;
 
         /// <summary>
         /// pressure of fluid in the lines
@@ -35,12 +30,9 @@ namespace Orbit.Models
         [Range(0, 600)]
         public int FluidLinePressure { get; set; }
 
-        [NotMapped]
-        int fluidLinePressureUpperLimit = 480;
-        [NotMapped]
-        int fluidLinePressureLowerLimit = 170;
-        [NotMapped]
-        int fluidLinePressureTolerance = 30;
+        private const int fluidLinePressureUpperLimit = 480;
+        private const int fluidLinePressureLowerLimit = 170;
+        private const int fluidLinePressureTolerance = 30;
 
         /// <summary>
         /// temperature of fluid returning from radiator flow control valve to internal/external heat exchanger
@@ -48,47 +40,43 @@ namespace Orbit.Models
         [Range(-157, 121)]
         public double TempFluidToHeatExchanger { get; set; }
 
-        [NotMapped]
-        double tempFluidToHeatExchangerUpperLimit = 18.22;
-        [NotMapped]
-        double tempFluidToHeatExchangerLowerLimit = 1.67;
-        [NotMapped]
-        double tempFluidToHeatExchangerTolerance = 5;
+        private const double tempFluidToHeatExchangerUpperLimit = 18.22;
+        private const double tempFluidToHeatExchangerLowerLimit = 1.67;
+        private const double tempFluidToHeatExchangerTolerance = 5;
 
         /// <summary>
-        /// heats the external coolant if the heat offload from the station is too low to warm the -40F degree
-        /// ammonia to at least 36F to prevent the internal coolant (water) from freezing
+        /// heats the external coolant if the heat offload from the station is too low to warm the -40F degree ammonia
+        /// to at least 36F to prevent the internal coolant (water) from freezing
         /// </summary>
         public bool LineHeaterOn { get; set; }
 
         /// <summary>
-        /// contains repleneshment fluid and serves as additional resevoir for expanded fluid to go (increase of pressure),
-        /// and draw from when fluid contracts (decrease pressure)
+        /// contains replenishment fluid and serves as additional reservoir for expanded fluid to go (increase of
+        /// pressure), and draw from when fluid contracts (decrease pressure)
         /// </summary>
         [Range(0, 100)]
         public int TankLevel { get; set; }
 
-        int tankLevelUpperLimit = 95;
-        int tankLevelTolerance = 5;
-
+        private const int tankLevelUpperLimit = 95;
+        private const int tankLevelTolerance = 5;
 
         public string ComponentName => "ExternalCoolantSystem";
 
         private IEnumerable<Alert> CheckRadiatorRotation()
         {
-            if(RadiatorRotation > radiatorRotationUpperLimit)
+            if (RadiatorRotation > radiatorRotationUpperLimit)
             {
                 yield return new Alert(nameof(RadiatorRotation), "Coolant radiator has exceeded maximum available rotation", AlertLevel.HighError);
             }
-            else if(RadiatorRotation >= (radiatorRotationUpperLimit - radiatorRotationTolerance))
+            else if (RadiatorRotation >= (radiatorRotationUpperLimit - radiatorRotationTolerance))
             {
                 yield return new Alert(nameof(RadiatorRotation), "Coolant radiator has exceeded allowed rotation", AlertLevel.HighWarning);
             }
-            else if(RadiatorRotation < radiatorRotationLowerLimit)
+            else if (RadiatorRotation < radiatorRotationLowerLimit)
             {
                 yield return new Alert(nameof(RadiatorRotation), "Coolant radiator has exceeded maximum available rotation", AlertLevel.LowError);
             }
-            else if(RadiatorRotation <= (radiatorRotationLowerLimit + radiatorRotationTolerance))    
+            else if (RadiatorRotation <= (radiatorRotationLowerLimit + radiatorRotationTolerance))
             {
                 yield return new Alert(nameof(RadiatorRotation), "Coolant radiator has exceeded allowed rotation", AlertLevel.LowWarning);
             }
@@ -124,11 +112,11 @@ namespace Orbit.Models
 
         private IEnumerable<Alert> CheckFluidTemp()
         {
-            if(TempFluidToHeatExchanger >= tempFluidToHeatExchangerUpperLimit)
+            if (TempFluidToHeatExchanger >= tempFluidToHeatExchangerUpperLimit)
             {
                 yield return new Alert(nameof(TempFluidToHeatExchanger), "External coolant temperature is above maximum", AlertLevel.HighError);
             }
-            else if(TempFluidToHeatExchanger >= (tempFluidToHeatExchangerUpperLimit - tempFluidToHeatExchangerTolerance))
+            else if (TempFluidToHeatExchanger >= (tempFluidToHeatExchangerUpperLimit - tempFluidToHeatExchangerTolerance))
             {
                 yield return new Alert(nameof(TempFluidToHeatExchanger), "External coolant temperature is too high", AlertLevel.HighWarning);
             }
@@ -164,8 +152,10 @@ namespace Orbit.Models
 
         IEnumerable<Alert> IAlertableModel.GenerateAlerts()
         {
-            return CheckRadiatorRotation().Concat(CheckLinePressure()).Concat(CheckFluidTemp()).Concat(CheckTankLevel());
+            return this.CheckRadiatorRotation()
+                .Concat(this.CheckLinePressure())
+                .Concat(this.CheckFluidTemp())
+                .Concat(this.CheckTankLevel());
         }
-
     }
-}                                                                      
+}
