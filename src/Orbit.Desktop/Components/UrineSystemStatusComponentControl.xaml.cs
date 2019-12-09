@@ -28,6 +28,7 @@ namespace Orbit.Desktop.Components
             // Subscribe to updates here
             EventMonitor.Instance.AlertReported += this.Instance_AlertReported;
         }
+
         private void Instance_AlertReported(object? sender, AlertEventArgs e)
         {
             if (e.Alert.PropertyName == nameof(UrineSystemData.SystemStatus))

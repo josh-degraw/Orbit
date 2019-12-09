@@ -21,44 +21,9 @@
             <ColumnDefinition />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
-        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="{Binding Model.UrineProcessorData, StringFormat= Waste Water Tank {0}, FallbackValue=UrineTankLevel}" HorizontalAlignment="Center" FontFamily="Consolas" Foreground="#80abcc" FontWeight="Bold"/>
-        <TextBlock Grid.Row="1" Grid.Column="1" Grid.RowSpan="1" Text="{Binding Model.UrineTankLevel, FallbackValue=0.0, StringFormat='\{0:N2\}'}" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Consolas" Foreground="#80abcc" />
-
-        <Ellipse  Grid.Row="1" Grid.Column="2" Grid.RowSpan="1"  DataContext="{Binding Alert}" Width="25" Height="25">
-            <Ellipse.ToolTip>
-                <ToolTip Content="{Binding Message}">
-                    <ToolTip.Style>
-                        <Style TargetType="ToolTip">
-                            <Style.Triggers>
-                                <Trigger Property="Content" Value="{x:Static system:String.Empty}">
-                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                </Trigger>
-                            </Style.Triggers>
-                        </Style>
-                    </ToolTip.Style>
-                </ToolTip>
-            </Ellipse.ToolTip>
-            <Ellipse.Style>
-                <Style TargetType="Ellipse">
-                    <Setter Property="Fill" Value="Green"/>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding AlertLevel}" Value="HighWarning">
-                            <Setter Property="Fill" Value="Yellow" />
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding AlertLevel}" Value="LowWarning">
-                            <Setter Property="Fill" Value="Yellow" />
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding AlertLevel}" Value="HighError">
-                            <Setter Property="Fill" Value="#FFF17D7D"/>
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding AlertLevel}" Value="LowError">
-                            <Setter Property="Fill" Value="#FFF17D7D"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Ellipse.Style>
-        </Ellipse>
-        <!--<TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Text="{Binding Alert.Message}" HorizontalAlignment="Center" VerticalAlignment="Center" />-->
-        <TextBlock Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Model.ReportDateTime, StringFormat='Last read: \{0:hh\:mm\:ss\}', FallbackValue=Last read: 00:00:00}" HorizontalAlignment="Center" FontSize="8" VerticalAlignment="Center" Foreground="#707070" FontFamily="Consolas" />
+        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="Urine Tank Level" FontWeight="Bold"/>
+        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Model.UrineTankLevel, FallbackValue=0.0, StringFormat='\{0:N2\}'}"/>
+        <Ellipse   Grid.Row="1" Grid.Column="2" DataContext="{Binding Alert}" Style="{StaticResource AlertStyles}"/>
+        <TextBlock Grid.Row="3" Grid.Column="1" Style="{StaticResource ReportDateTime}" />
     </Grid>
 </UserControl>
