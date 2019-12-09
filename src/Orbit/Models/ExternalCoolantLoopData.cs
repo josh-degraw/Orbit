@@ -62,6 +62,8 @@ namespace Orbit.Models
 
         public string ComponentName => "ExternalCoolantSystem";
 
+        #region Alert generation
+
         private IEnumerable<Alert> CheckRadiatorRotation()
         {
             if (RadiatorRotation > radiatorRotationUpperLimit)
@@ -157,5 +159,7 @@ namespace Orbit.Models
                 .Concat(this.CheckFluidTemp())
                 .Concat(this.CheckTankLevel());
         }
+
+        #endregion Alert generation
     }
 }

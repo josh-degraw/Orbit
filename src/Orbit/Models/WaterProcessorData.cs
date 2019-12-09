@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Orbit.Models
 {
-    public class WaterProcessorData : IAlertableModel
+    public class WaterProcessorData : IAlertableModel, IEquatable<WaterProcessorData>
     {
         #region Limits
 
@@ -55,7 +55,7 @@ namespace Orbit.Models
         /// this is a sensor(s) which is assumed will provide detailed water quality info on Gateway. for now I'm
         /// assuming it returns the results as a pass/fail check
         /// </summary>
-        public bool PostReactorQualityOK { get; set; }
+        public bool PostReactorQualityOk { get; set; }
 
         /// <summary>
         /// valve diverts water to product tank if PostRectorQualityOK is true, or back into process assembly if false
@@ -66,18 +66,19 @@ namespace Orbit.Models
         /// Stores clean water ready for consumption
         /// </summary>
         [Range(0, 100)]
-        public int ProductTankLevel { get; set; }
+        public double ProductTankLevel { get; set; }
 
         public void ProcessData(double wasteTankLevel, double heaterTemp)
         {
             PostHeaterTemp = heaterTemp;
             const int smallIncrement = 2;
             const int largeIncrement = 5;
+            const int highLevel = productTankLevelUpperLimit - productTankLevelTolerance;
 
             if (SystemStatus == SystemStatus.Standby)
             {
-                if ((wasteTankLevel >= productTankLevelUpperLimit - productTankLevelTolerance)
-                    && (ProductTankLevel < productTankLevelUpperLimit))
+                if (wasteTankLevel >= highLevel
+                    && ProductTankLevel < productTankLevelUpperLimit)
                 {
                     SystemStatus = SystemStatus.Processing;
                     PumpOn = true;
@@ -182,18 +183,26 @@ namespace Orbit.Models
 
         private IEnumerable<Alert> CheckPostReactorQuality()
         {
-            if (PostReactorQualityOK)
+            if (this.PostReactorQualityOk)
             {
-                yield return Alert.Safe(nameof(PostReactorQualityOK));
+                yield return Alert.Safe(nameof(this.PostReactorQualityOk));
             }
             else
             {
-                yield return new Alert(nameof(PostReactorQualityOK), "Post reactor water quality is below limit(s). Reprocessing", AlertLevel.HighWarning);
+                yield return new Alert(nameof(this.PostReactorQualityOk), "Post reactor water quality is below limit(s). Reprocessing", AlertLevel.HighWarning);
             }
         }
 
         private IEnumerable<Alert> CheckSystemStatus()
         {
+            if (ProductTankLevel > 0)
+            {
+                if (this.SystemStatus != SystemStatus.Trouble)
+                {
+                    this.SystemStatus = SystemStatus.Processing;
+                }
+            }
+
             if (this.SystemStatus == SystemStatus.Trouble)
             {
                 yield return new Alert(nameof(SystemStatus), "Potential issue in Water processor",
@@ -225,5 +234,54 @@ namespace Orbit.Models
         public string ComponentName => "WaterProcessor";
 
         #endregion Implementation of IModuleComponent
+
+        #region Equality members
+
+        /// <inheritdoc/>
+        public bool Equals(WaterProcessorData other)
+        {
+            if (ReferenceEquals(null, other))
+                return false;
+            if (ReferenceEquals(this, other))
+                return true;
+            return this.ReportDateTime.Equals(other.ReportDateTime)
+                   && this.SystemStatus == other.SystemStatus
+                   && this.PumpOn == other.PumpOn
+                   && this.FiltersOk == other.FiltersOk
+                   && this.HeaterOn == other.HeaterOn
+                   && this.PostHeaterTemp.Equals(other.PostHeaterTemp)
+                   && this.PostReactorQualityOk == other.PostReactorQualityOk
+                   && this.DiverterValvePosition == other.DiverterValvePosition
+                   && this.ProductTankLevel.Equals(other.ProductTankLevel);
+        }
+
+        /// <inheritdoc/>
+        public override bool Equals(object obj)
+        {
+            return ReferenceEquals(this, obj) || obj is WaterProcessorData other && this.Equals(other);
+        }
+
+        /// <inheritdoc/>
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(
+                    this.ReportDateTime,
+                    this.SystemStatus,
+                    this.PumpOn,
+                    this.FiltersOk,
+                    this.HeaterOn,
+                    this.PostHeaterTemp,
+                    this.PostReactorQualityOk,
+
+                    // Have to use tuple here because for some reason the method is capped at 8 args
+                    (this.DiverterValvePosition, this.ProductTankLevel)
+                );
+        }
+
+        public static bool operator ==(WaterProcessorData left, WaterProcessorData right) => Equals(left, right);
+
+        public static bool operator !=(WaterProcessorData left, WaterProcessorData right) => !Equals(left, right);
+
+        #endregion Equality members
     }
 }

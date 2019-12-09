@@ -62,7 +62,7 @@ namespace Orbit.Data
                 FiltersOk = true,
                 PostHeaterTemp= 20,
                 ProductTankLevel = 80,
-                PostReactorQualityOK = false,
+                PostReactorQualityOk = false,
                 DiverterValvePosition = DiverterValvePositions.Reprocess,
                 PumpOn = false,
                 SystemStatus = SystemStatus.Standby,

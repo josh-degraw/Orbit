@@ -22,7 +22,7 @@
         </Grid.ColumnDefinitions>
         <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="Potable Water Tank Level" FontWeight="Bold" />
         <TextBlock Grid.Row="1" Grid.Column="1" 
-                   Text="{Binding Model.ProductTankLevel, FallbackValue=0.0, StringFormat='\{0:N2\}'}" />
+                   Text="{Binding Model.ProductTankLevel, FallbackValue=0.0, StringFormat='\{0:N1\}%'}" />
 
         <Ellipse  Grid.Row="1" Grid.Column="2" DataContext="{Binding Alert}" Style="{StaticResource AlertStyles}" />
         <TextBlock Grid.Row="3" Grid.Column="1" Style="{StaticResource ReportDateTime}" />

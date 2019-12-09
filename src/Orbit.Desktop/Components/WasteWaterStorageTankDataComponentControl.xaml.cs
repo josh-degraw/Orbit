@@ -60,7 +60,7 @@ namespace Orbit.Desktop.Components
             _alert = alert;
         }
 
-        private IModel _model;
+        protected IModel _model;
         private Alert _alert;
 
         public IModel Model {

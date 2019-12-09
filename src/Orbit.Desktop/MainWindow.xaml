@@ -18,11 +18,11 @@
             <RowDefinition/>
             <RowDefinition/>
         </Grid.RowDefinitions>
+        <components:UrineSystemStatusComponentControl DataContext="{Binding UrineSystemStatus}" Grid.Row="0" Grid.Column="0"/>
+        <components:WaterProcessorStatusComponentControl DataContext="{Binding WaterProcessorStatus}" Grid.Row="0" Grid.Column="2"/>
         <components:WasteWaterStorageTankDataComponentControl DataContext="{Binding WasteWater}" Grid.Row="1" Grid.Column="1" />
         <components:UrineTankDataComponentControl DataContext="{Binding UrineTank}" Grid.Row="2" Grid.Column="0" />
         <components:PotableWaterTankDataComponentControl DataContext="{Binding PotableWaterTank}" Grid.Row="2" Grid.Column="2"/>
-        <components:UrineSystemStatusComponentControl DataContext="{Binding UrineSystemStatus}" Grid.Row="0" Grid.Column="0"/>
-        <components:WaterProcessorStatusComponentControl DataContext="{Binding WaterProcessorStatus}" Grid.Row="0" Grid.Column="2"/>
     </Grid>
     
 </Window>

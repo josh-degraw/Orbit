@@ -20,6 +20,8 @@
         </Grid.ColumnDefinitions>
         <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="Water Processor Status" FontWeight="Bold" />
         <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Model.SystemStatus, FallbackValue=Standby}" />
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="Tank lvl"/>
+        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Path=Model.ProductTankLevel, StringFormat='\{0:N1\}%', FallbackValue='0%'}"/>
         <Ellipse  Grid.Row="1" Grid.Column="2" DataContext="{Binding Alert}" Style="{StaticResource AlertStyles}" />
         <TextBlock Grid.Row="3" Grid.Column="1" Style="{StaticResource ReportDateTime}" />
     </Grid>

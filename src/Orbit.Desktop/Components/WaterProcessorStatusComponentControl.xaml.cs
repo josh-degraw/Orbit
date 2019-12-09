@@ -34,7 +34,7 @@ namespace Orbit.Desktop.Components
             if (e.Report is WaterProcessorData data)
             {
                 // Handle level alert
-                if (e.Alert.PropertyName == nameof(WaterProcessorData.SystemStatus))
+                if (e.Alert.PropertyName == nameof(WaterProcessorData.SystemStatus) || e.Alert.PropertyName == nameof(WaterProcessorData.ProductTankLevel))
                 {
                     Logger.Info("Alert reported: {data}", new { data.SystemStatus, e.Alert.Message });
                     if (this.WaterProcessorStatusAlert == null)

@@ -97,7 +97,7 @@ namespace Orbit.Util
                     FiltersOk = wp.FiltersOk,
                     HeaterOn = wp.HeaterOn,
                     PostHeaterTemp = rand.NextDouble() * 100,
-                    PostReactorQualityOK = wp.PostReactorQualityOK,
+                    PostReactorQualityOk = wp.PostReactorQualityOk,
                     DiverterValvePosition = wp.DiverterValvePosition,
                     ProductTankLevel = wp.ProductTankLevel,
                 };

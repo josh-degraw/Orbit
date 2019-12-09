@@ -16,6 +16,7 @@
         <!--End default styles-->
 
         <Style x:Key="AlertTooltip" TargetType="ToolTip">
+            <Setter Property="Foreground" Value="Black"/>
             <Style.Triggers>
                 <Trigger Property="Content" Value="{x:Static system:String.Empty}">
                     <Setter Property="Visibility" Value="Collapsed" />
@@ -29,7 +30,7 @@
             <Setter Property="Height" Value="25" />
             <Setter Property="ToolTip">
                 <Setter.Value>
-                    <ToolTip Content="{Binding Message}" Style="{StaticResource AlertTooltip}" />
+                    <ToolTip Foreground="Black" Content="{Binding Message}" Style="{StaticResource AlertTooltip}" />
                 </Setter.Value>
             </Setter>
             <Style.Triggers>
@@ -55,7 +56,8 @@
             <Setter Property="VerticalAlignment" Value="Center" />
             <Setter Property="FontSize" Value="8" />
             <Setter Property="Foreground" Value="#707070" />
-            <Setter Property="Text" Value="{Binding Model.ReportDateTime, StringFormat='Last read: \{0:hh\:mm\:ss\}', FallbackValue=Last read: 00:00:00}" />
+            <Setter Property="Text" 
+                    Value="{Binding Model.ReportDateTime, StringFormat='Last read: \{0:hh\:mm\:ss\}', FallbackValue=Last read: 00:00:00}" />
         </Style>
     </Application.Resources>
 </Application>

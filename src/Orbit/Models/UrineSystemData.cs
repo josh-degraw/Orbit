@@ -6,8 +6,34 @@ using System.Linq;
 
 namespace Orbit.Models
 {
-    public class UrineSystemData : IAlertableModel
+    public class UrineSystemData : IAlertableModel, IEquatable<UrineSystemData>
     {
+        #region Limits
+
+        private const int urineTankUpperLimit = 100;
+        private const int urineTankLevelTolerance = 5;
+
+        private const int distillerSpeedUpperLimit = 1300;
+        private const int distillerSpeedLowerLimit = 1100;
+        private const int distillerSpeedTolerance = 100;
+
+        private const double distillerTempUpperLimit = 55;
+        private const double distillerTempLowerLimit = 35;
+        private const double distillerTempTolerance = 5;
+
+        private const int brineTankLevelUpperLimit = 100;
+        private const int brineTankLevelTolerance = 5;
+
+        #endregion Limits
+
+        #region Properties
+
+        /// <summary>
+        /// The name of the component.
+        /// </summary>
+        [NotMapped]
+        public string ComponentName => "UrineSystem";
+
         public DateTimeOffset ReportDateTime { get; private set; } = DateTimeOffset.Now;
 
         /// <summary>
@@ -18,11 +44,8 @@ namespace Orbit.Models
         /// <summary>
         /// Fullness of treated urine holding tank as a percentage
         /// </summary>
-        [Range(0, 100)]
-        public int UrineTankLevel { get; set; }
-
-        private const int urineTankUpperLimit = 100;
-        private const int urineTankLevelTolerance = 5;
+        [Range(0, urineTankUpperLimit)]
+        public double UrineTankLevel { get; set; }
 
         /// <summary>
         /// status of pump assembly used to pull fluid from urine tank to the distiller assembly then from distiller
@@ -38,22 +61,14 @@ namespace Orbit.Models
         /// <summary>
         /// Motor speed; nominal 1200 rpm
         /// </summary>
-        [Range(0, 1400)]
+        [Range(0, distillerSpeedUpperLimit + distillerSpeedTolerance)]
         public int DistillerSpeed { get; set; }
-
-        private const int distillerSpeedUpperLimit = 1300;
-        private const int distillerSpeedLowerLimit = 1100;
-        private const int distillerSpeedTolerance = 100;
 
         /// <summary>
         /// Temp of urine in the distiller; nominal 45C
         /// </summary>
         [Range(0, 60)]
         public double DistillerTemp { get; set; }
-
-        private const double distillerTempUpperLimit = 55;
-        private const double distillerTempLowerlimit = 35;
-        private const double distillerTempTolerance = 5;
 
         /// <summary>
         /// Routes distillate and gasses from distiller to gas/liquid separator cooled assembly aids condensation of
@@ -64,11 +79,10 @@ namespace Orbit.Models
         /// <summary>
         /// Stores concentrated minerals and contaminates from urine distillation process for later disposal shown as percentage
         /// </summary>
-        [Range(0, 100)]
-        public int BrineTankLevel { get; set; }
+        [Range(0, brineTankLevelUpperLimit)]
+        public double BrineTankLevel { get; set; }
 
-        private const int brineTankLevelUpperLimit = 100;
-        private const int brineTankLevelTolerance = 5;
+        #endregion Properties
 
         public void ProcessData(double urineTankLevel, double temp, int speed)
         {
@@ -76,12 +90,12 @@ namespace Orbit.Models
             DistillerSpeed = speed;
             if (SystemStatus == SystemStatus.Standby)
             {
-                if (UrineTankLevel > urineTankUpperLimit * .8 
+                if (UrineTankLevel >= urineTankUpperLimit * .8
                     && urineTankLevel < urineTankUpperLimit
                     && BrineTankLevel < brineTankLevelUpperLimit)
                 {
                     SystemStatus = SystemStatus.Processing;
-                    UrineTankLevel -= 5;
+                    UrineTankLevel += 5;
                     SupplyPumpOn = true;
                     DistillerOn = true;
                     PurgePumpOn = true;
@@ -94,8 +108,8 @@ namespace Orbit.Models
             }
             else if (SystemStatus == SystemStatus.Processing)
             {
-                if (UrineTankLevel <= 0 
-                    || urineTankLevel >= urineTankUpperLimit 
+                if (UrineTankLevel <= 0
+                    || urineTankLevel >= urineTankUpperLimit
                     || BrineTankLevel >= brineTankLevelUpperLimit)
                 {
                     SystemStatus = SystemStatus.Ready;
@@ -103,14 +117,8 @@ namespace Orbit.Models
                     DistillerOn = false;
                     PurgePumpOn = false;
 
-                    if (UrineTankLevel <= 0)
-                    {
-                        UrineTankLevel = 0;
-                    }
-                    if (BrineTankLevel >= 100)
-                    {
-                        BrineTankLevel = 100;
-                    }
+                    UrineTankLevel = Math.Max(UrineTankLevel, 0);
+                    BrineTankLevel = Math.Min(BrineTankLevel, brineTankLevelUpperLimit);
                 }
                 else
                 {
@@ -127,7 +135,7 @@ namespace Orbit.Models
             }
         }
 
-        #region CheckValueMethods
+        #region Alert Generation
 
         private IEnumerable<Alert> CheckUrineTankLevel()
         {
@@ -182,11 +190,11 @@ namespace Orbit.Models
             {
                 yield return new Alert(nameof(DistillerTemp), "Distiller temp is too high", AlertLevel.HighWarning);
             }
-            else if (DistillerOn && (DistillerTemp < distillerTempLowerlimit))
+            else if (DistillerOn && (DistillerTemp < distillerTempLowerLimit))
             {
                 yield return new Alert(nameof(DistillerTemp), "Distiller temp is below minimum", AlertLevel.LowError);
             }
-            else if (DistillerOn && (DistillerTemp <= (distillerTempLowerlimit + distillerTempTolerance)))
+            else if (DistillerOn && (DistillerTemp <= (distillerTempLowerLimit + distillerTempTolerance)))
             {
                 yield return new Alert(nameof(DistillerTemp), "Distiller Temp is too low", AlertLevel.LowWarning);
             }
@@ -213,8 +221,6 @@ namespace Orbit.Models
             }
         }
 
-        #endregion CheckValueMethods
-
         IEnumerable<Alert> IAlertableModel.GenerateAlerts()
         {
             return this.CheckUrineTankLevel()
@@ -223,14 +229,91 @@ namespace Orbit.Models
                 .Concat(this.CheckBrineTankLevel());
         }
 
-        #region Implementation of IModuleComponent
+        #endregion Alert Generation
+
+        #region Equality members
 
         /// <summary>
-        /// The name of the component.
+        /// Indicates whether the current object is equal to another object of the same type.
         /// </summary>
-        [NotMapped]
-        public string ComponentName => "UrineSystem";
+        /// <param name="other"> An object to compare with this object. </param>
+        /// <returns>
+        /// <see langword="true"/> if the current object is equal to the <paramref name="other"/> parameter; otherwise, <see langword="false"/>.
+        /// </returns>
+        public bool Equals(UrineSystemData? other)
+        {
+            if (ReferenceEquals(null, other))
+                return false;
+            if (ReferenceEquals(this, other))
+                return true;
 
-        #endregion Implementation of IModuleComponent
+            return this.ReportDateTime.Equals(other.ReportDateTime)
+                   && this.SystemStatus == other.SystemStatus
+                   && this.UrineTankLevel.Equals(other.UrineTankLevel)
+                   && this.SupplyPumpOn == other.SupplyPumpOn
+                   && this.DistillerOn == other.DistillerOn
+                   && this.DistillerSpeed == other.DistillerSpeed
+                   && this.DistillerTemp.Equals(other.DistillerTemp)
+                   && this.PurgePumpOn == other.PurgePumpOn
+                   && this.BrineTankLevel.Equals(other.BrineTankLevel);
+        }
+
+        /// <summary>
+        /// Determines whether the specified object is equal to the current object.
+        /// </summary>
+        /// <param name="obj"> The object to compare with the current object. </param>
+        /// <returns>
+        /// <see langword="true"/> if the specified object is equal to the current object; otherwise, <see langword="false"/>.
+        /// </returns>
+        public override bool Equals(object obj)
+        {
+            if (ReferenceEquals(null, obj))
+                return false;
+            if (ReferenceEquals(this, obj))
+                return true;
+
+            return this.Equals(obj as UrineSystemData);
+        }
+
+        /// <summary>
+        /// Serves as the default hash function.
+        /// </summary>
+        /// <returns> A hash code for the current object. </returns>
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(
+                this.ReportDateTime,
+                this.SystemStatus,
+                this.UrineTankLevel,
+                this.SupplyPumpOn,
+                this.DistillerOn,
+                this.DistillerSpeed,
+
+                // Have to use tuple bc for some reason the method is capped at 8 args
+                (this.DistillerTemp, this.BrineTankLevel)
+            );
+        }
+
+        /// <summary>
+        /// Returns a value that indicates whether the values of two <see cref="T:Orbit.Models.UrineSystemData"/>
+        /// objects are equal.
+        /// </summary>
+        /// <param name="left"> The first value to compare. </param>
+        /// <param name="right"> The second value to compare. </param>
+        /// <returns>
+        /// true if the <paramref name="left"/> and <paramref name="right"/> parameters have the same value; otherwise, false.
+        /// </returns>
+        public static bool operator ==(UrineSystemData left, UrineSystemData right) => Equals(left, right);
+
+        /// <summary>
+        /// Returns a value that indicates whether two <see cref="T:Orbit.Models.UrineSystemData"/> objects have
+        /// different values.
+        /// </summary>
+        /// <param name="left"> The first value to compare. </param>
+        /// <param name="right"> The second value to compare. </param>
+        /// <returns> true if <paramref name="left"/> and <paramref name="right"/> are not equal; otherwise, false. </returns>
+        public static bool operator !=(UrineSystemData left, UrineSystemData right) => !Equals(left, right);
+
+        #endregion Equality members
     }
 }

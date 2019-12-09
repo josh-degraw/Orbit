@@ -22,6 +22,8 @@
         </Grid.ColumnDefinitions>
         <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="Urine System Status" FontWeight="Bold" />
         <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Path=Model.SystemStatus, FallbackValue=Standby}"/>
+        <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Path=Model.UrineTankLevel, StringFormat='\{0:N1\}%', FallbackValue='0%'}"/>
+        <TextBlock Grid.Row="2" Grid.Column="0" Text="Tank Lvl"/>
         <Ellipse  Grid.Row="1" Grid.Column="2" DataContext="{Binding Alert}" Style="{StaticResource AlertStyles}" />
         <TextBlock Grid.Row="3" Grid.Column="1" Style="{StaticResource ReportDateTime}" />
     </Grid>

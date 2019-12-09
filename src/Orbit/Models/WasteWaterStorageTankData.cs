@@ -17,7 +17,7 @@ namespace Orbit.Models
         /// <summary>
         /// distinguish between separate tanks ('Tank 1', 'Tank 2')
         /// </summary>
-        public string TankId { get; set; }
+        public string TankId { get; set; } = "";
 
         /// <summary>
         /// Current level of the waste water collection tank receives output from urine processing system and other

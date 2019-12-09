@@ -31,7 +31,7 @@ namespace Orbit.Desktop.Components
 
         private void Instance_AlertReported(object? sender, AlertEventArgs e)
         {
-            if (e.Alert.PropertyName == nameof(UrineSystemData.SystemStatus))
+            if (e.Alert.PropertyName == nameof(UrineSystemData.SystemStatus) || e.Alert.PropertyName == nameof(UrineSystemData.UrineTankLevel))
             {
                 // Handle level alert
                 if (e.Report is UrineSystemData data)
