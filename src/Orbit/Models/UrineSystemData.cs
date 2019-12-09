@@ -81,23 +81,57 @@ namespace Orbit.Models
         [NotMapped]
         public int brineTankLevelTolerance = 5;
 
-        public void ProcessData(double temp, int speed)
+        public void ProcessData(double wasteTankLevel, double temp, int speed)
         {
-            if(UrineTankLevel > 80)
+            if (SystemStatus == SystemStatus.Standby)
             {
-                SystemStatus = SystemStatus.Processing;
-                UrineTankLevel -= 5;
-                SupplyPumpOn = true;
-                DistillerOn = true;
-                DistillerTemp = temp;
-                DistillerSpeed = speed;
-                PurgePumpOn = true;
-                BrineTankLevel += 2;
+                if ((UrineTankLevel > 80) && (wasteTankLevel < 100))
+                {
+                    SystemStatus = SystemStatus.Processing;
+                    UrineTankLevel -= 5;
+                    SupplyPumpOn = true;
+                    DistillerOn = true;
+                    DistillerTemp = temp;
+                    DistillerSpeed = speed;
+                    PurgePumpOn = true;
+                    BrineTankLevel += 2;
+                }
+                else
+                {
+                    SystemStatus = SystemStatus.Standby;
+                    UrineTankLevel += 5;
+                    SupplyPumpOn = false;
+                    DistillerOn = false;
+                    DistillerTemp = temp;
+                    DistillerSpeed = speed;
+                    PurgePumpOn = false;
+                }
+            }
+            else if (SystemStatus == SystemStatus.Processing)
+            {
+                if (UrineTankLevel <= 0)
+                {
+                    SystemStatus = SystemStatus.Standby;
+                    UrineTankLevel = 0;
+                    SupplyPumpOn = false;
+                    DistillerOn = false;
+                    DistillerTemp = temp;
+                    DistillerSpeed = speed;
+                    PurgePumpOn = false;
+                }
+                else if (wasteTankLevel >= 100)
+                {
+                    SystemStatus = SystemStatus.Standby;
+                    SupplyPumpOn = false;
+                    DistillerOn = false;
+                    DistillerTemp = temp;
+                    DistillerSpeed = speed;
+                    PurgePumpOn = false;
+                }
             }
             else
             {
-                SystemStatus = SystemStatus.Standby;
-                UrineTankLevel += 5;
+                SystemStatus = SystemStatus.Trouble;
                 SupplyPumpOn = false;
                 DistillerOn = false;
                 DistillerTemp = temp;

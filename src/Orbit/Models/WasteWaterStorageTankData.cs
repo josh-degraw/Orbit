@@ -30,11 +30,25 @@ namespace Orbit.Models
         {
             if(waterStatus == SystemStatus.Processing)
             {
-                Level -= 5;
+                if(Level >= 5)
+                {
+                    Level -= 5;
+                }
+                else
+                {
+                    Level = 0;
+                }
             }
             if(urineStatus == SystemStatus.Processing)
             {
-                Level += 5;
+                if(Level <= 95)
+                {
+                    Level += 5;
+                }
+                else
+                {
+                    Level = 0;
+                }
             }
         }
 

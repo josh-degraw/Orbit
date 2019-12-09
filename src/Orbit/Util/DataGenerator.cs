@@ -68,24 +68,29 @@ namespace Orbit.Util
                 using var db = scope.ServiceProvider.GetRequiredService<OrbitDbContext>();
 
                 WasteWaterStorageTankData wt = db.WasteWaterStorageTankData.First();
-               
-                var next = new WasteWaterStorageTankData {
-                    TankId = "Main",
-                    Level = rand.NextDouble() * 100
-                };
-
                 UrineSystemData up = db.UrineProcessorData.First();
+                WaterProcessorData wp = db.WaterProcessorData.First();
+
+                // these should probably be moved out of the db connection method, but not sure how without breaking stuff
+                up.ProcessData(wt.Level, rand.NextDouble() * 100, rand.Next(0, 3500));
+                wt.ProcessData(up.SystemStatus, wp.SystemStatus);
+                wp.ProcessData(wt.Level, rand.NextDouble() * 100);
+
                 var nextup = new UrineSystemData {
                     SystemStatus = up.SystemStatus,
                     UrineTankLevel = up.UrineTankLevel + 5,
                     SupplyPumpOn = up.SupplyPumpOn,
                     DistillerOn = up.DistillerOn,
-                    DistillerTemp = (double)rand.NextDouble() * 1000,
+                    DistillerTemp = rand.NextDouble() * 1000,
+                    DistillerSpeed = up.DistillerSpeed,
                     PurgePumpOn = up.PurgePumpOn,
                     BrineTankLevel = up.BrineTankLevel + 2
                 };
+                var next = new WasteWaterStorageTankData {
+                    TankId = "Main",
+                    Level = wt.Level  //rand.NextDouble() * 100
+                };
 
-                WaterProcessorData wp = db.WaterProcessorData.First();
                 var nextwp = new WaterProcessorData {
                     SystemStatus = wp.SystemStatus,
                     PumpOn = wp.PumpOn,
@@ -97,7 +102,9 @@ namespace Orbit.Util
                     ProductTankLevel = rand.Next(0, 100)
                 };
 
+                db.UrineProcessorData.Add(nextup);
                 db.WasteWaterStorageTankData.Add(next);
+                db.WaterProcessorData.Add(nextwp);
                 await db.SaveChangesAsync(token);
             }
 

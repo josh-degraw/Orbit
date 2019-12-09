@@ -75,29 +75,40 @@ namespace Orbit.Models
 
         public void ProcessData(double wasteTankLevel, double heaterTemp)
         {
-            if(SystemStatus == SystemStatus.Trouble)
+            if(SystemStatus == SystemStatus.Standby)
             {
-            }
-            else if(wasteTankLevel > 80)
+                if ((wasteTankLevel > 80) && (ProductTankLevel < 100))
+                {
+                    SystemStatus = SystemStatus.Processing;
+                    PumpOn = true;
+                    HeaterOn = true;
+                    PostHeaterTemp = heaterTemp;
+                    ProductTankLevel += 5;
+                }
+            }else if(SystemStatus == SystemStatus.Processing)
             {
-                SystemStatus = SystemStatus.Processing;
-                PumpOn = true;
-                FiltersOK = true;
-                HeaterOn = true;
-                PostHeaterTemp = heaterTemp;
-                PostReactorQualityOK = true;
-                DiverterValvePosition = DiverterValvePositions.ToStorage;
-                ProductTankLevel += 5;
+                if(wasteTankLevel <= 0)
+                {
+                    SystemStatus = SystemStatus.Standby;
+                    PumpOn = false;
+                    HeaterOn = false;
+                    PostHeaterTemp = heaterTemp;
+                }
+                else if(ProductTankLevel >= 100)
+                {
+                    SystemStatus = SystemStatus.Standby;
+                    PumpOn = false;
+                    HeaterOn = false;
+                    PostHeaterTemp = heaterTemp;
+                    ProductTankLevel = 100;
+                }
             }
             else //(wasteTankLevel <= 0)
             {
                 SystemStatus = SystemStatus.Standby;
                 PumpOn = false;
-                FiltersOK = false;
                 HeaterOn = false;
                 PostHeaterTemp = heaterTemp;
-                PostReactorQualityOK = true;
-                DiverterValvePosition = DiverterValvePositions.ToStorage;
             }
         }
 
@@ -114,20 +125,6 @@ namespace Orbit.Models
                 this.SystemStatus = SystemStatus.Standby;
                 PumpOn = false;
                 HeaterOn = false;
-            }
-        }
-
-        private IServiceProvider sp => OrbitServiceProvider.Instance;
-        private void ProcessWasteWater()
-        {
-            using var scope = sp.CreateScope();
-            using var db = scope.ServiceProvider.GetRequiredService<OrbitDbContext>();
-
-            WasteWaterStorageTankData wasteTank = db.WasteWaterStorageTankData.First();
-
-            if (wasteTank.Level <= 10)
-            { 
-                SystemStatus = SystemStatus.Standby;
             }
         }
 
