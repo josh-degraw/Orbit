@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -40,22 +39,20 @@ namespace Orbit.Models
         /// Motor speed; nominal 1200 rpm
         /// </summary>
         [Range(0, 1400)]
-        public int DistillerSpeed { get; set; }        
+        public int DistillerSpeed { get; set; }
 
         private const int distillerSpeedUpperLimit = 1300;
         private const int distillerSpeedLowerLimit = 1100;
         private const int distillerSpeedTolerance = 100;
-        
+
         /// <summary>
         /// Temp of weewee in the distiller; nominal 45C
         /// </summary>
         [Range(0, 60)]
         public double DistillerTemp { get; set; }
-        
+
         private const double distillerTempUpperLimit = 55;
-
         private const double distillerTempLowerlimit = 35;
-
         private const double distillerTempTolerance = 5;
 
         /// <summary>
@@ -72,6 +69,7 @@ namespace Orbit.Models
 
         private const int brineTankLevelUpperLimit = 100;
         private const int brineTankLevelTolerance = 5;
+
         public void ProcessData(double wasteTankLevel, double temp, int speed)
         {
             if (SystemStatus == SystemStatus.Standby)
@@ -104,12 +102,12 @@ namespace Orbit.Models
                     SupplyPumpOn = false;
                     DistillerOn = false;
                     PurgePumpOn = false;
-                    
-                    if( UrineTankLevel <= 0)
+
+                    if (UrineTankLevel <= 0)
                     {
                         UrineTankLevel = 0;
                     }
-                    if(BrineTankLevel >= 100)
+                    if (BrineTankLevel >= 100)
                     {
                         BrineTankLevel = 100;
                     }
@@ -135,7 +133,8 @@ namespace Orbit.Models
 
         private IEnumerable<Alert> CheckUrineTankLevel()
         {
-            if (UrineTankLevel >= urineTankUpperLimit)  // system should start/be processing if wastetank < 95%, else shut down
+            // system should start/be processing if wastetank < 95%, else shut down
+            if (UrineTankLevel >= urineTankUpperLimit)
             {
                 yield return new Alert(nameof(UrineTankLevel), "Urine tank level is at capacity", AlertLevel.HighError);
             }

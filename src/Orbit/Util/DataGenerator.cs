@@ -94,7 +94,7 @@ namespace Orbit.Util
                 var nextwp = new WaterProcessorData {
                     SystemStatus = wp.SystemStatus,
                     PumpOn = wp.PumpOn,
-                    FiltersOK = wp.FiltersOK,
+                    FiltersOk = wp.FiltersOk,
                     HeaterOn = wp.HeaterOn,
                     PostHeaterTemp = rand.NextDouble() * 100,
                     PostReactorQualityOK = wp.PostReactorQualityOK,
