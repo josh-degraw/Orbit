@@ -7,7 +7,12 @@
         xmlns:components="clr-namespace:Orbit.Desktop.Components"
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
-    <Grid>
-        <components:WasteWaterStorageTankDataComponentControl DataContext="{Binding WasteWater}" Margin="0,0,497,311" />
+    <Grid Background="black">
+        <components:WasteWaterStorageTankDataComponentControl DataContext="{Binding WasteWater}" Margin="249,138,248,173" />
+        <components:UrineTankDataComponentControl DataContext="{Binding UrineTank}" Margin="0,287,497,24" />
+        <components:PotableWaterTankDataComponentControl DataContext="{Binding PotableWaterTank}" Margin="487,261,10,50" />
+        <components:UrineSystemStatusComponentControl DataContext="{Binding UrineSystemStatus}" Margin="0,29,497,281" />
+        <components:WaterProcessorStatusComponentControl DataContext="{Binding WaterProcessorStatus}" Margin="487,18,10,292" />
     </Grid>
+    
 </Window>

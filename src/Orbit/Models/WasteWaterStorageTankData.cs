@@ -26,30 +26,31 @@ namespace Orbit.Models
         /// </summary>
         public double Level { get; set; }
 
-        public void ProcessData(SystemStatus waterStatus, SystemStatus urineStatus)
+        public void ProcessData(SystemStatus urineProcessor, SystemStatus waterProcessor)
         {
-            if(waterStatus == SystemStatus.Processing)
+            if(urineProcessor == SystemStatus.Processing)
             {
-                if(Level >= 5)
+                if(Level <= 96)
                 {
-                    Level -= 5;
+                    Level += 4;
                 }
                 else
                 {
                     Level = 0;
                 }
             }
-            if(urineStatus == SystemStatus.Processing)
+            if (waterProcessor == SystemStatus.Processing)
             {
-                if(Level <= 95)
+                if (Level >= 6)
                 {
-                    Level += 5;
+                    Level -= 6;
                 }
                 else
                 {
                     Level = 0;
                 }
             }
+
         }
 
         // Sample helper method

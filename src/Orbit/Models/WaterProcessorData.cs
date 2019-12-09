@@ -75,15 +75,27 @@ namespace Orbit.Models
 
         public void ProcessData(double wasteTankLevel, double heaterTemp)
         {
-            if(SystemStatus == SystemStatus.Standby)
+            PostHeaterTemp = heaterTemp;
+
+            if (SystemStatus == SystemStatus.Standby)
             {
                 if ((wasteTankLevel > 80) && (ProductTankLevel < 100))
                 {
                     SystemStatus = SystemStatus.Processing;
                     PumpOn = true;
                     HeaterOn = true;
-                    PostHeaterTemp = heaterTemp;
                     ProductTankLevel += 5;
+                }
+                else
+                {
+                    if(ProductTankLevel <= 2)
+                    {
+                        ProductTankLevel = 0;
+                    }
+                    else
+                    {
+                        ProductTankLevel -= 2;
+                    }
                 }
             }else if(SystemStatus == SystemStatus.Processing)
             {
@@ -92,15 +104,18 @@ namespace Orbit.Models
                     SystemStatus = SystemStatus.Standby;
                     PumpOn = false;
                     HeaterOn = false;
-                    PostHeaterTemp = heaterTemp;
+                    ProductTankLevel -= 4;
                 }
                 else if(ProductTankLevel >= 100)
                 {
                     SystemStatus = SystemStatus.Standby;
                     PumpOn = false;
                     HeaterOn = false;
-                    PostHeaterTemp = heaterTemp;
                     ProductTankLevel = 100;
+                }
+                else
+                {
+                    ProductTankLevel += 5;
                 }
             }
             else //(wasteTankLevel <= 0)
@@ -108,7 +123,7 @@ namespace Orbit.Models
                 SystemStatus = SystemStatus.Standby;
                 PumpOn = false;
                 HeaterOn = false;
-                PostHeaterTemp = heaterTemp;
+                ProductTankLevel -= 2;
             }
         }
 

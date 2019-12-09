@@ -6,7 +6,7 @@ namespace Orbit.Models
 {
     public enum  DiverterValvePositions
     {
-        ToWaterProcessor,
-        ToOxygenGenerator
+        Reprocess,
+        ToStorage
     }
 }

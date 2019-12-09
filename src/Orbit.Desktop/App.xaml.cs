@@ -46,6 +46,10 @@ namespace Orbit.Desktop
         {
             services.AddSingleton<MainWindow>();
             services.AddTransient<WasteWaterStorageTankDataComponentControl>();
+            services.AddTransient<UrineTankDataComponentControl>();
+            services.AddTransient<PotableWaterTankDataComponentControl>();
+            services.AddTransient<UrineSystemStatusComponentControl>();
+            services.AddTransient<WaterProcessorStatusComponentControl>();
             services.AddSingleton(SynchronizationContext.Current);
         }
         protected void Dispose (bool disposing)

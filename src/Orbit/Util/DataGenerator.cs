@@ -78,13 +78,13 @@ namespace Orbit.Util
 
                 var nextup = new UrineSystemData {
                     SystemStatus = up.SystemStatus,
-                    UrineTankLevel = up.UrineTankLevel + 5,
+                    UrineTankLevel = up.UrineTankLevel,
                     SupplyPumpOn = up.SupplyPumpOn,
                     DistillerOn = up.DistillerOn,
-                    DistillerTemp = rand.NextDouble() * 1000,
+                    DistillerTemp = rand.NextDouble() * 100,
                     DistillerSpeed = up.DistillerSpeed,
                     PurgePumpOn = up.PurgePumpOn,
-                    BrineTankLevel = up.BrineTankLevel + 2
+                    BrineTankLevel = up.BrineTankLevel
                 };
                 var next = new WasteWaterStorageTankData {
                     TankId = "Main",
@@ -96,10 +96,10 @@ namespace Orbit.Util
                     PumpOn = wp.PumpOn,
                     FiltersOK = wp.FiltersOK,
                     HeaterOn = wp.HeaterOn,
-                    PostHeaterTemp = (double)rand.NextDouble() * 1000,
+                    PostHeaterTemp = rand.NextDouble() * 100,
                     PostReactorQualityOK = wp.PostReactorQualityOK,
                     DiverterValvePosition = wp.DiverterValvePosition,
-                    ProductTankLevel = rand.Next(0, 100)
+                    ProductTankLevel = wp.ProductTankLevel
                 };
 
                 db.UrineProcessorData.Add(nextup);
