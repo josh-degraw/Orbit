@@ -33,6 +33,10 @@ namespace Orbit.Data
         public DbSet<ShuntUnit> ShuntUnitData { get; set; }
         public DbSet<SolarArray> SolarArrayData { get; set; }
 
+        public DbSet<InternalCoolantLoopData> InternalCoolantLoopData { get; set; }
+
+        public DbSet<ExternalCoolantLoopData> ExternalCoolantLoopData { get; set; }
+
         public void InsertSeedData()
         {
             //TODO: Use NSubstitute for generating random seed data
@@ -88,6 +92,10 @@ namespace Orbit.Data
             modelBuilder.Entity<Radiator>(MapModelCommonProps);
             modelBuilder.Entity<SolarArray>(MapModelCommonProps);
             modelBuilder.Entity<ShuntUnit>(MapModelCommonProps);
+            modelBuilder.Entity<ExternalCoolantLoopData>(MapModelCommonProps);
+            modelBuilder.Entity<InternalCoolantLoopData>(MapModelCommonProps);
+
+
         }
 
     }
