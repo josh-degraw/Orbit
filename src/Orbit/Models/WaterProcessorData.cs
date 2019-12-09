@@ -15,7 +15,7 @@ namespace Orbit.Models
         private const double postHeaterTempTolerance = 5;
 
         private const int productTankLevelUpperLimit = 100;
-        private const int productTankLevelTolerance = 5;
+        private const int productTankLevelTolerance = 20;
 
         #endregion Limits
 
@@ -71,25 +71,28 @@ namespace Orbit.Models
         public void ProcessData(double wasteTankLevel, double heaterTemp)
         {
             PostHeaterTemp = heaterTemp;
+            const int smallIncrement = 2;
+            const int largeIncrement = 5;
 
             if (SystemStatus == SystemStatus.Standby)
             {
-                if ((wasteTankLevel > 80) && (ProductTankLevel < 100))
+                if ((wasteTankLevel >= productTankLevelUpperLimit - productTankLevelTolerance)
+                    && (ProductTankLevel < productTankLevelUpperLimit))
                 {
                     SystemStatus = SystemStatus.Processing;
                     PumpOn = true;
                     HeaterOn = true;
-                    ProductTankLevel += 5;
+                    ProductTankLevel += largeIncrement;
                 }
                 else
                 {
-                    if (ProductTankLevel <= 2)
+                    if (ProductTankLevel <= smallIncrement)
                     {
                         ProductTankLevel = 0;
                     }
                     else
                     {
-                        ProductTankLevel -= 2;
+                        ProductTankLevel -= smallIncrement;
                     }
                 }
             }
@@ -100,18 +103,18 @@ namespace Orbit.Models
                     SystemStatus = SystemStatus.Standby;
                     PumpOn = false;
                     HeaterOn = false;
-                    ProductTankLevel -= 4;
+                    ProductTankLevel -= (smallIncrement * 2);
                 }
-                else if (ProductTankLevel >= 100)
+                else if (ProductTankLevel >= productTankLevelUpperLimit)
                 {
                     SystemStatus = SystemStatus.Standby;
                     PumpOn = false;
                     HeaterOn = false;
-                    ProductTankLevel = 100;
+                    ProductTankLevel = productTankLevelUpperLimit;
                 }
                 else
                 {
-                    ProductTankLevel += 5;
+                    ProductTankLevel += largeIncrement;
                 }
             }
             else //(wasteTankLevel <= 0)
@@ -119,23 +122,7 @@ namespace Orbit.Models
                 SystemStatus = SystemStatus.Standby;
                 PumpOn = false;
                 HeaterOn = false;
-                ProductTankLevel -= 2;
-            }
-        }
-
-        public void ChangeSystemStatus()
-        {
-            if ((SystemStatus == SystemStatus.Standby) || (SystemStatus == SystemStatus.Ready))
-            {
-                this.SystemStatus = SystemStatus.Processing;
-                PumpOn = true;
-                HeaterOn = true;
-            }
-            else
-            {
-                this.SystemStatus = SystemStatus.Standby;
-                PumpOn = false;
-                HeaterOn = false;
+                ProductTankLevel -= smallIncrement;
             }
         }
 
@@ -205,6 +192,19 @@ namespace Orbit.Models
             }
         }
 
+        private IEnumerable<Alert> CheckSystemStatus()
+        {
+            if (this.SystemStatus == SystemStatus.Trouble)
+            {
+                yield return new Alert(nameof(SystemStatus), "Potential issue in Water processor",
+                    AlertLevel.HighError);
+            }
+            else
+            {
+                yield return Alert.Safe(nameof(SystemStatus));
+            }
+        }
+
         #endregion ValueCheckMethods
 
         IEnumerable<Alert> IAlertableModel.GenerateAlerts()
@@ -212,7 +212,8 @@ namespace Orbit.Models
             return this.CheckProductTankLevel()
                 .Concat(this.CheckFiltersOk())
                 .Concat(this.CheckPostHeaterTemp())
-                .Concat(this.CheckPostReactorQuality());
+                .Concat(this.CheckPostReactorQuality())
+                .Concat(this.CheckSystemStatus());
         }
 
         #region Implementation of IModuleComponent

@@ -24,7 +24,7 @@ namespace Orbit.Desktop.Components
 
         public UrineSystemStatusComponentControl()
         {
-            InitializeComponent();
+            this.InitializeComponent();
             // Subscribe to updates here
             EventMonitor.Instance.AlertReported += this.Instance_AlertReported;
         }
@@ -49,6 +49,5 @@ namespace Orbit.Desktop.Components
                 }
             }
         }
-
     }
 }

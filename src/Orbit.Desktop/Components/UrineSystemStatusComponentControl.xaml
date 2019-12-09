@@ -21,7 +21,7 @@
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
         <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="Urine System Status" FontWeight="Bold" />
-        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Path=Model.SystemStatus, FallbackValue=Offline}"/>
+        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Path=Model.SystemStatus, FallbackValue=Standby}"/>
         <Ellipse  Grid.Row="1" Grid.Column="2" DataContext="{Binding Alert}" Style="{StaticResource AlertStyles}" />
         <TextBlock Grid.Row="3" Grid.Column="1" Style="{StaticResource ReportDateTime}" />
     </Grid>

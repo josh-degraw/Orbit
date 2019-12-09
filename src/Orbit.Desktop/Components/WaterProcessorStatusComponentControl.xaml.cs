@@ -31,10 +31,10 @@ namespace Orbit.Desktop.Components
 
         private void Instance_AlertReported(object? sender, AlertEventArgs e)
         {
-            if (e.Alert.PropertyName == nameof(WaterProcessorData.SystemStatus))
+            if (e.Report is WaterProcessorData data)
             {
                 // Handle level alert
-                if (e.Report is WaterProcessorData data)
+                if (e.Alert.PropertyName == nameof(WaterProcessorData.SystemStatus))
                 {
                     Logger.Info("Alert reported: {data}", new { data.SystemStatus, e.Alert.Message });
                     if (this.WaterProcessorStatusAlert == null)

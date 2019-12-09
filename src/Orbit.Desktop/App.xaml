@@ -4,7 +4,6 @@
              xmlns:local="clr-namespace:Orbit.Desktop"
              xmlns:system="clr-namespace:System;assembly=System.Runtime">
     <Application.Resources>
-
         <!--Default styles-->
         <!--Since this Style definition has no key, these setters will propogate to be the default value for all TextBlocks-->
         <Style TargetType="TextBlock">
@@ -12,6 +11,7 @@
             <Setter Property="Foreground" Value="#80abcc" />
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="FontSize" Value="13"/>
         </Style>
         <!--End default styles-->
 

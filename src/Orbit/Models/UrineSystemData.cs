@@ -16,7 +16,7 @@ namespace Orbit.Models
         public SystemStatus SystemStatus { get; set; }
 
         /// <summary>
-        /// Fullness of treated weewee holding tank as a percentage
+        /// Fullness of treated urine holding tank as a percentage
         /// </summary>
         [Range(0, 100)]
         public int UrineTankLevel { get; set; }
@@ -25,7 +25,7 @@ namespace Orbit.Models
         private const int urineTankLevelTolerance = 5;
 
         /// <summary>
-        /// status of pump assembly used to pull fluid from weewee tank to the distiller assembly then from distiller
+        /// status of pump assembly used to pull fluid from urine tank to the distiller assembly then from distiller
         /// assembly to the brine tank and water processor
         /// </summary>
         public bool SupplyPumpOn { get; set; }
@@ -46,7 +46,7 @@ namespace Orbit.Models
         private const int distillerSpeedTolerance = 100;
 
         /// <summary>
-        /// Temp of weewee in the distiller; nominal 45C
+        /// Temp of urine in the distiller; nominal 45C
         /// </summary>
         [Range(0, 60)]
         public double DistillerTemp { get; set; }
@@ -62,7 +62,7 @@ namespace Orbit.Models
         public bool PurgePumpOn { get; set; }
 
         /// <summary>
-        /// Stores concentrated minerals and contaminates from weewee distillation process for later disposal shown as percentage
+        /// Stores concentrated minerals and contaminates from urine distillation process for later disposal shown as percentage
         /// </summary>
         [Range(0, 100)]
         public int BrineTankLevel { get; set; }
@@ -70,14 +70,15 @@ namespace Orbit.Models
         private const int brineTankLevelUpperLimit = 100;
         private const int brineTankLevelTolerance = 5;
 
-        public void ProcessData(double wasteTankLevel, double temp, int speed)
+        public void ProcessData(double urineTankLevel, double temp, int speed)
         {
+            DistillerTemp = temp;
+            DistillerSpeed = speed;
             if (SystemStatus == SystemStatus.Standby)
             {
-                DistillerTemp = temp;
-                DistillerSpeed = speed;
-
-                if ((UrineTankLevel > 80) && (wasteTankLevel < 100) && (BrineTankLevel < 100))
+                if (UrineTankLevel > urineTankUpperLimit * .8 
+                    && urineTankLevel < urineTankUpperLimit
+                    && BrineTankLevel < brineTankLevelUpperLimit)
                 {
                     SystemStatus = SystemStatus.Processing;
                     UrineTankLevel -= 5;
@@ -93,12 +94,11 @@ namespace Orbit.Models
             }
             else if (SystemStatus == SystemStatus.Processing)
             {
-                DistillerTemp = temp;
-                DistillerSpeed = speed;
-
-                if ((UrineTankLevel <= 0) || (wasteTankLevel >= 100) || (BrineTankLevel >= 100))
+                if (UrineTankLevel <= 0 
+                    || urineTankLevel >= urineTankUpperLimit 
+                    || BrineTankLevel >= brineTankLevelUpperLimit)
                 {
-                    SystemStatus = SystemStatus.Standby;
+                    SystemStatus = SystemStatus.Ready;
                     SupplyPumpOn = false;
                     DistillerOn = false;
                     PurgePumpOn = false;
@@ -123,8 +123,6 @@ namespace Orbit.Models
                 SystemStatus = SystemStatus.Standby;
                 SupplyPumpOn = false;
                 DistillerOn = false;
-                DistillerTemp = temp;
-                DistillerSpeed = speed;
                 PurgePumpOn = false;
             }
         }

@@ -4,8 +4,6 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
-             xmlns:models="clr-namespace:Orbit.Models;assembly=Orbit"
-             xmlns:system="clr-namespace:System;assembly=System.Runtime"
              d:DesignHeight="107.813" d:DesignWidth="180.313">
 
     <Grid Background="black">
@@ -20,9 +18,8 @@
             <ColumnDefinition />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
-        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="{Binding Path=Model.SystemStatus, StringFormat= Waste Water Tank \'{0}\', FallbackValue=WaterProcessorStatus}" HorizontalAlignment="Center" FontWeight="Bold" />
-        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Model.SystemStatus, FallbackValue=Offline}" HorizontalAlignment="Center" VerticalAlignment="Center" />
-
+        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="Water Processor Status" FontWeight="Bold" />
+        <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Model.SystemStatus, FallbackValue=Standby}" />
         <Ellipse  Grid.Row="1" Grid.Column="2" DataContext="{Binding Alert}" Style="{StaticResource AlertStyles}" />
         <TextBlock Grid.Row="3" Grid.Column="1" Style="{StaticResource ReportDateTime}" />
     </Grid>

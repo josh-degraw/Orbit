@@ -75,7 +75,7 @@ namespace Orbit.Util
                 up.ProcessData(wt.Level, rand.NextDouble() * 100, rand.Next(0, 3500));
                 wt.ProcessData(up.SystemStatus, wp.SystemStatus);
                 wp.ProcessData(wt.Level, rand.NextDouble() * 100);
-
+                
                 var nextup = new UrineSystemData {
                     SystemStatus = up.SystemStatus,
                     UrineTankLevel = up.UrineTankLevel,
@@ -84,11 +84,11 @@ namespace Orbit.Util
                     DistillerTemp = rand.NextDouble() * 100,
                     DistillerSpeed = up.DistillerSpeed,
                     PurgePumpOn = up.PurgePumpOn,
-                    BrineTankLevel = up.BrineTankLevel
+                    BrineTankLevel = up.BrineTankLevel,
                 };
                 var next = new WasteWaterStorageTankData {
                     TankId = "Main",
-                    Level = wt.Level  //rand.NextDouble() * 100
+                    Level = wt.Level,
                 };
 
                 var nextwp = new WaterProcessorData {
@@ -99,7 +99,7 @@ namespace Orbit.Util
                     PostHeaterTemp = rand.NextDouble() * 100,
                     PostReactorQualityOK = wp.PostReactorQualityOK,
                     DiverterValvePosition = wp.DiverterValvePosition,
-                    ProductTankLevel = wp.ProductTankLevel
+                    ProductTankLevel = wp.ProductTankLevel,
                 };
 
                 db.UrineProcessorData.Add(nextup);
