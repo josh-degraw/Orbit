@@ -59,8 +59,8 @@ namespace Orbit.Data
             });
 
             this.WaterProcessorData.Add(new WaterProcessorData {
-                FiltersOk = true,
-                PostHeaterTemp = 20,
+                FiltersOK = true,
+                PostHeaterTemp= 20,
                 ProductTankLevel = 80,
                 PostReactorQualityOK = false,
                 DiverterValvePosition = DiverterValvePositions.Reprocess,

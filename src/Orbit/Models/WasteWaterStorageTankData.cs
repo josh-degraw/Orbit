@@ -25,7 +25,34 @@ namespace Orbit.Models
         /// </summary>
         public double Level { get; set; }
 
+        public void ProcessData(SystemStatus urineProcessor, SystemStatus waterProcessor)
+        {
+            if(urineProcessor == SystemStatus.Processing)
+            {
+                if(Level <= 96)
+                {
+                    Level += 4;
+                }
+                else
+                {
+                    Level = 0;
+                }
+            }
+            if (waterProcessor == SystemStatus.Processing)
+            {
+                if (Level >= 6)
+                {
+                    Level -= 6;
+                }
+                else
+                {
+                    Level = 0;
+                }
+            }
+        }
+
         IEnumerable<Alert> IAlertableModel.GenerateAlerts()
+
         {
             if (this.Level >= 100)
             {

@@ -1,8 +1,11 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using System.Linq;
+using Microsoft.Extensions.DependencyInjection;
+using Orbit.Util;
+using Orbit.Data;
 
 namespace Orbit.Models
 {
@@ -36,14 +39,16 @@ namespace Orbit.Models
         /// indicates the first filter bed is saturated and needs to be changed by personal. The second filter is then
         /// moved to the first position and a new filter is then installed into the second filter position.
         /// </summary>
-        public bool FiltersOk { get; set; }
+        public bool FiltersOK { get; set; }
 
         /// <summary>
         /// Heats water to temp before entering the reactor
         /// </summary>
         public bool HeaterOn { get; set; }
-
+        
         /// <summary>
+        /// this is a sensor(s) which is assumed will provide detailed water quality info on Gateway. 
+        /// for now I'm assuming it returns the results as a pass/fail check
         /// temp of water leaving heater and before entering reactor Nominal is 130.5
         /// </summary>
         [Range(32, 150)]
@@ -66,6 +71,76 @@ namespace Orbit.Models
         [Range(0, 100)]
         public int ProductTankLevel { get; set; }
 
+        public void ProcessData(double wasteTankLevel, double heaterTemp)
+        {
+            PostHeaterTemp = heaterTemp;
+
+            if (SystemStatus == SystemStatus.Standby)
+            {
+                if ((wasteTankLevel > 80) && (ProductTankLevel < 100))
+                {
+                    SystemStatus = SystemStatus.Processing;
+                    PumpOn = true;
+                    HeaterOn = true;
+                    ProductTankLevel += 5;
+                }
+                else
+                {
+                    if(ProductTankLevel <= 2)
+                    {
+                        ProductTankLevel = 0;
+                    }
+                    else
+                    {
+                        ProductTankLevel -= 2;
+                    }
+                }
+            }else if(SystemStatus == SystemStatus.Processing)
+            {
+                if(wasteTankLevel <= 0)
+                {
+                    SystemStatus = SystemStatus.Standby;
+                    PumpOn = false;
+                    HeaterOn = false;
+                    ProductTankLevel -= 4;
+                }
+                else if(ProductTankLevel >= 100)
+                {
+                    SystemStatus = SystemStatus.Standby;
+                    PumpOn = false;
+                    HeaterOn = false;
+                    ProductTankLevel = 100;
+                }
+                else
+                {
+                    ProductTankLevel += 5;
+                }
+            }
+            else //(wasteTankLevel <= 0)
+            {
+                SystemStatus = SystemStatus.Standby;
+                PumpOn = false;
+                HeaterOn = false;
+                ProductTankLevel -= 2;
+            }
+        }
+
+
+        public void ChangeSystemStatus()
+        {
+            if((SystemStatus == SystemStatus.Standby) || (SystemStatus == SystemStatus.Ready)){
+                this.SystemStatus = SystemStatus.Processing;
+                PumpOn = true;
+                HeaterOn = true;
+            }
+            else
+            {
+                this.SystemStatus = SystemStatus.Standby;
+                PumpOn = false;
+                HeaterOn = false;
+            }
+        }
+        
         #region ValueCheckMethods
 
         private IEnumerable<Alert> CheckProductTankLevel()
@@ -152,4 +227,5 @@ namespace Orbit.Models
 
         #endregion Implementation of IModuleComponent
     }
+
 }

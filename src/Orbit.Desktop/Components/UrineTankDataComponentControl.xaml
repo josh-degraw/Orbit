@@ -1,10 +1,10 @@
-﻿<UserControl x:Class="Orbit.Desktop.Components.WasteWaterStorageTankDataComponentControl"
+﻿<UserControl x:Class="Orbit.Desktop.Components.UrineTankDataComponentControl"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              mc:Ignorable="d"
-             xmlns:models="clr-namespace:Orbit.Models;assembly=Orbit"
+             xmlns:local="clr-namespace:Orbit.Desktop.Components"
              xmlns:system="clr-namespace:System;assembly=System.Runtime"
              d:DesignHeight="107.813" d:DesignWidth="180.313"
              >
@@ -21,8 +21,8 @@
             <ColumnDefinition />
             <ColumnDefinition />
         </Grid.ColumnDefinitions>
-        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="{Binding Path=Model.TankId, StringFormat= Waste Water Tank \'{0}\', FallbackValue=WasteWaterTankLevel}" HorizontalAlignment="Center" FontFamily="Consolas" Foreground="#80abcc" FontWeight="Bold"/>
-        <TextBlock Grid.Row="1" Grid.Column="1" Grid.RowSpan="1" Text="{Binding Model.Level, FallbackValue=0.0, StringFormat='\{0:N2\}'}" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Consolas" Foreground="#80abcc" />
+        <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="3" Text="{Binding Model.UrineProcessorData, StringFormat= Waste Water Tank {0}, FallbackValue=UrineTankLevel}" HorizontalAlignment="Center" FontFamily="Consolas" Foreground="#80abcc" FontWeight="Bold"/>
+        <TextBlock Grid.Row="1" Grid.Column="1" Grid.RowSpan="1" Text="{Binding Model.UrineTankLevel, FallbackValue=0.0, StringFormat='\{0:N2\}'}" HorizontalAlignment="Center" VerticalAlignment="Center" FontFamily="Consolas" Foreground="#80abcc" />
 
         <Ellipse  Grid.Row="1" Grid.Column="2" Grid.RowSpan="1"  DataContext="{Binding Alert}" Width="25" Height="25">
             <Ellipse.ToolTip>
@@ -40,7 +40,7 @@
             </Ellipse.ToolTip>
             <Ellipse.Style>
                 <Style TargetType="Ellipse">
-                    <Setter Property="Fill" Value="green"/>
+                    <Setter Property="Fill" Value="Green"/>
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding AlertLevel}" Value="HighWarning">
                             <Setter Property="Fill" Value="Yellow" />
@@ -59,6 +59,6 @@
             </Ellipse.Style>
         </Ellipse>
         <!--<TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Text="{Binding Alert.Message}" HorizontalAlignment="Center" VerticalAlignment="Center" />-->
-        <TextBlock Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Model.ReportDateTime, StringFormat='Last read: \{0:hh\:mm\:ss\}', FallbackValue=Last read: 00:00:00}" HorizontalAlignment="Center" FontSize="8" VerticalAlignment="Center" Foreground="#707070" FontFamily="Consolas"/>
+        <TextBlock Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" Text="{Binding Model.ReportDateTime, StringFormat='Last read: \{0:hh\:mm\:ss\}', FallbackValue=Last read: 00:00:00}" HorizontalAlignment="Center" FontSize="8" VerticalAlignment="Center" Foreground="#707070" FontFamily="Consolas" />
     </Grid>
 </UserControl>

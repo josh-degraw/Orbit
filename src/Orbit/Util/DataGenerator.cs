@@ -4,6 +4,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
+using System.Linq;
 using Orbit.Data;
 using Orbit.Models;
 
@@ -66,12 +67,44 @@ namespace Orbit.Util
                 using var scope = ServiceProvider.CreateScope();
                 using var db = scope.ServiceProvider.GetRequiredService<OrbitDbContext>();
 
+                WasteWaterStorageTankData wt = db.WasteWaterStorageTankData.First();
+                UrineSystemData up = db.UrineProcessorData.First();
+                WaterProcessorData wp = db.WaterProcessorData.First();
+
+                // these should probably be moved out of the db connection method, but not sure how without breaking stuff
+                up.ProcessData(wt.Level, rand.NextDouble() * 100, rand.Next(0, 3500));
+                wt.ProcessData(up.SystemStatus, wp.SystemStatus);
+                wp.ProcessData(wt.Level, rand.NextDouble() * 100);
+
+                var nextup = new UrineSystemData {
+                    SystemStatus = up.SystemStatus,
+                    UrineTankLevel = up.UrineTankLevel,
+                    SupplyPumpOn = up.SupplyPumpOn,
+                    DistillerOn = up.DistillerOn,
+                    DistillerTemp = rand.NextDouble() * 100,
+                    DistillerSpeed = up.DistillerSpeed,
+                    PurgePumpOn = up.PurgePumpOn,
+                    BrineTankLevel = up.BrineTankLevel
+                };
                 var next = new WasteWaterStorageTankData {
                     TankId = "Main",
-                    Level = rand.NextDouble() * 100
+                    Level = wt.Level  //rand.NextDouble() * 100
                 };
 
+                var nextwp = new WaterProcessorData {
+                    SystemStatus = wp.SystemStatus,
+                    PumpOn = wp.PumpOn,
+                    FiltersOK = wp.FiltersOK,
+                    HeaterOn = wp.HeaterOn,
+                    PostHeaterTemp = rand.NextDouble() * 100,
+                    PostReactorQualityOK = wp.PostReactorQualityOK,
+                    DiverterValvePosition = wp.DiverterValvePosition,
+                    ProductTankLevel = wp.ProductTankLevel
+                };
+
+                db.UrineProcessorData.Add(nextup);
                 db.WasteWaterStorageTankData.Add(next);
+                db.WaterProcessorData.Add(nextwp);
                 await db.SaveChangesAsync(token);
             }
 

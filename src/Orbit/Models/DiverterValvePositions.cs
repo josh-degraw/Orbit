@@ -2,7 +2,7 @@
 {
     public enum DiverterValvePositions
     {
+        Reprocess,
         ToStorage,
-        Reprocess
     }
 }

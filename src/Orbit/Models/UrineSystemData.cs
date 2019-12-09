@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
@@ -39,18 +40,18 @@ namespace Orbit.Models
         /// Motor speed; nominal 1200 rpm
         /// </summary>
         [Range(0, 1400)]
-        public int DistillerSpeed { get; set; }
+        public int DistillerSpeed { get; set; }        
 
         private const int distillerSpeedUpperLimit = 1300;
         private const int distillerSpeedLowerLimit = 1100;
         private const int distillerSpeedTolerance = 100;
-
+        
         /// <summary>
         /// Temp of weewee in the distiller; nominal 45C
         /// </summary>
         [Range(0, 60)]
         public double DistillerTemp { get; set; }
-
+        
         private const double distillerTempUpperLimit = 55;
 
         private const double distillerTempLowerlimit = 35;
@@ -71,6 +72,64 @@ namespace Orbit.Models
 
         private const int brineTankLevelUpperLimit = 100;
         private const int brineTankLevelTolerance = 5;
+        public void ProcessData(double wasteTankLevel, double temp, int speed)
+        {
+            if (SystemStatus == SystemStatus.Standby)
+            {
+                DistillerTemp = temp;
+                DistillerSpeed = speed;
+
+                if ((UrineTankLevel > 80) && (wasteTankLevel < 100) && (BrineTankLevel < 100))
+                {
+                    SystemStatus = SystemStatus.Processing;
+                    UrineTankLevel -= 5;
+                    SupplyPumpOn = true;
+                    DistillerOn = true;
+                    PurgePumpOn = true;
+                    BrineTankLevel += 2;
+                }
+                else
+                {
+                    UrineTankLevel += 3;
+                }
+            }
+            else if (SystemStatus == SystemStatus.Processing)
+            {
+                DistillerTemp = temp;
+                DistillerSpeed = speed;
+
+                if ((UrineTankLevel <= 0) || (wasteTankLevel >= 100) || (BrineTankLevel >= 100))
+                {
+                    SystemStatus = SystemStatus.Standby;
+                    SupplyPumpOn = false;
+                    DistillerOn = false;
+                    PurgePumpOn = false;
+                    
+                    if( UrineTankLevel <= 0)
+                    {
+                        UrineTankLevel = 0;
+                    }
+                    if(BrineTankLevel >= 100)
+                    {
+                        BrineTankLevel = 100;
+                    }
+                }
+                else
+                {
+                    UrineTankLevel -= 5;
+                    BrineTankLevel += 2;
+                }
+            }
+            else
+            {
+                SystemStatus = SystemStatus.Standby;
+                SupplyPumpOn = false;
+                DistillerOn = false;
+                DistillerTemp = temp;
+                DistillerSpeed = speed;
+                PurgePumpOn = false;
+            }
+        }
 
         #region CheckValueMethods
 
