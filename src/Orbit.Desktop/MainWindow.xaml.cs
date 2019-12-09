@@ -3,6 +3,7 @@ using System.ComponentModel;
 using System.Windows;
 
 using Microsoft.Extensions.DependencyInjection;
+
 using Orbit.Data;
 using Orbit.Models;
 
@@ -21,11 +22,11 @@ namespace Orbit.Desktop
         private UrineSystemData? _urineSystemData;
         private WaterProcessorData? _waterProcessorData;
 
-
         public WasteWaterStorageTankData? WasteWater {
             get => this._wasteWater;
-            set 
-            {
+
+            set {
+
                 // This stuff here is required to tell the UI to update anything that references this property
                 this._wasteWater = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.WasteWater)));
@@ -34,6 +35,7 @@ namespace Orbit.Desktop
 
         public UrineSystemData? UrineTank {
             get => this._urineSystemData;
+
             set {
                 this._urineSystemData = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.UrineTank)));
@@ -42,6 +44,7 @@ namespace Orbit.Desktop
 
         public WaterProcessorData? PotableWaterTank {
             get => this._waterProcessorData;
+
             set {
                 this._waterProcessorData = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.PotableWaterTank)));
@@ -50,6 +53,7 @@ namespace Orbit.Desktop
 
         public UrineSystemData? UrineSystemStatus {
             get => this._urineSystemData;
+
             set {
                 this._urineSystemData = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.UrineSystemStatus)));
@@ -58,6 +62,7 @@ namespace Orbit.Desktop
 
         public WaterProcessorData? WaterProcessorStatus {
             get => this._waterProcessorData;
+
             set {
                 this._waterProcessorData = value;
                 PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(nameof(this.WaterProcessorStatus)));
@@ -69,35 +74,29 @@ namespace Orbit.Desktop
             this.InitializeComponent();
             this.ServiceProvider = serviceProvider;
             this.Loaded += this.MainWindow_Loaded;
-            
         }
 
         private async void MainWindow_Loaded(object sender, RoutedEventArgs e)
         {
-            // Try to load 
             using var scope = ServiceProvider.CreateScope();
-            var db = scope.ServiceProvider.GetRequiredService<OrbitDbContext>();
+            var provider = scope.ServiceProvider;
+            var db = provider.GetRequiredService<OrbitDbContext>();
             db.InsertSeedData();
-            var comp = scope.ServiceProvider.GetService<IMonitoredComponent<WasteWaterStorageTankData>>();
-            var rep = await comp.GetLatestReportAsync().ConfigureAwait(true);
-            this.WasteWater = rep;
 
-            var urineComp = scope.ServiceProvider.GetService<IMonitoredComponent<UrineSystemData>>();
-            var urineRep = await urineComp.GetLatestReportAsync().ConfigureAwait(true);
-            this.UrineTank = urineRep;
+            var comp = provider.GetService<IMonitoredComponent<WasteWaterStorageTankData>>();
+            this.WasteWater = await comp.GetLatestReportAsync().ConfigureAwait(true);
 
-            var potableWaterComp = scope.ServiceProvider.GetService<IMonitoredComponent<WaterProcessorData>>();
-            var potableWaterRep = await potableWaterComp.GetLatestReportAsync().ConfigureAwait(true);
-            this.PotableWaterTank = potableWaterRep;
+            var urineComp = provider.GetService<IMonitoredComponent<UrineSystemData>>();
+            this.UrineTank = await urineComp.GetLatestReportAsync().ConfigureAwait(true);
 
-            var urineStatusComp = scope.ServiceProvider.GetService<IMonitoredComponent<UrineSystemData>>();
-            var urineStatusRep = await urineStatusComp.GetLatestReportAsync().ConfigureAwait(true);
-            this.UrineSystemStatus = urineStatusRep;
+            var potableWaterComp = provider.GetService<IMonitoredComponent<WaterProcessorData>>();
+            this.PotableWaterTank = await potableWaterComp.GetLatestReportAsync().ConfigureAwait(true);
 
-            var waterProcessorComp = scope.ServiceProvider.GetService<IMonitoredComponent<WaterProcessorData>>();
-            var waterProcessorRep = await waterProcessorComp.GetLatestReportAsync().ConfigureAwait(true);
-            this.WaterProcessorStatus = waterProcessorRep;
+            var urineStatusComp = provider.GetService<IMonitoredComponent<UrineSystemData>>();
+            this.UrineSystemStatus = await urineStatusComp.GetLatestReportAsync().ConfigureAwait(true);
 
+            var waterProcessorComp = provider.GetService<IMonitoredComponent<WaterProcessorData>>();
+            this.WaterProcessorStatus = await waterProcessorComp.GetLatestReportAsync().ConfigureAwait(true);
         }
     }
 }
