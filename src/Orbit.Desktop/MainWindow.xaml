@@ -8,11 +8,11 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="450" Width="800">
     <Grid Background="black">
-        <components:WasteWaterStorageTankDataComponentControl DataContext="{Binding WasteWater}" Margin="249,138,248,173" />
-        <components:UrineTankDataComponentControl DataContext="{Binding UrineTank}" Margin="0,287,497,24" />
-        <components:PotableWaterTankDataComponentControl DataContext="{Binding PotableWaterTank}" Margin="487,261,10,50" />
-        <components:UrineSystemStatusComponentControl DataContext="{Binding UrineSystemStatus}" Margin="0,29,497,281" />
-        <components:WaterProcessorStatusComponentControl DataContext="{Binding WaterProcessorStatus}" Margin="487,18,10,292" />
+        <components:WasteWaterStorageTankDataComponentControl DataContext="{Binding WasteWater}" Margin="248,159,248,152" />
+        <components:UrineTankDataComponentControl DataContext="{Binding UrineTank}" Margin="10,287,487,24" />
+        <components:PotableWaterTankDataComponentControl DataContext="{Binding PotableWaterTank}" Margin="487,287,10,24" />
+        <components:UrineSystemStatusComponentControl DataContext="{Binding UrineSystemStatus}" Margin="10,29,487,281" />
+        <components:WaterProcessorStatusComponentControl DataContext="{Binding WaterProcessorStatus}" Margin="487,29,10,281" />
     </Grid>
     
 </Window>
