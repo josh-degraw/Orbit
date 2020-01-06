@@ -48,7 +48,7 @@ namespace Orbit.Models
         [Range(0, 90)]
         public double CabinAmbientNoiseLevel { get; set; }
 
-        /// <summary> Goal is 267 Pa/mm hg (2600ppm) per 24hr period as a maximum </summary>
+        /// <summary> Goal is &lt; 267 Pa/mm hg (2600ppm) per 24hr period as a maximum </summary>
         public double CabinCarbonDioxideLevel { get; set; }
 
         /// <summary>
