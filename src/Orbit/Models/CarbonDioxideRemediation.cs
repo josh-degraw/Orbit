@@ -24,16 +24,14 @@ namespace Orbit.Models
         private const double TemperatureUpperLimit = 250;
         private const double TemperatureLowerLimit = 220;
         private const double TemperatureTolerance = 10;
-        private const double CarbonDioxideOutputLimit = 2;  // im ppm
+        private const double CarbonDioxideOutputLimit = 1;  // im ppm
         private const double CarbonDioxideOutputTolerance = 2;
         
-        //private int co2SetLimit = 4;   // maximum amount of Co2 allowed in air
-        private double currentCo2Level;
-        private double maxCo2Level;
-        
-        // temporary pseudo-timer 
-        private int count = 0;
-        private int countLength = 30;
+        private int count = 0;  // used to simulate a procesing/regeneration cycle timer for now
+        private int countLength = 60;  // length of a cycle
+
+        private int co2SetLimit = 3;
+        private int currentCo2Level;
 
         #endregion Limits
 
@@ -88,10 +86,9 @@ namespace Orbit.Models
 
         #region Public Methods
 
-        public void ProcessData(double co2Level, double maxCo2 )
+        public void ProcessData(int co2Level)
         {
             currentCo2Level = co2Level;
-            maxCo2Level = maxCo2;
 
             if (Status == SystemStatus.Processing)
             {
@@ -106,7 +103,7 @@ namespace Orbit.Models
             }
             else if (Status == SystemStatus.Standby)
             {
-                if (currentCo2Level > CarbonDioxideOutputLimit)
+                if (currentCo2Level > co2SetLimit)
                 {
                     Status = SystemStatus.Processing;
                 }
