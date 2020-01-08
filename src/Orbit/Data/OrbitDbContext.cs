@@ -27,7 +27,7 @@ namespace Orbit.Data
 
         public DbSet<CarbonDioxideRemediation> CarbonDioxideRemoverData { get; set; }
 
-        public DbSet<Battery> BatteryData { get; set; }
+        public DbSet<PowerSystemData> BatteryData { get; set; }
 
         public DbSet<Radiator> RadiatorData { get; set; }
 
@@ -91,7 +91,7 @@ namespace Orbit.Data
             modelBuilder.Entity<Atmosphere>(MapModelCommonProps);
             modelBuilder.Entity<CarbonDioxideRemediation>(MapModelCommonProps);
             modelBuilder.Entity<OxygenGenerator>(MapModelCommonProps);
-            modelBuilder.Entity<Battery>(MapModelCommonProps);
+            modelBuilder.Entity<PowerSystemData>(MapModelCommonProps);
             modelBuilder.Entity<Radiator>(MapModelCommonProps);
             modelBuilder.Entity<SolarArray>(MapModelCommonProps);
             modelBuilder.Entity<ShuntUnit>(MapModelCommonProps);
