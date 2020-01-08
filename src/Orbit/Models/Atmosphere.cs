@@ -8,39 +8,51 @@ namespace Orbit.Models
 {
     public class Atmosphere : IAlertableModel
     {
-        #region Private Fields
-
+        #region Limits
+        //values in decibels
         private const int cabinAmbientNoiseTolerance = 5;
         private const int cabinAmbientNoiseUpperLimit = 72;
 
-        private const double cabinCarbonDioxideTolerance = 600;
-        private const double cabinCarbonDioxideUpperLimit = 2600;
+        // values in ppm
+        private const double CarbonDioxideLowerLimit = 0;
+        private const double cabinCarbonDioxideUpperLimit = 4;
+        private const double cabinCarbonDioxideTolerance = 2;
 
+        // values are percentages
         private const double cabinHumidityLevelLowerLimit = 30;
         private const double cabinHumidityLevelTolerance = 10;
         private const double cabinHumidityLevelUpperLimit = 80;
 
+        // values are percentages
         private const double cabinOxygenLevelLowerLimit = 17;
         private const double cabinOxygenLevelTolerance = 3;
         private const double cabinOxygenLevelUpperLimit = 25.9;
 
+        // values are psia
         private const double cabinPressureLowerLimit = 50;
         private const double cabinPressureTolerance = 5;
         private const double cabinPressureUpperLimit = 110;
 
+        // degrees Celsius
         private const int cabinTemperatureCrewedLowerLimit = 17;
         private const int cabinTemperatureTolerance = 3;
 
         private const int cabinTemperatureUncrewedLowerLimit = 4;
         private const int cabinTemperatureUpperLimit = 30;
 
+        // values are percentage
         private const int fanSpeedLowerLimit = 20;
         private const int fanSpeedTolerance = 10;
         private const int fanSpeedUpperLimit = 100;
 
-        #endregion Private Fields
+        #endregion Limits
 
         #region Public Properties
+
+        [NotMapped]
+        public string ComponentName => "Atmosphere";
+
+        public DateTimeOffset ReportDateTime { get; set; } = DateTimeOffset.Now;
 
         /// <summary>
         /// Decibel value of cabin noise
@@ -82,24 +94,41 @@ namespace Orbit.Models
         [Range(-10, 100)]
         public int CabinTemperature { get; set; }
 
-        [NotMapped]
-        public string ComponentName => "Atmosphere";
-
         /// <summary>
         /// Air circulation fan speed
         /// </summary>
         [Range(0, 100)]
         public int FanSpeed { get; set; }
 
-        public DateTimeOffset ReportDateTime { get; set; } = DateTimeOffset.Now;
         /// <summary>
         /// denotes if station is occupied (false) or not (true)
+        /// TODO: move this to a station controller class
         /// </summary>
         public bool UncrewedModeOn { get; set; }
 
         #endregion Public Properties
 
-        #region Private Methods
+        #region Public Methods
+
+        public void ProcessData()
+        {
+            // this class is a placeholder for various data, most are non-actionable
+            // or are actionable in other classes
+        }
+        IEnumerable<Alert> IAlertableModel.GenerateAlerts()
+        {
+            return this.CheckCabinPressure()
+                .Concat(this.CheckCabinOxygenLevel())
+                .Concat(this.CheckCabinCarbonDioxideLevel())
+                .Concat(this.CheckCabinHumidityLevel())
+                .Concat(this.CheckCabinAmbientNoiseLevel())
+                .Concat(this.CheckCabinTemperature())
+                .Concat(this.CheckFanSpeed());
+        }
+
+        #endregion Public Methods
+
+        #region Check Alerts
 
         private IEnumerable<Alert> CheckCabinAmbientNoiseLevel()
         {
@@ -256,21 +285,7 @@ namespace Orbit.Models
             }
         }
 
-        #endregion Private Methods
+        #endregion Check Alerts
 
-        #region Public Methods
-
-        IEnumerable<Alert> IAlertableModel.GenerateAlerts()
-        {
-            return this.CheckCabinPressure()
-                .Concat(this.CheckCabinOxygenLevel())
-                .Concat(this.CheckCabinCarbonDioxideLevel())
-                .Concat(this.CheckCabinHumidityLevel())
-                .Concat(this.CheckCabinAmbientNoiseLevel())
-                .Concat(this.CheckCabinTemperature())
-                .Concat(this.CheckFanSpeed());
-        }
-
-        #endregion Public Methods
     }
 }
