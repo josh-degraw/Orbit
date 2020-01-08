@@ -28,7 +28,7 @@ namespace Orbit.Models
         private const double cabinOxygenLevelTolerance = 3;
         private const double cabinOxygenLevelUpperLimit = 25.9;
 
-        // values are psia
+        // values in psia
         private const double cabinPressureLowerLimit = 50;
         private const double cabinPressureTolerance = 5;
         private const double cabinPressureUpperLimit = 110;
@@ -70,6 +70,11 @@ namespace Orbit.Models
         public double CabinHumidityLevel { get; set; }
 
         /// <summary>
+        /// desired humidity level set by crew
+        /// </summary>
+        public double HumiditySetLevel { get; set; }
+
+        /// <summary>
         /// link to Oxygen Generation System values used here are concentrations as a percentage for operational
         /// pressure of 101kPa (14.7psia)
         /// </summary>
@@ -89,16 +94,52 @@ namespace Orbit.Models
         public SystemStatus CabinStatus { get; set; }
 
         /// <summary>
+        /// status of the temperature and humidity control system
+        /// </summary>
+        public SystemStatus AtmosphereSystemStatus { get; set; }
+
+        /// <summary>
         /// Ambient air temperature Nominal range is 20-27C uncrewed min is 4C
         /// </summary>
         [Range(-10, 100)]
-        public int CabinTemperature { get; set; }
+        public double CabinTemperature { get; set; }
 
+        /// <summary>
+        /// desired ambient temperature set by crew
+        /// </summary>
+        public double SetTemperature { get; set; }
+
+        /// <summary>
+        /// position of the heat exchanger air baffles: 
+        ///     0 =  all air bypasses heat exhanger 
+        ///     100 = all air passes through heat exchanger
+        /// </summary>
+        public int TempControlValvePosition { get; set; }
+
+        /// <summary>
+        /// air/condensate seperator
+        /// </summary>
+        public bool SeperatorOn { get; set; }
+        
         /// <summary>
         /// Air circulation fan speed
         /// </summary>
         [Range(0, 100)]
         public int FanSpeed { get; set; }
+
+        /// <summary>
+        /// temperature of the air leaving the heat exchanger to cabin
+        /// </summary>
+        public double OutflowAirTemperature { get; set; }
+        /// <summary>
+        /// sensor that will trigger if liquid is detected in air leaving the heat exchanger
+        /// </summary>
+        public bool LiquidInOutflow { get; set; }
+
+        /// <summary>
+        /// redirects outflow air back to heat exchange/condensor if liquid is detected
+        /// </summary>
+        public DiverterValvePositions ReprocessBafflePosition { get; set; }
 
         /// <summary>
         /// denotes if station is occupied (false) or not (true)
@@ -112,9 +153,72 @@ namespace Orbit.Models
 
         public void ProcessData()
         {
-            // this class is a placeholder for various data, most are non-actionable
-            // or are actionable in other classes
+            if(AtmosphereSystemStatus == SystemStatus.Processing)
+            {
+                if((TempControlValvePosition == 0) || (CabinTemperature < SetTemperature) || (CabinHumidityLevel < HumiditySetLevel))
+                {
+                    Standby();
+                    return;
+                }
+
+                if(SeperatorOn == false || FanSpeed <= 0 || ((CabinHumidityLevel > HumiditySetLevel) && (TempControlValvePosition == 100)) )
+                {
+                    AtmosphereSystemStatus = SystemStatus.Trouble;
+                }
+                
+                if (LiquidInOutflow)
+                {
+                    ReprocessBafflePosition = DiverterValvePositions.Reprocess;
+                }
+                else
+                {
+                    ReprocessBafflePosition = DiverterValvePositions.Accept;
+                }
+
+                if ((CabinHumidityLevel > HumiditySetLevel) || (CabinTemperature > SetTemperature))
+                {
+                    TempControlValvePosition++;
+                }
+                else if ((CabinHumidityLevel < HumiditySetLevel) || (CabinTemperature < SetTemperature))
+                {
+                    TempControlValvePosition--;
+                }
+            } 
+            else if(AtmosphereSystemStatus == SystemStatus.Standby)
+            {
+                if((CabinHumidityLevel > HumiditySetLevel) || (CabinTemperature > SetTemperature))
+                {
+                    Process();
+                    return;
+                }
+
+                if(SeperatorOn || FanSpeed > 0)
+                {
+                    AtmosphereSystemStatus = SystemStatus.Trouble;
+                }
+            }
         }
+
+        /// <summary>
+        /// change system to a processing or 'active' state
+        /// </summary>
+        private void Process()
+        {
+            AtmosphereSystemStatus = SystemStatus.Processing;
+            SeperatorOn = true;
+            FanSpeed = 50;
+        }
+
+        /// <summary>
+        /// change system to a standby or 'off' state
+        /// </summary>
+        private void Standby()
+        {
+            AtmosphereSystemStatus = SystemStatus.Standby;
+            SeperatorOn = false;
+            FanSpeed = 0;
+        }
+
         IEnumerable<Alert> IAlertableModel.GenerateAlerts()
         {
             return this.CheckCabinPressure()
@@ -123,7 +227,9 @@ namespace Orbit.Models
                 .Concat(this.CheckCabinHumidityLevel())
                 .Concat(this.CheckCabinAmbientNoiseLevel())
                 .Concat(this.CheckCabinTemperature())
-                .Concat(this.CheckFanSpeed());
+                .Concat(this.CheckFanSpeed())
+                .Concat(this.CheckSeperator())
+                .Concat(this.CheckFanOn());
         }
 
         #endregion Public Methods
@@ -282,6 +388,54 @@ namespace Orbit.Models
             else
             {
                 yield return Alert.Safe(nameof(FanSpeed));
+            }
+        }
+
+        private IEnumerable<Alert> CheckSeperator()
+        {
+            if (AtmosphereSystemStatus == SystemStatus.Processing)
+            {
+                if (!SeperatorOn)
+                {
+                    yield return new Alert(nameof(Atmosphere), "Seperator is not on while processing", AlertLevel.HighError);
+                }
+                else
+                {
+                    yield return Alert.Safe(nameof(Atmosphere));
+                }
+            }
+            else if (AtmosphereSystemStatus == SystemStatus.Standby)
+            {
+                if (SeperatorOn)
+                {
+                    yield return new Alert(nameof(Atmosphere), "Seperator is on while in standby", AlertLevel.HighError);
+                }
+                else
+                {
+                    yield return Alert.Safe(nameof(Atmosphere));
+                }
+            }
+        }
+
+        private IEnumerable<Alert> CheckFanOn()
+        {
+            if (AtmosphereSystemStatus == SystemStatus.Processing)
+            {
+                if (FanSpeed <= 0)
+                {
+                    yield return new Alert(nameof(Atmosphere), "Fan off while processing", AlertLevel.LowError);
+                }
+                else
+                {
+                    yield return Alert.Safe(nameof(Atmosphere));
+                }
+            }
+            else if (AtmosphereSystemStatus == SystemStatus.Standby)
+            {
+                if (FanSpeed > 0)
+                {
+                    yield return new Alert(nameof(Atmosphere), "Fan on while in standby", AlertLevel.HighWarning);
+                }
             }
         }
 
