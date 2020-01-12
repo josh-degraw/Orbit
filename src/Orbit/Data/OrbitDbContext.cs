@@ -27,13 +27,8 @@ namespace Orbit.Data
 
         public DbSet<CarbonDioxideRemediation> CarbonDioxideRemoverData { get; set; }
 
-        public DbSet<PowerSystemData> BatteryData { get; set; }
+        public DbSet<PowerSystemData> PowerSystemData { get; set; }
 
-        public DbSet<Radiator> RadiatorData { get; set; }
-
-        public DbSet<ShuntUnit> ShuntUnitData { get; set; }
-
-        public DbSet<SolarArray> SolarArrayData { get; set; }
 
         public DbSet<InternalCoolantLoopData> InternalCoolantLoopData { get; set; }
 
@@ -92,9 +87,6 @@ namespace Orbit.Data
             modelBuilder.Entity<CarbonDioxideRemediation>(MapModelCommonProps);
             modelBuilder.Entity<OxygenGenerator>(MapModelCommonProps);
             modelBuilder.Entity<PowerSystemData>(MapModelCommonProps);
-            modelBuilder.Entity<Radiator>(MapModelCommonProps);
-            modelBuilder.Entity<SolarArray>(MapModelCommonProps);
-            modelBuilder.Entity<ShuntUnit>(MapModelCommonProps);
             modelBuilder.Entity<ExternalCoolantLoopData>(MapModelCommonProps);
             modelBuilder.Entity<InternalCoolantLoopData>(MapModelCommonProps);
         }
