@@ -21,11 +21,16 @@ namespace Orbit.Models
         private const double outputFluidTemperatureLowerLimit = 1.67;
         private const double outputFluidTemperatureTolerance = 5;
 
+        private int mixValveUpperLimit = 100;
+        private int mixValveLowerLimit = 0;
+        private int mixValveTolerance = 5;
+
         private bool radiatorRotationIncreasing = true;
 
         #endregion Limits
 
         #region Public Properties
+
         public string ComponentName => "ExternalCoolantSystem";
 
         public DateTimeOffset ReportDateTime { get; set; } = DateTimeOffset.Now;
@@ -97,37 +102,65 @@ namespace Orbit.Models
 
         public void ProcessData()
         {
-            // need code to change from trouble state to 'ok' state if no trouble conditions exist
-            // preferebly without checking conditions twice (ie. line pressure check)
+            bool troubleFlag = false;
+
+            // pump failure (loss of pump motor rotation, regardless of line pressure)
             if (!PumpAOn || !PumpBOn)
             {
-                Trouble();
+                troubleFlag = true;
             }
-            if ((OutputFluidTemperature > outputFluidTemperatueUpperLimit) || (OutputFluidTemperature > SetTemperature))
+
+            if (OutputFluidTemperature > SetTemperature)
             {
                 // open the mixing valve and allow more 'cold' fluid in the mix
                 IncreaseFluidMix();
             }
-            if ((OutputFluidTemperature < outputFluidTemperatureLowerLimit) || (OutputFluidTemperature < SetTemperature))
+            if (OutputFluidTemperature < SetTemperature)
             {
                 // close the mixing valve to keep more 'hot' fluid in the mix
                 DecreaseFluidMix();
             }
+
             if ((LineAPressure > fluidPressureUpperLimit) || (LineAPressure < fluidPressureLowerLimit))
             {
-                // problem in the fluid line A, shut off pumpA to prevent pump damage 
+                // problem in fluid line A (while pump on and working), shut off pumpA to prevent pump damage 
                 PumpAOn = false;
-                Trouble();
+                troubleFlag = true;
             }
+            else
+            {   // many need to make this a manual restart in event presssure restore is due to heat expansion?
+                PumpAOn = true;
+            }
+
             if ((LineBPressure > fluidPressureUpperLimit) || (LineBPressure < fluidPressureLowerLimit))
             {
-                // problem in the fluid line B, shut off pumpB to prevent pump damage
+                // problem in fluid line B (while pump on and working), shut off pumpB to prevent pump damage
                 PumpBOn = false;
-                Trouble();
+                troubleFlag = true;
             }
+            else
+            {   // many need to make this a manual restart in event presssure restore is due to heat expansion?
+                PumpBOn = true;
+            }
+
             if (RadiatorDeployed)
             {
+                // moved beyond bounds
+                if ((RadiatorRotation > radiatorRotationUpperLimit) || (RadiatorRotation < radiatorRotationLowerLimit))
+                {
+                    troubleFlag = true;
+                }
+                // simulate radiator rotation
                 RotateRadiator();
+            }
+
+            if (troubleFlag)
+            {
+                Trouble();
+            }
+            else
+            {
+                Normal();
             }
         }
 
@@ -137,39 +170,49 @@ namespace Orbit.Models
             Status = SystemStatus.Trouble;
         }
 
+        private void Normal()
+        {
+            Status = SystemStatus.On;
+        }
+
         private void IncreaseFluidMix()
         {
             // need formula: if valve opened 1 'degree', how much would temp change, use difference
             // in outflow and set temp to determine amount to change valve
             
-            if(MixValvePosition == 0)
+            if(LineHeaterOn)
             {
-                // heater is on, turn it off
+                // if heater is on, turn it off and recheck temp before moving valve position
                 LineHeaterOn = false;
             }
-            MixValvePosition++;
+            else
+            {
+                if(MixValvePosition < mixValveUpperLimit)
+                {
+                    MixValvePosition++;
+                }
+            }
         }
 
         private void DecreaseFluidMix()
         {
-            // need formula: if valve closed 1 'degree', how much would temp change, use difference
-            // in outflow and set temp to determine amount to change valve
-            
-            MixValvePosition--;
-            if (MixValvePosition == 0)
+            // Sould we use a formula? ex: if valve closed 1 'degree', how much would temp change, 
+            // then use that change in outflow and set temp to determine amount to change valve
+
+            if (MixValvePosition == mixValveLowerLimit)
             {
                 // heat load from station is too low to keep fluid above min temp, turn heater on
                 LineHeaterOn = true;
+            }
+            else
+            {
+                MixValvePosition--;
             }
         }
 
         private void RotateRadiator()
         {
-            if((RadiatorRotation > radiatorRotationUpperLimit) ||(RadiatorRotation < radiatorRotationLowerLimit))
-            {
-                Trouble();
-            }
-            
+            // rotate radiator back and forth between range bounds
             if(radiatorRotationIncreasing && (RadiatorRotation < radiatorRotationUpperLimit))
             {
                 RadiatorRotation++;
@@ -180,15 +223,76 @@ namespace Orbit.Models
             }
             else
             {
+                // reached a bound, switch direction
                 radiatorRotationIncreasing = !radiatorRotationIncreasing;
             }
         }
 
     #endregion Methods
 
-    #region Alert generation
+        #region Alert Generation
 
-    private IEnumerable<Alert> CheckRadiatorRotation()
+        private IEnumerable<Alert> CheckPumpA()
+        {
+            if (!PumpAOn)
+            {
+                yield return new Alert(nameof(PumpAOn), "External coolant pump A is off", AlertLevel.HighError);
+            }
+            else
+            {
+                yield return Alert.Safe(nameof(PumpAOn));
+            }
+        }
+
+        private IEnumerable<Alert> CheckPumpB()
+        {
+            if (!PumpBOn)
+            {
+                yield return new Alert(nameof(PumpBOn), "External coolant pump B is off", AlertLevel.HighError);
+            }
+            else
+            {
+                yield return Alert.Safe(nameof(PumpBOn));
+            }
+        }
+
+        private IEnumerable<Alert> CheckMixValvePosition()
+        {
+            if(MixValvePosition >= mixValveUpperLimit)
+            {
+                yield return new Alert(nameof(MixValvePosition), "Mix valve position is at maximum", AlertLevel.HighError);
+            }
+            else if (MixValvePosition >= (mixValveUpperLimit - mixValveTolerance))
+            {
+                yield return new Alert(nameof(MixValvePosition), "Mix valve position is approaching maximum", AlertLevel.HighWarning);
+            }
+            else if (MixValvePosition <= mixValveLowerLimit)
+            {
+                yield return new Alert(nameof(MixValvePosition), "Mix valve position is at minimum", AlertLevel.LowError);
+            }
+            else if(MixValvePosition <= (mixValveLowerLimit - mixValveTolerance))
+            {
+                yield return new Alert(nameof(MixValvePosition), "Mix valve position is approaching minimum", AlertLevel.LowWarning);
+            }
+            else
+            {
+                yield return Alert.Safe(nameof(MixValvePosition));
+            }
+        }
+
+        private IEnumerable<Alert> CheckRadiatorDeployed()
+        {
+            if (!RadiatorDeployed)
+            {
+                yield return new Alert(nameof(RadiatorDeployed), "External coolant radiator is retracted", AlertLevel.LowWarning);
+            }
+            else
+            {
+                yield return Alert.Safe(nameof(RadiatorDeployed));
+            }
+        }
+
+        private IEnumerable<Alert> CheckRadiatorRotation()
         {
             if (RadiatorRotation > radiatorRotationUpperLimit)
             {
@@ -235,6 +339,7 @@ namespace Orbit.Models
                 yield return Alert.Safe(nameof(LineAPressure));
             }
         }
+
         private IEnumerable<Alert> CheckLineBPressure()
         {
             if (LineBPressure >= fluidPressureUpperLimit)
@@ -258,7 +363,8 @@ namespace Orbit.Models
                 yield return Alert.Safe(nameof(LineBPressure));
             }
         }
-        private IEnumerable<Alert> CheckFluidTemp()
+
+        private IEnumerable<Alert> CheckOutputFluidTemp()
         {
             if (OutputFluidTemperature >= outputFluidTemperatueUpperLimit)
             {
@@ -284,16 +390,66 @@ namespace Orbit.Models
 
         IEnumerable<Alert> IAlertableModel.GenerateAlerts()
         {
-            return this.CheckRadiatorRotation()
-                .Concat(this.CheckLineAPressure())
-                .Concat(this.CheckLineBPressure())
-                .Concat(this.CheckFluidTemp())                                                ;
+            return this.CheckPumpA()
+                .Concat(CheckPumpB())
+                .Concat(CheckMixValvePosition())
+                .Concat(CheckRadiatorDeployed())
+                .Concat(CheckRadiatorRotation())
+                .Concat(CheckLineAPressure())
+                .Concat(CheckLineBPressure())
+                .Concat(CheckOutputFluidTemp())                                                ;
         }
 
         #endregion Alert generation
 
         #region Equality Members
 
+        public bool Equals(ExternalCoolantLoopData other)
+        {
+            if(ReferenceEquals(null, other))
+                return false;
+            if (ReferenceEquals(this, other))
+                return true;
+            return this.ReportDateTime.Equals(other.ReportDateTime)
+                && this.Status == other.Status
+                && this.RadiatorRotation == other.RadiatorRotation
+                && this.PumpAOn == other.PumpAOn
+                && this.PumpBOn == other.PumpBOn
+                && this.MixValvePosition == other.MixValvePosition
+                && this.LineAPressure == other.LineAPressure
+                && this.LineBPressure == other.LineBPressure
+                && this.LineHeaterOn == other.LineHeaterOn
+                && this.RadiatorDeployed == other.RadiatorDeployed
+                && this.OutputFluidTemperature == other.OutputFluidTemperature
+                && this.SetTemperature == other.SetTemperature;
+                }
+
+        public override bool Equals(object obj)
+        {
+            return ReferenceEquals(this, obj) || obj is ExternalCoolantLoopData other && this.Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(
+                this.ReportDateTime,
+                this.Status,
+                this.RadiatorRotation,
+                this.PumpAOn,
+                this.PumpBOn,
+                this.MixValvePosition,
+                this.LineAPressure,
+                (this.LineBPressure,
+                    this.LineHeaterOn,
+                    this.RadiatorDeployed,
+                    this.OutputFluidTemperature,
+                    this.SetTemperature)
+                );
+        }
+
+        public static bool operator ==(ExternalCoolantLoopData left, ExternalCoolantLoopData right) => Equals(left, right);
+
+        public static bool operator !=(ExternalCoolantLoopData left, ExternalCoolantLoopData right) => !Equals(left, right);
 
         #endregion Equality Members
     }
