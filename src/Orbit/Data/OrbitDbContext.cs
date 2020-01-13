@@ -39,6 +39,8 @@ namespace Orbit.Data
 
         public DbSet<ExternalCoolantLoopData> ExternalCoolantLoopData { get; set; }
 
+        public DbSet<WaterGeneratorData> WaterGeneratorData { get; set; }
+
         public void InsertSeedData()
         {
             //TODO: Use NSubstitute for generating random seed data
