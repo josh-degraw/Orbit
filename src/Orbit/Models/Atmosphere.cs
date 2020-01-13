@@ -444,16 +444,16 @@ namespace Orbit.Models
 
         #region Equality Members
 
-        public bool Equals(Atmosphere other)
-        {
-            if (ReferenceEquals(null, other))
-                return false;
-            if (ReferenceEquals(this, other))
-                return true;
-            return this.ReportDateTime == other.ReportDateTime
-                && this.CabinStatus == other.CabinStatus
-                && this.
-        }
+ //       public bool Equals(Atmosphere other)
+ //       {
+ //           if (ReferenceEquals(null, other))
+ //               return false;
+ //           if (ReferenceEquals(this, other))
+ //               return true;
+ //           return this.ReportDateTime == other.ReportDateTime
+ //               && this.CabinStatus == other.CabinStatus
+ //               && this.
+ //       }
 
         #endregion Equality Members
 
