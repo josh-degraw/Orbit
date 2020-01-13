@@ -5,9 +5,6 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using Microsoft.EntityFrameworkCore;
-#if !NETSTANDARD_21
-using Microsoft.EntityFrameworkCore.Extensions.Internal;
-#endif
 
 namespace Orbit.Util
 {
