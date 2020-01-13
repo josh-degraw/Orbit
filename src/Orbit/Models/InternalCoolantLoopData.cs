@@ -10,6 +10,10 @@ namespace Orbit.Models
     {
         #region Limits
 
+        private int mixValveMaxOpen = 100;
+        private int mixValveMaxClosed = 0;
+        private int mixValveTolerance = 5;
+
         private const double medCoolantLoopUpperLimit = 22;
         private const double medCoolantLoopLowerLimit = 12;
         private const double medCoolantLoopTolerance = 5;
@@ -20,31 +24,125 @@ namespace Orbit.Models
 
         #endregion Limits
 
+        #region Public Properties
+
+        [NotMapped]
+        public string ComponentName => "InternalCoolantSystem";
+
         public DateTimeOffset ReportDateTime { get; set; } = DateTimeOffset.Now;
 
         /// <summary>
-        /// basically on/off/failure(on by not working)
+        /// overall system status
         /// </summary>
-        public bool PumpOn { get; set; }
+        public SystemStatus Status { get; set; }
 
         /// <summary>
-        /// warmer coolant loop for experiments and avionics nominal is 10.5C
+        /// true if pump is working, false if not working
+        /// </summary>
+        public bool LowTempPumpOn { get; set; }
+
+        /// <summary>
+        /// true if pump is working, false if not working
+        /// </summary>
+        public bool MedTempPumpOn { get; set; }
+
+        /// <summary>
+        /// determines mix of 'hot' coolant returning from equipment and 'cold' coolant coming from heat exchanger
+        /// 0 = bypass heat exhanger, 100 = no fluid bypasses heat exchanger
+        /// </summary>
+        public int HeatExMixValvePosition { get; set; }
+
+        /// <summary>
+        /// determines mix of 'med' and 'low' temp coolants, allows secondary control of temp and 
+        /// operation of seperate loops as one loop in case of a pump failure
+        /// 0 = operate as seperate loops, 100 = operate as single loop
+        /// </summary>
+        public int LoopMixValvePosition { get; set; }
+
+        /// <summary>
+        /// warmer temperature coolant loop for experiments and avionics 
+        /// nominal is 10.5C
         /// </summary>
         [Range(0, 47)]
         public double TempMedCoolantLoop { get; set; }
 
         /// <summary>
-        /// colder coolant loop for life support and, cabin air assembly, and some experiments nominal is 4C
+        /// colder temperature coolant loop for life support, cabin air assembly, and some experiments 
+        /// nominal is 4C
         /// </summary>
         [Range(0, 47)]
         public double TempLowCoolantLoop { get; set; }
 
-        #region IAlertableModel implementation
+        /// <summary>
+        /// desired temperature for the medium temperature loop
+        /// </summary>
+        public double SetTempMedLoop { get; set; }
 
-        [NotMapped]
-        public string ComponentName => "InternalCoolantSystem";
+        /// <summary>
+        /// desired temperature for the low temperature loop
+        /// </summary>
+        public double SetTempLowLoop { get; set; }
 
-        private IEnumerable<Alert> CheckLowTempLoopStatus()
+        #endregion Public Properties
+
+        #region Methods
+
+        public void ProcessData()
+        {
+            if(TempLowCoolantLoop < SetTempLowLoop)
+            {
+                // coolant too cool, decrease amount of 'cold' coolant from heat exchanger
+                DecreaseMix();   
+            }
+
+            if(TempLowCoolantLoop > SetTempLowLoop)
+            {
+                // coolant too warm, add more 'cold' coolant from heat exchanger
+                IncreaseMix();
+            }
+
+            if((!LowTempPumpOn || !MedTempPumpOn) && LoopMixValvePosition != mixValveMaxOpen)
+            {
+                // if a pump goes off, make sure loops are operating as single loop to maintain cooling ability
+                LoopMixValvePosition = mixValveMaxOpen;
+                Trouble();
+            }
+
+            if((TempLowCoolantLoop <= lowTempCoolantLoopLowerLimit) && (HeatExMixValvePosition != mixValveMaxClosed))
+            {
+                // temp is too low, bypass heat exchanger so line does not freeze
+                HeatExMixValvePosition = mixValveMaxClosed;
+            }
+
+
+        }
+
+        private void Trouble()
+        {
+            Status = SystemStatus.Trouble;
+        }
+
+        private void IncreaseMix()
+        {
+            if(HeatExMixValvePosition < mixValveMaxOpen)
+            {
+                HeatExMixValvePosition++;
+            }
+        }
+
+        private void DecreaseMix()
+        {
+            if (HeatExMixValvePosition > mixValveMaxClosed)
+            {
+                HeatExMixValvePosition--;
+            }
+        }
+
+        #endregion Methods
+
+        #region Alert Generation
+
+        private IEnumerable<Alert> CheckLowLoopTemp()
         {
             if (TempLowCoolantLoop >= lowTempCoolantLoopUpperLimit)
             {
@@ -68,7 +166,7 @@ namespace Orbit.Models
             }
         }
 
-        private IEnumerable<Alert> CheckMedTempLoopStatus()
+        private IEnumerable<Alert> CheckMedLoopTemp()
         {
             if (TempMedCoolantLoop >= medCoolantLoopUpperLimit)
             {
@@ -92,12 +190,134 @@ namespace Orbit.Models
             }
         }
 
-        IEnumerable<Alert> IAlertableModel.GenerateAlerts()
+        private IEnumerable<Alert> CheckHeatExMixValve()
         {
-            return this.CheckLowTempLoopStatus()
-                .Concat(this.CheckMedTempLoopStatus());
+            if(HeatExMixValvePosition >= mixValveMaxOpen)
+            {
+                yield return new Alert(nameof(HeatExMixValvePosition), "Internal coolant heat exchange mixing valve is fully open", AlertLevel.HighError);
+            }
+            if(HeatExMixValvePosition > (mixValveMaxOpen - mixValveTolerance))
+            {
+                yield return new Alert(nameof(HeatExMixValvePosition), "Internal collant heat exchange mixing valve is almost fully open", AlertLevel.HighWarning);
+            }
+            if(HeatExMixValvePosition <= mixValveMaxClosed)
+            {
+                yield return new Alert(nameof(HeatExMixValvePosition), "Internal coolant heat exchange mixing valve is fully closed", AlertLevel.LowError);
+            }
+            if(HeatExMixValvePosition < (mixValveMaxClosed - mixValveTolerance))
+            {
+                yield return new Alert(nameof(HeatExMixValvePosition), "Internal coolant heat exchange mixing valve is almost fully closed", AlertLevel.LowWarning);
+            }
+            else
+            {
+                yield return Alert.Safe(nameof(HeatExMixValvePosition));
+            }
         }
 
-        #endregion IAlertableModel implementation
+        private IEnumerable<Alert> CheckLoopMixValve()
+        {
+            if (LoopMixValvePosition >= mixValveMaxOpen)
+            {
+                yield return new Alert(nameof(LoopMixValvePosition), "Internal coolant loop mixing valve is fully open", AlertLevel.HighError);
+            }
+            if (LoopMixValvePosition > (mixValveMaxOpen - mixValveTolerance))
+            {
+                yield return new Alert(nameof(LoopMixValvePosition), "Internal coolant loop mixing valve is almost fully open", AlertLevel.HighWarning);
+            }
+            if (LoopMixValvePosition <= mixValveMaxClosed)
+            {
+                yield return new Alert(nameof(LoopMixValvePosition), "Internal coolant loop mixing valve is fully closed", AlertLevel.LowError);
+            }
+            if (LoopMixValvePosition < (mixValveMaxClosed - mixValveTolerance))
+            {
+                yield return new Alert(nameof(LoopMixValvePosition), "Internal coolant loop mixing valve is almost fully closed", AlertLevel.LowWarning);
+            }
+            else
+            {
+                yield return Alert.Safe(nameof(LoopMixValvePosition));
+            }
+        }
+
+        private IEnumerable<Alert> CheckLowTempPump()
+        {
+            if (!LowTempPumpOn)
+            {
+                yield return new Alert(nameof(LowTempPumpOn), "Low temperature pump is off", AlertLevel.HighError);
+            }
+            else
+            {
+                yield return Alert.Safe(nameof(LowTempPumpOn));
+            }
+        }
+
+        private IEnumerable<Alert> CheckMedTempPump()
+        {
+            if (!MedTempPumpOn)
+            {
+                yield return new Alert(nameof(MedTempPumpOn), "Med temperature pump is off", AlertLevel.HighError);
+            }
+            else
+            {
+                yield return Alert.Safe(nameof(MedTempPumpOn));
+            }
+        }
+
+
+        IEnumerable<Alert> IAlertableModel.GenerateAlerts()
+        {
+            return this.CheckLowLoopTemp()
+                .Concat(CheckMedLoopTemp())
+                .Concat(CheckHeatExMixValve())
+                .Concat(CheckLoopMixValve())
+                .Concat(CheckLowTempPump())
+                .Concat(CheckMedTempPump());
+        }
+
+        #endregion Alert Generation
+
+        #region Equality Members
+
+        public bool Equals(InternalCoolantLoopData other)
+        {
+            if (ReferenceEquals(null, other))
+                return false;
+            if(ReferenceEquals(this, other))
+                return true;
+            return this.ReportDateTime == other.ReportDateTime
+                && this.Status == other.Status
+                && this.LowTempPumpOn == other.LowTempPumpOn
+                && this.MedTempPumpOn == other.MedTempPumpOn
+                && this.HeatExMixValvePosition == other.HeatExMixValvePosition
+                && this.LoopMixValvePosition == other.LoopMixValvePosition
+                && this.TempMedCoolantLoop == other.TempMedCoolantLoop
+                && this.TempLowCoolantLoop == other.TempLowCoolantLoop
+                && this.SetTempMedLoop == other.SetTempMedLoop
+                && this.SetTempLowLoop == other.SetTempLowLoop;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return ReferenceEquals(this, obj) || obj is InternalCoolantLoopData other && this.Equals(other);
+        }
+
+        public override int GetHashCode()
+        {
+            return HashCode.Combine(
+                this.ReportDateTime,
+                this.Status,
+                this.LowTempPumpOn,
+                this.MedTempPumpOn,
+                this.HeatExMixValvePosition,
+                this.LoopMixValvePosition,
+                this.TempLowCoolantLoop,
+                (this.TempMedCoolantLoop, this.SetTempLowLoop, this.SetTempMedLoop)
+            );
+        }
+
+        public static bool operator ==(InternalCoolantLoopData left, InternalCoolantLoopData right) => Equals(left, right);
+
+        public static bool operator !=(InternalCoolantLoopData left, InternalCoolantLoopData right) => !Equals(left, right);
+
+        #endregion Equality Members
     }
 }
