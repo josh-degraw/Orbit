@@ -99,6 +99,7 @@ namespace Orbit.Data
             modelBuilder.Entity<ShuntUnit>(MapModelCommonProps);
             modelBuilder.Entity<ExternalCoolantLoopData>(MapModelCommonProps);
             modelBuilder.Entity<InternalCoolantLoopData>(MapModelCommonProps);
+            modelBuilder.Entity<WaterGeneratorData>(MapModelCommonProps);
         }
     }
 }
