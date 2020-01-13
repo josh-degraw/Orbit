@@ -19,6 +19,8 @@ namespace Orbit.Models
 
         #endregion Limits
 
+        #region Public Properties
+
         public DateTimeOffset ReportDateTime { get; private set; } = DateTimeOffset.Now;
 
         /// <summary>
@@ -67,6 +69,10 @@ namespace Orbit.Models
         /// </summary>
         [Range(0, 100)]
         public double ProductTankLevel { get; set; }
+
+        #endregion Public Properties
+
+        #region Logic Methods
 
         public void ProcessData(double wasteTankLevel, double heaterTemp)
         {
@@ -126,6 +132,8 @@ namespace Orbit.Models
                 ProductTankLevel -= smallIncrement;
             }
         }
+
+        #endregion Logic Methods
 
         #region ValueCheckMethods
 
@@ -214,8 +222,6 @@ namespace Orbit.Models
             }
         }
 
-        #endregion ValueCheckMethods
-
         IEnumerable<Alert> IAlertableModel.GenerateAlerts()
         {
             return this.CheckProductTankLevel()
@@ -224,6 +230,8 @@ namespace Orbit.Models
                 .Concat(this.CheckPostReactorQuality())
                 .Concat(this.CheckSystemStatus());
         }
+
+        #endregion ValueCheckMethods
 
         #region Implementation of IModuleComponent
 
