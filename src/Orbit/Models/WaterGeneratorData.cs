@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace Orbit.Models
 {
-    class WaterGenerator : IAlertableModel
+    public class WaterGeneratorData : IAlertableModel
     {
         #region Limits
 
@@ -442,7 +442,7 @@ namespace Orbit.Models
 
         #region Equality Members
 
-        public bool Equals(WaterGenerator other)
+        public bool Equals(WaterGeneratorData other)
         {
             if (ReferenceEquals(null, other))
                 return false;
@@ -464,7 +464,7 @@ namespace Orbit.Models
 
         public override bool Equals(object obj)
         {
-            return ReferenceEquals(this, obj) || obj is WaterGenerator other && this.Equals(other);
+            return ReferenceEquals(this, obj) || obj is WaterGeneratorData other && this.Equals(other);
         }
 
         public override int GetHashCode()
@@ -483,9 +483,9 @@ namespace Orbit.Models
             );
         }
 
-        public static bool operator ==(WaterGenerator left, WaterGenerator right) => Equals(left, right);
+        public static bool operator ==(WaterGeneratorData left, WaterGeneratorData right) => Equals(left, right);
 
-        public static bool operator !=(WaterGenerator left, WaterGenerator right) => !Equals(left, right);
+        public static bool operator !=(WaterGeneratorData left, WaterGeneratorData right) => !Equals(left, right);
 
         #endregion Equality Members
     }
