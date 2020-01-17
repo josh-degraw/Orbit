@@ -219,6 +219,19 @@ namespace Orbit.Models
             FanSpeed = 0;
         }
 
+        IEnumerable<Alert> IAlertableModel.GenerateAlerts()
+        {
+            return this.CheckCabinPressure()
+                .Concat(this.CheckCabinOxygenLevel())
+                .Concat(this.CheckCabinCarbonDioxideLevel())
+                .Concat(this.CheckCabinHumidityLevel())
+                .Concat(this.CheckCabinAmbientNoiseLevel())
+                .Concat(this.CheckCabinTemperature())
+                .Concat(this.CheckFanSpeed())
+                .Concat(this.CheckSeperator())
+                .Concat(this.CheckFanOn());
+        }
+
         #endregion Public Methods
 
         #region Check Alerts
@@ -426,36 +439,7 @@ namespace Orbit.Models
             }
         }
 
-        IEnumerable<Alert> IAlertableModel.GenerateAlerts()
-        {
-            return this.CheckCabinPressure()
-                .Concat(this.CheckCabinOxygenLevel())
-                .Concat(this.CheckCabinCarbonDioxideLevel())
-                .Concat(this.CheckCabinHumidityLevel())
-                .Concat(this.CheckCabinAmbientNoiseLevel())
-                .Concat(this.CheckCabinTemperature())
-                .Concat(this.CheckFanSpeed())
-                .Concat(this.CheckSeperator())
-                .Concat(this.CheckFanOn());
-        }
-
-
         #endregion Check Alerts
-
-        #region Equality Members
-
- //       public bool Equals(Atmosphere other)
- //       {
- //           if (ReferenceEquals(null, other))
- //               return false;
- //           if (ReferenceEquals(this, other))
- //               return true;
- //           return this.ReportDateTime == other.ReportDateTime
- //               && this.CabinStatus == other.CabinStatus
- //               && this.
- //       }
-
-        #endregion Equality Members
 
     }
 }
