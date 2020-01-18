@@ -16,9 +16,29 @@ namespace Orbit.Models
     /// releases it when heated or exposed to a vacuum (space. Another system being developed involves algae. For
     /// simplicity, this class is based on using the zeolite system.
     /// </summary>
-   
+
     public class CarbonDioxideRemediation : IAlertableModel
     {
+        #region Limits
+
+        private const double TemperatureUpperLimit = 250;
+        private const double TemperatureLowerLimit = 220;
+        private const double TemperatureTolerance = 10;
+        private const double CarbonDioxideOutputLimit = 2;  // im ppm
+        private const double CarbonDioxideOutputTolerance = 2;
+
+        //private int co2SetLimit = 4;   // maximum amount of Co2 allowed in air
+        private double currentCo2Level;
+        private double maxCo2Level;
+
+        // temporary pseudo-timer 
+        private int count = 0;
+        private int countLength = 30;
+
+        #endregion Limits
+
+        #region Public Properties
+
         [NotMapped]
         public string ComponentName => "CarbonDioxideRemediation";
 
@@ -28,7 +48,7 @@ namespace Orbit.Models
         /// current operating state of the system
         /// </summary>
         public SystemStatus Status { get; set; }
-        
+
         /// <summary>
         /// Circulation fan to move air over carbon dioxide absorbing zeolite beds
         /// </summary>
@@ -43,7 +63,7 @@ namespace Orbit.Models
         /// specifies which bed is actively absorbing carbon dioxide
         /// </summary>
         public BedOptions AbsorbingBed { get; set; }
-        
+
         /// <summary>
         /// specifies which bed is releasing carbon dioxide
         /// </summary>
@@ -64,13 +84,51 @@ namespace Orbit.Models
         /// </summary>
         public double OutputCo2Level { get; set; }
 
-        private IEnumerable<Alert> CheckRegenerationTemp(double temperature, string name)
+        #endregion Public Properties
+
+        #region Public Methods
+
+        public void ProcessData(double co2Level, double maxCo2)
         {
-            if (temperature >= TemperatureUpperLimit)
+            currentCo2Level = co2Level;
+            maxCo2Level = maxCo2;
+
+            if (Status == SystemStatus.Processing)
             {
-                yield return new Alert(nameof(CarbonDioxideRemediation), $"{name} temperature is above maximum", AlertLevel.HighError);
+                if (currentCo2Level <= CarbonDioxideOutputLimit)
+                {
+                    Status = SystemStatus.Standby;
+                }
+                else
+                {
+                    SimulateProcessing();
+                }
             }
-            else if (temperature >= TemperatureElevated)
+            else if (Status == SystemStatus.Standby)
+            {
+                if (currentCo2Level > CarbonDioxideOutputLimit)
+                {
+                    Status = SystemStatus.Processing;
+                }
+                else
+                {
+                    SimulateStandby();
+                }
+            }
+            else { }
+        }
+
+        #endregion Public Methods
+
+        #region Private Methods
+
+        private void SimulateProcessing()
+        {
+            Random random = new Random();
+            if (!FanOn
+                || (OutputCo2Level > CarbonDioxideOutputLimit)
+                || Bed1Temperature > TemperatureUpperLimit
+                || Bed2Temperature > TemperatureUpperLimit)
             {
                 Trouble();
                 return;
@@ -80,15 +138,135 @@ namespace Orbit.Models
             {
                 count++;
             }
-            else if (temperature <= TemperatureLow)
+            else
             {
-                yield return new Alert(nameof(CarbonDioxideRemediation), "Bed 1 temperature is too low", AlertLevel.LowWarning);
+                count = 0;
+                if (BedSelectorValve == BedOptions.Bed1)
+                {
+                    AbsorbingBed = BedOptions.Bed1;
+                    RegeneratingBed = BedOptions.Bed2;
+                }
+                else
+                {
+                    AbsorbingBed = BedOptions.Bed2;
+                    RegeneratingBed = BedOptions.Bed1;
+                }
+            }
+        }
+
+        private void SimulateStandby()
+        {
+            Random random = new Random();
+            FanOn = false;
+            Bed1Temperature = random.Next(15, 27);
+            Bed2Temperature = random.Next(15, 27);
+        }
+
+        private void Trouble()
+        {
+            Status = SystemStatus.Trouble;
+            SimulateStandby();
+        }
+
+        #endregion Private Methods
+
+        #region Check Alerts 
+
+        private IEnumerable<Alert> CheckFan()
+        {
+            if (Status == SystemStatus.Processing)
+            {
+                if (!FanOn)
+                {
+                    yield return new Alert(nameof(FanOn), "No fan running while system processing", AlertLevel.HighError);
+                }
+            }
+            else if (Status == SystemStatus.Standby)
+            {
+                if (FanOn)
+                {
+                    yield return new Alert(nameof(FanOn), "Fan running while system in standby", AlertLevel.HighWarning);
+                }
             }
             else
             {
-                yield return Alert.Safe(nameof(CarbonDioxideRemediation));
+                yield return Alert.Safe(nameof(FanOn));
             }
-
+        }
+        private IEnumerable<Alert> CheckRegenerationTemp()
+        {
+            if (RegeneratingBed == BedOptions.Bed1)
+            {
+                if (Bed1Temperature > TemperatureUpperLimit)
+                {
+                    yield return new Alert(nameof(Bed1Temperature), "Bed 1 temperature is above maximum", AlertLevel.HighError);
+                }
+                else if (Bed1Temperature >= (TemperatureUpperLimit - TemperatureTolerance))
+                {
+                    yield return new Alert(nameof(Bed1Temperature), "Bed 1 temperature is elevated", AlertLevel.HighWarning);
+                }
+                else if (Bed1Temperature < TemperatureLowerLimit)
+                {
+                    yield return new Alert(nameof(Bed1Temperature), "Bed 1 temperature is below minimum", AlertLevel.LowError);
+                }
+                else if (Bed1Temperature <= (TemperatureLowerLimit + TemperatureTolerance))
+                {
+                    yield return new Alert(nameof(Bed1Temperature), "Bed 1 temperature is low", AlertLevel.LowWarning);
+                }
+                else
+                {
+                    yield return Alert.Safe(nameof(Bed1Temperature));
+                }
+            }
+            else
+            {
+                if (Bed2Temperature > TemperatureUpperLimit)
+                {
+                    yield return new Alert(nameof(Bed2Temperature), "Bed 2 temperature is above maximum", AlertLevel.HighError);
+                }
+                else if (Bed2Temperature >= (TemperatureUpperLimit - TemperatureTolerance))
+                {
+                    yield return new Alert(nameof(Bed2Temperature), "Bed 2 temperature is elevated", AlertLevel.HighWarning);
+                }
+                else if (Bed2Temperature < TemperatureLowerLimit)
+                {
+                    yield return new Alert(nameof(Bed2Temperature), "Bed 2 temperature is below minimum", AlertLevel.LowError);
+                }
+                else if (Bed2Temperature <= (TemperatureLowerLimit + TemperatureTolerance))
+                {
+                    yield return new Alert(nameof(Bed2Temperature), "Bed 2 temperature is low", AlertLevel.LowWarning);
+                }
+                else
+                {
+                    yield return Alert.Safe(nameof(Bed2Temperature));
+                }
+            }
+        }
+        private IEnumerable<Alert> CheckOutputCo2Level()
+        {
+            if (OutputCo2Level > CarbonDioxideOutputLimit)
+            {
+                yield return new Alert(nameof(OutputCo2Level), "Carbon dioxide output is above maximum", AlertLevel.HighError);
+            }
+            else if (OutputCo2Level >= (CarbonDioxideOutputLimit - CarbonDioxideOutputTolerance))
+            {
+                yield return new Alert(nameof(OutputCo2Level), "CarbonDioxide output is elevated", AlertLevel.HighWarning);
+            }
+            else
+            {
+                yield return Alert.Safe(nameof(OutputCo2Level));
+            }
+        }
+        private IEnumerable<Alert> CheckBedsAlternate()
+        {
+            if (AbsorbingBed == RegeneratingBed)
+            {
+                yield return new Alert(nameof(RegeneratingBed), "Regenerating bed is same as absorbing bed", AlertLevel.HighError);
+            }
+            else
+            {
+                yield return Alert.Safe(nameof(RegeneratingBed));
+            }
         }
 
         IEnumerable<Alert> IAlertableModel.GenerateAlerts()
@@ -105,11 +283,11 @@ namespace Orbit.Models
 
         public bool Equals(CarbonDioxideRemediation other)
         {
-            if(ReferenceEquals(null, other))
+            if (ReferenceEquals(null, other))
             {
                 return false;
             }
-            if(ReferenceEquals(this, other))
+            if (ReferenceEquals(this, other))
             {
                 return true;
             }
