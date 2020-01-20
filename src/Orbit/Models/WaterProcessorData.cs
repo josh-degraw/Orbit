@@ -17,6 +17,10 @@ namespace Orbit.Models
         private const int productTankLevelUpperLimit = 100;
         private const int productTankLevelTolerance = 20;
 
+        const int smallIncrement = 2;
+        const int largeIncrement = 5;
+        const int highLevel = productTankLevelUpperLimit - productTankLevelTolerance;
+
         #endregion Limits
 
         #region Public Properties
@@ -86,29 +90,15 @@ namespace Orbit.Models
             PostReactorQualityOk = other.PostReactorQualityOk;
             DiverterValvePosition = other.DiverterValvePosition;
             ProductTankLevel = other.ProductTankLevel;
-
-            Random rand = new Random();
-
-            if(SystemStatus == SystemStatus.Processing)
-            {
-                PostHeaterTemp = rand.Next(postHeaterTempLowerLimit, postHeaterTempUpperLimit);
-            }
-            else
-            {
-                PostHeaterTemp = 19; // somewhere close to ambient air temp
-            }
         }
 
         #endregion Constructors
 
         #region Logic Methods
 
-        public void ProcessData(double wasteTankLevel, double heaterTemp)
+        public void ProcessData(double wasteTankLevel)
         {
-            PostHeaterTemp = heaterTemp;
-            const int smallIncrement = 2;
-            const int largeIncrement = 5;
-            const int highLevel = productTankLevelUpperLimit - productTankLevelTolerance;
+            GenerateData();
 
             if (SystemStatus == SystemStatus.Standby)
             {
@@ -155,13 +145,25 @@ namespace Orbit.Models
             }
             else //(wasteTankLevel <= 0)
             {
-                SystemStatus = SystemStatus.Standby;
                 PumpOn = false;
                 HeaterOn = false;
                 ProductTankLevel -= smallIncrement;
             }
         }
 
+        private void GenerateData()
+        {
+            Random rand = new Random();
+
+            if (SystemStatus == SystemStatus.Processing)
+            {
+                PostHeaterTemp = rand.Next(postHeaterTempLowerLimit, postHeaterTempUpperLimit);
+            }
+            else
+            {
+                PostHeaterTemp = 19; // somewhere close to ambient air temp
+            }
+        }
         #endregion Logic Methods
 
         #region ValueCheckMethods
