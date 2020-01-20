@@ -82,8 +82,27 @@ namespace Orbit.Models
         /// </summary>
         public int OxygenSetLevel { get; set; }
 
-
         #endregion Public Properties
+
+        #region Constructors
+
+        public OxygenGenerator() { }
+
+        public OxygenGenerator(OxygenGenerator other)
+        {
+            Status = other.Status;
+            Mode = other.Mode;
+            InflowBubblesPresent = other.InflowBubblesPresent;
+            DiverterValvePosition = other.DiverterValvePosition;
+            HydrogenSensor = other.HydrogenSensor;
+            SeparatorOn = other.SeparatorOn;
+            RecirculationPumpOn = other.RecirculationPumpOn;
+            NumActiveCells = other.NumActiveCells;
+            SystemOutput = other.SystemOutput;
+            OxygenSetLevel = other.OxygenSetLevel;
+        }
+
+        #endregion Constructors
 
         #region Public Methods
 
