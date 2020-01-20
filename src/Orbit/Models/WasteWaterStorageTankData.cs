@@ -6,6 +6,8 @@ namespace Orbit.Models
 {
     public class WasteWaterStorageTankData : IAlertableModel
     {
+        #region Public Properties
+
         /// <summary>
         /// The name of the component.
         /// </summary>
@@ -25,11 +27,26 @@ namespace Orbit.Models
         /// </summary>
         public double Level { get; set; }
 
+        #endregion Public Properties
+
+        #region Constructors
+
+        public WasteWaterStorageTankData() { }
+
+        public WasteWaterStorageTankData(WasteWaterStorageTankData other)
+        {
+            TankId = other.TankId;
+            Level = other.Level;
+        }
+
+        #endregion Constructors
+
+        #region Logic Methods
         public void ProcessData(SystemStatus urineProcessor, SystemStatus waterProcessor)
         {
-            if(urineProcessor == SystemStatus.Processing)
+            if (urineProcessor == SystemStatus.Processing)
             {
-                if(Level <= 96)
+                if (Level <= 96)
                 {
                     Level += 4;
                 }
@@ -51,6 +68,9 @@ namespace Orbit.Models
             }
         }
 
+        #endregion Logic Methods
+
+        #region Alert Generation 
         IEnumerable<Alert> IAlertableModel.GenerateAlerts()
 
         {
@@ -75,6 +95,8 @@ namespace Orbit.Models
                 yield return Alert.Safe(nameof(this.Level));
             }
         }
+
+        #endregion Alert Generation
 
         #region Equality members
 

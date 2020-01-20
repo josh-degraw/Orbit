@@ -76,16 +76,13 @@ namespace Orbit.Util
                 waterProcessor.ProcessData(wasteTank.Level);
 
                 var nextUrineSystem = new UrineSystemData(urineSystem);
-                var nextWasteTank = new WasteWaterStorageTankData {
-                    TankId = "Main",
-                    Level = wasteTank.Level,
-                };
-
+                var nextWasteTank = new WasteWaterStorageTankData(wasteTank);
                 var nextWaterProcessor = new WaterProcessorData(waterProcessor);
 
                 db.UrineProcessorData.Add(nextUrineSystem);
                 db.WasteWaterStorageTankData.Add(nextWasteTank);
                 db.WaterProcessorData.Add(nextWaterProcessor);
+                
                 await db.SaveChangesAsync(token);
             }
 
