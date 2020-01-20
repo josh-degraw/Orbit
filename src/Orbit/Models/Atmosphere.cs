@@ -120,7 +120,7 @@ namespace Orbit.Models
         /// air/condensate seperator
         /// </summary>
         public bool SeperatorOn { get; set; }
-        
+
         /// <summary>
         /// Air circulation fan speed
         /// </summary>
@@ -153,19 +153,19 @@ namespace Orbit.Models
 
         public void ProcessData()
         {
-            if(AtmosphereSystemStatus == SystemStatus.Processing)
+            if (AtmosphereSystemStatus == SystemStatus.Processing)
             {
-                if((TempControlValvePosition == 0) || (CabinTemperature < SetTemperature) || (CabinHumidityLevel < HumiditySetLevel))
+                if ((TempControlValvePosition == 0) || (CabinTemperature < SetTemperature) || (CabinHumidityLevel < HumiditySetLevel))
                 {
                     Standby();
                     return;
                 }
 
-                if(SeperatorOn == false || FanSpeed <= 0 || ((CabinHumidityLevel > HumiditySetLevel) && (TempControlValvePosition == 100)) )
+                if (SeperatorOn == false || FanSpeed <= 0 || ((CabinHumidityLevel > HumiditySetLevel) && (TempControlValvePosition == 100)))
                 {
                     AtmosphereSystemStatus = SystemStatus.Trouble;
                 }
-                
+
                 if (LiquidInOutflow)
                 {
                     ReprocessBafflePosition = DiverterValvePositions.Reprocess;
@@ -183,16 +183,16 @@ namespace Orbit.Models
                 {
                     TempControlValvePosition--;
                 }
-            } 
-            else if(AtmosphereSystemStatus == SystemStatus.Standby)
+            }
+            else if (AtmosphereSystemStatus == SystemStatus.Standby)
             {
-                if((CabinHumidityLevel > HumiditySetLevel) || (CabinTemperature > SetTemperature))
+                if ((CabinHumidityLevel > HumiditySetLevel) || (CabinTemperature > SetTemperature))
                 {
                     Process();
                     return;
                 }
 
-                if(SeperatorOn || FanSpeed > 0)
+                if (SeperatorOn || FanSpeed > 0)
                 {
                     AtmosphereSystemStatus = SystemStatus.Trouble;
                 }
@@ -217,6 +217,19 @@ namespace Orbit.Models
             AtmosphereSystemStatus = SystemStatus.Standby;
             SeperatorOn = false;
             FanSpeed = 0;
+        }
+
+        IEnumerable<Alert> IAlertableModel.GenerateAlerts()
+        {
+            return this.CheckCabinPressure()
+                .Concat(this.CheckCabinOxygenLevel())
+                .Concat(this.CheckCabinCarbonDioxideLevel())
+                .Concat(this.CheckCabinHumidityLevel())
+                .Concat(this.CheckCabinAmbientNoiseLevel())
+                .Concat(this.CheckCabinTemperature())
+                .Concat(this.CheckFanSpeed())
+                .Concat(this.CheckSeperator())
+                .Concat(this.CheckFanOn());
         }
 
         #endregion Public Methods
@@ -426,36 +439,7 @@ namespace Orbit.Models
             }
         }
 
-        IEnumerable<Alert> IAlertableModel.GenerateAlerts()
-        {
-            return this.CheckCabinPressure()
-                .Concat(this.CheckCabinOxygenLevel())
-                .Concat(this.CheckCabinCarbonDioxideLevel())
-                .Concat(this.CheckCabinHumidityLevel())
-                .Concat(this.CheckCabinAmbientNoiseLevel())
-                .Concat(this.CheckCabinTemperature())
-                .Concat(this.CheckFanSpeed())
-                .Concat(this.CheckSeperator())
-                .Concat(this.CheckFanOn());
-        }
-
-
         #endregion Check Alerts
-
-        #region Equality Members
-
- //       public bool Equals(Atmosphere other)
- //       {
- //           if (ReferenceEquals(null, other))
- //               return false;
- //           if (ReferenceEquals(this, other))
- //               return true;
- //           return this.ReportDateTime == other.ReportDateTime
- //               && this.CabinStatus == other.CabinStatus
- //               && this.
- //       }
-
-        #endregion Equality Members
 
     }
 }
