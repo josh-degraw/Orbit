@@ -10,9 +10,9 @@ namespace Orbit.Models
     {
         #region Limits
 
-        private const double postHeaterTempUpperLimit = 130.5;
-        private const double postHeaterTempLowerLimit = 120.5;
-        private const double postHeaterTempTolerance = 5;
+        private const int postHeaterTempUpperLimit = 130;
+        private const int postHeaterTempLowerLimit = 120;
+        private const int postHeaterTempTolerance = 5;
 
         private const int productTankLevelUpperLimit = 100;
         private const int productTankLevelTolerance = 20;
@@ -71,6 +71,35 @@ namespace Orbit.Models
         public double ProductTankLevel { get; set; }
 
         #endregion Public Properties
+
+        #region Constructors
+
+        public WaterProcessorData() { }
+
+        public WaterProcessorData(WaterProcessorData other)
+        {
+            SystemStatus = other.SystemStatus;
+            PumpOn = other.PumpOn;
+            FiltersOk = other.FiltersOk;
+            HeaterOn = other.HeaterOn;
+            PostHeaterTemp = other.PostHeaterTemp;
+            PostReactorQualityOk = other.PostReactorQualityOk;
+            DiverterValvePosition = other.DiverterValvePosition;
+            ProductTankLevel = other.ProductTankLevel;
+
+            Random rand = new Random();
+
+            if(SystemStatus == SystemStatus.Processing)
+            {
+                PostHeaterTemp = rand.Next(postHeaterTempLowerLimit, postHeaterTempUpperLimit);
+            }
+            else
+            {
+                PostHeaterTemp = 19; // somewhere close to ambient air temp
+            }
+        }
+
+        #endregion Constructors
 
         #region Logic Methods
 
