@@ -17,7 +17,9 @@ namespace Orbit.Models
         int oxygenLevelTolerance = 2;
         [NotMapped]
         int totalNumOfCells = 10;
-                
+
+        public SystemStatus lastWorkingStatus;
+
         #endregion Limits
 
         #region Public Properties
@@ -31,11 +33,6 @@ namespace Orbit.Models
         /// state of system; standby, processing, fail, etc
         /// </summary>
         public SystemStatus Status { get; set; }
-
-        /// <summary>
-        /// status of system before entering 'Trouble' state
-        /// </summary>
-        public SystemStatus lastWorkingStatus { get; set; }
 
         /// <summary>
         /// denotes if this system is to run autonomously or manually
@@ -113,7 +110,7 @@ namespace Orbit.Models
 
         #endregion Constructors
 
-        #region Public Methods
+        #region Methods
 
         public void ProcessData() 
         {
@@ -136,7 +133,7 @@ namespace Orbit.Models
             SystemOutput = SimulateOutput();
         }
 
-        #endregion  Public Methods
+        #endregion  Methods
 
         #region Private Methods
 
@@ -199,6 +196,26 @@ namespace Orbit.Models
         {
             Random rand = new Random();
             OxygenLevel = rand.Next(OxygenSetLevel - oxygenLevelTolerance, OxygenSetLevel + oxygenLevelTolerance);
+            
+            // trigger hydrogen sensor on occasion
+            if(rand.Next(0, 100) % 9 == 0)
+            {
+                HydrogenSensor = true;
+            }
+            else
+            {
+                HydrogenSensor = false;
+            }
+
+            // trigger bubble sensor on occasion
+            if(rand.Next(0, 100) % 7 == 0)
+            {
+                InflowBubblesPresent = true; 
+            }
+            else
+            {
+                InflowBubblesPresent = false;
+            }
         }
 
         private void IncreaseActiveCells()
