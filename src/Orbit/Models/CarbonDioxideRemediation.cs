@@ -26,11 +26,7 @@ namespace Orbit.Models
         private const double TemperatureTolerance = 10;
         private const double CarbonDioxideOutputLimit = 2;  // im ppm
         private const double CarbonDioxideOutputTolerance = 2;
-        
-        //private int co2SetLimit = 4;   // maximum amount of Co2 allowed in air
-        private double currentCo2Level;
-        private double maxCo2Level;
-        
+                
         // temporary pseudo-timer 
         private int count = 0;
         private int countLength = 30;
@@ -80,22 +76,21 @@ namespace Orbit.Models
         public int Bed2Temperature { get; set; }
 
         /// <summary>
-        /// the level of carbon dioxide in air exiting the co2 scrubber
+        /// the level of carbon dioxide in air entering the co2 scrubber
         /// </summary>
-        public double OutputCo2Level { get; set; }
+        public double Co2Level { get; set; }
 
         #endregion Public Properties
 
         #region Public Methods
 
-        public void ProcessData(double co2Level, double maxCo2 )
+        public void ProcessData( )
         {
-            currentCo2Level = co2Level;
-            maxCo2Level = maxCo2;
+            GenerateData();
 
             if (Status == SystemStatus.Processing)
             {
-                if (currentCo2Level <= CarbonDioxideOutputLimit)
+                if (Co2Level <= CarbonDioxideOutputLimit)
                 {
                     Status = SystemStatus.Standby;
                 }
@@ -106,7 +101,7 @@ namespace Orbit.Models
             }
             else if (Status == SystemStatus.Standby)
             {
-                if (currentCo2Level > CarbonDioxideOutputLimit)
+                if (Co2Level > CarbonDioxideOutputLimit)
                 {
                     Status = SystemStatus.Processing;
                 }
@@ -122,11 +117,40 @@ namespace Orbit.Models
 
         #region Private Methods
 
+        private void GenerateData()
+        {
+            Random rand = new Random();
+
+            Co2Level = rand.Next(0, 100) / 10.0;
+
+            if(Status == SystemStatus.Processing)
+            {
+                if (RegeneratingBed == BedOptions.Bed1)
+                {
+                    Bed1Temperature = rand.Next(120, 400);
+                    Bed2Temperature = rand.Next(19, 32);
+                }
+                else
+                {
+                    Bed1Temperature = rand.Next(19, 32);
+                    Bed2Temperature = rand.Next(120, 400);
+                }
+            }
+            else
+            {
+                Bed1Temperature = rand.Next(19, 32);
+                Bed2Temperature = rand.Next(19, 32);
+            }
+
+            if (rand.Next(0, 10) == 4)
+            {
+                FanOn = !FanOn;
+            }
+        }
         private void SimulateProcessing()
         {
-            Random random = new Random();
             if (!FanOn
-                || (OutputCo2Level > CarbonDioxideOutputLimit)
+                || (Co2Level > CarbonDioxideOutputLimit)
                 || Bed1Temperature > TemperatureUpperLimit
                 || Bed2Temperature > TemperatureUpperLimit)
             {
@@ -156,10 +180,7 @@ namespace Orbit.Models
 
         private void SimulateStandby()
         {
-            Random random = new Random();
             FanOn = false;
-            Bed1Temperature = random.Next(15, 27);
-            Bed2Temperature = random.Next(15, 27);
         }
 
         private void Trouble()
@@ -244,17 +265,17 @@ namespace Orbit.Models
         }
         private IEnumerable<Alert> CheckOutputCo2Level()
         {
-            if(OutputCo2Level > CarbonDioxideOutputLimit )
+            if(Co2Level > CarbonDioxideOutputLimit )
             {
-                yield return new Alert(nameof(OutputCo2Level), "Carbon dioxide output is above maximum", AlertLevel.HighError);
+                yield return new Alert(nameof(Co2Level), "Carbon dioxide output is above maximum", AlertLevel.HighError);
             }
-            else if(OutputCo2Level >= (CarbonDioxideOutputLimit - CarbonDioxideOutputTolerance))
+            else if(Co2Level >= (CarbonDioxideOutputLimit - CarbonDioxideOutputTolerance))
             {
-                yield return new Alert(nameof(OutputCo2Level), "CarbonDioxide output is elevated", AlertLevel.HighWarning);
+                yield return new Alert(nameof(Co2Level), "CarbonDioxide output is elevated", AlertLevel.HighWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(OutputCo2Level));
+                yield return Alert.Safe(nameof(Co2Level));
             }
         }
         private IEnumerable<Alert> CheckBedsAlternate()
@@ -299,7 +320,7 @@ namespace Orbit.Models
                 && this.RegeneratingBed == other.RegeneratingBed
                 && this.Bed1Temperature == other.Bed1Temperature
                 && this.Bed2Temperature == other.Bed2Temperature
-                && this.OutputCo2Level == other.OutputCo2Level;
+                && this.Co2Level == other.Co2Level;
         }
 
         public override bool Equals(object obj)
@@ -317,7 +338,7 @@ namespace Orbit.Models
                 this.AbsorbingBed,
                 this.RegeneratingBed,
                 this.Bed1Temperature,
-                (this.Bed2Temperature, this.OutputCo2Level)
+                (this.Bed2Temperature, this.Co2Level)
                 );
         }
 
