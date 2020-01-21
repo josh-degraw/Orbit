@@ -17,9 +17,7 @@ namespace Orbit.Models
         int oxygenLevelTolerance = 2;
         [NotMapped]
         int totalNumOfCells = 10;
-        
-        SystemStatus lastStatus;
-        
+                
         #endregion Limits
 
         #region Public Properties
@@ -32,7 +30,12 @@ namespace Orbit.Models
         /// <summary>
         /// state of system; standby, processing, fail, etc
         /// </summary>
-        public SystemStatus Status { get; set; } 
+        public SystemStatus Status { get; set; }
+
+        /// <summary>
+        /// status of system before entering 'Trouble' state
+        /// </summary>
+        public SystemStatus lastWorkingStatus { get; set; }
 
         /// <summary>
         /// denotes if this system is to run autonomously or manually
@@ -104,6 +107,8 @@ namespace Orbit.Models
             NumActiveCells = other.NumActiveCells;
             SystemOutput = other.SystemOutput;
             OxygenSetLevel = other.OxygenSetLevel;
+            OxygenLevel = other.OxygenLevel;
+            lastWorkingStatus = other.lastWorkingStatus;
         }
 
         #endregion Constructors
@@ -128,7 +133,7 @@ namespace Orbit.Models
             }
             else { }
             
-            SimulateOutput();
+            SystemOutput = SimulateOutput();
         }
 
         #endregion  Public Methods
@@ -139,47 +144,23 @@ namespace Orbit.Models
         {
             SeparatorOn = true;
             RecirculationPumpOn = true;
-            lastStatus = SystemStatus.Processing;
 
             if (OxygenLevel < OxygenSetLevel)
             {
-                // increase number of cells making oxygen, if more are available
-                if (NumActiveCells < totalNumOfCells)
-                {
-                    NumActiveCells++;
-                }
-                else
-                {
-                    NumActiveCells = totalNumOfCells;
-                }
+                IncreaseActiveCells();
             }
             else if (OxygenLevel > OxygenSetLevel)
             {
-                // decrease number of cells making oxygen, go to 'Standby' if last cell is 'turned off'
-                if (NumActiveCells > 0) 
-                {
-                    NumActiveCells--;
-                }
-                else
-                {
-                    Status = SystemStatus.Standby;
-                }
+                DecreaseActiveCells();
             }
 
             // if there are bubbles in replenishment water, reject it to avoid unwanted gasses in H2 flow downstream
-            if (InflowBubblesPresent)
-            {
-                DiverterValvePosition = DiverterValvePositions.Reprocess;
-            }
-            else 
-            {
-                DiverterValvePosition = DiverterValvePositions.Accept;
-            }
+            DiverterValvePosition = InflowBubbleSensor();
 
             // system cannot work if any of these components fail (simulated by an 'off' state)
             if (HydrogenSensor || !SeparatorOn || !RecirculationPumpOn)
             {
-                Trouble();
+                Status = SystemStatus.Trouble;
             }
         }
 
@@ -192,18 +173,19 @@ namespace Orbit.Models
             if (OxygenLevel < OxygenSetLevel)
             {
                 Status = SystemStatus.Processing;
+                lastWorkingStatus = Status;
             }
             // all components shoud be off while in 'Standby', else there is a system fault
             if ( SeparatorOn || RecirculationPumpOn)
             {
-                Trouble();
+                Status = SystemStatus.Trouble;
             }
         }
 
         private void Trouble()
         {
             Status = SystemStatus.Trouble;
-            if(lastStatus == SystemStatus.Processing)
+            if(lastWorkingStatus == SystemStatus.Processing)
             {
                 SimulateProcessing();
             }
@@ -219,9 +201,48 @@ namespace Orbit.Models
             OxygenLevel = rand.Next(OxygenSetLevel - oxygenLevelTolerance, OxygenSetLevel + oxygenLevelTolerance);
         }
 
-        private void SimulateOutput()
+        private void IncreaseActiveCells()
         {
-            SystemOutput = NumActiveCells * cellOutputLiters;
+            // increase number of cells making oxygen, if more are available
+            if (NumActiveCells < totalNumOfCells)
+            {
+                NumActiveCells++;
+            }
+            else
+            {
+                NumActiveCells = totalNumOfCells;
+            }
+        }
+
+        private void DecreaseActiveCells()
+        {
+            // decrease number of cells making oxygen, go to 'Standby' if last cell is 'turned off'
+            if (NumActiveCells > 0)
+            {
+                NumActiveCells--;
+            }
+            else
+            {
+                Status = SystemStatus.Standby;
+                lastWorkingStatus = Status;
+            }
+        }
+
+        private DiverterValvePositions InflowBubbleSensor()
+        {
+            if (InflowBubblesPresent)
+            {
+                return DiverterValvePositions.Reprocess;
+            }
+            else
+            {
+                return DiverterValvePositions.Accept;
+            }
+        }
+
+        private int SimulateOutput()
+        {
+            return NumActiveCells * cellOutputLiters;
         }
 
         #endregion Private Methods
