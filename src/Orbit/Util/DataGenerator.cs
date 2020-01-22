@@ -73,7 +73,7 @@ namespace Orbit.Util
 
                 urineSystem.ProcessData(wasteTank.Level);
                 wasteTank.ProcessData(urineSystem.SystemStatus, waterProcessor.SystemStatus);
-                waterProcessor.ProcessData(wasteTank.Level, rand.NextDouble() * 100);
+                waterProcessor.ProcessData(wasteTank.Level);
 
                 var nextUrineSystem = new UrineSystemData(urineSystem);
                 var nextWasteTank = new WasteWaterStorageTankData {
@@ -81,16 +81,7 @@ namespace Orbit.Util
                     Level = wasteTank.Level,
                 };
 
-                var nextWaterProcessor = new WaterProcessorData {
-                    SystemStatus = waterProcessor.SystemStatus,
-                    PumpOn = waterProcessor.PumpOn,
-                    FiltersOk = waterProcessor.FiltersOk,
-                    HeaterOn = waterProcessor.HeaterOn,
-                    PostHeaterTemp = rand.NextDouble() * 100,
-                    PostReactorQualityOk = waterProcessor.PostReactorQualityOk,
-                    DiverterValvePosition = waterProcessor.DiverterValvePosition,
-                    ProductTankLevel = waterProcessor.ProductTankLevel,
-                };
+                var nextWaterProcessor = new WaterProcessorData(waterProcessor);
 
                 db.UrineProcessorData.Add(nextUrineSystem);
                 db.WasteWaterStorageTankData.Add(nextWasteTank);
