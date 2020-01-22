@@ -89,6 +89,7 @@ namespace Orbit.Models
         #region Constructor
 
         public UrineSystemData()
+
         {
 
         }
@@ -110,11 +111,15 @@ namespace Orbit.Models
 
         public void ProcessData(double wasteTankLevel)
         {
+
             GenerateData();
 
             if (SystemStatus == SystemStatus.Standby)
             {
                 // if urine tank is full and the waste and brine tanks are not, change to 'processing' state
+
+                // and simulate processing
+
                 if (UrineTankLevel >= urineTankUpperLimit * .8
                     && wasteTankLevel < urineTankUpperLimit
                     && BrineTankLevel < brineTankLevelUpperLimit)
@@ -137,18 +142,24 @@ namespace Orbit.Models
             }
             else if (SystemStatus == SystemStatus.Processing)
             {
+
+
                 // no more urine to process or waste or brine tank full, change to 'Standby' state
+
                 if (UrineTankLevel <= 0
                     || wasteTankLevel >= urineTankUpperLimit
                     || BrineTankLevel >= brineTankLevelUpperLimit)
                 {
                     SystemStatus = SystemStatus.Standby;
 
+
+
                     UrineTankLevel = Math.Max(UrineTankLevel, 0);
                     BrineTankLevel = Math.Min(BrineTankLevel, brineTankLevelUpperLimit);
                 }
                 else
                 {
+
                     if(!SupplyPumpOn || !PurgePumpOn || !DistillerOn)
                     {
                         lastWorkingStatus = SystemStatus;
@@ -158,6 +169,7 @@ namespace Orbit.Models
                     {
                         SimulateProcessing();
                     }
+
                 }
             }
             else if(SystemStatus == SystemStatus.Trouble)
@@ -240,6 +252,22 @@ namespace Orbit.Models
                 return false;
             }
             else { return true; }
+        }
+
+        private void GenerateData()
+        {
+            Random rand = new Random();
+
+           if(SystemStatus == SystemStatus.Processing)
+            {
+                DistillerTemp = rand.Next(distillerTempLowerLimit, distillerTempUpperLimit);
+                DistillerSpeed = rand.Next(distillerSpeedLowerLimit, distillerSpeedUpperLimit);
+            }
+            else
+            {
+                DistillerTemp = 20;  // something close to ambient air temp
+                DistillerSpeed = 0;
+            }
         }
 
         #region Alert Generation
