@@ -6,7 +6,8 @@ namespace Orbit.Models
 {
     public enum Modes
     {
-        Autonomous,
+        Crewed,
+        Uncrewed,
         Manual
     }
 }

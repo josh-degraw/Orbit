@@ -67,44 +67,25 @@ namespace Orbit.Util
                 using var scope = ServiceProvider.CreateScope();
                 using var db = scope.ServiceProvider.GetRequiredService<OrbitDbContext>();
 
-                WasteWaterStorageTankData wt = db.WasteWaterStorageTankData.First();
-                UrineSystemData up = db.UrineProcessorData.First();
-                WaterProcessorData wp = db.WaterProcessorData.First();
+                WasteWaterStorageTankData wasteTank = db.WasteWaterStorageTankData.First();
+                UrineSystemData urineSystem = db.UrineProcessorData.First();
+                WaterProcessorData waterProcessor = db.WaterProcessorData.First();
 
-                // these should probably be moved out of the db connection method, but not sure how without breaking stuff
-                up.ProcessData(wt.Level, rand.NextDouble() * 100, rand.Next(0, 3500));
-                wt.ProcessData(up.SystemStatus, wp.SystemStatus);
-                wp.ProcessData(wt.Level, rand.NextDouble() * 100);
-                
-                var nextup = new UrineSystemData {
-                    SystemStatus = up.SystemStatus,
-                    UrineTankLevel = up.UrineTankLevel,
-                    SupplyPumpOn = up.SupplyPumpOn,
-                    DistillerOn = up.DistillerOn,
-                    DistillerTemp = rand.NextDouble() * 100,
-                    DistillerSpeed = up.DistillerSpeed,
-                    PurgePumpOn = up.PurgePumpOn,
-                    BrineTankLevel = up.BrineTankLevel,
-                };
-                var next = new WasteWaterStorageTankData {
+                urineSystem.ProcessData(wasteTank.Level);
+                wasteTank.ProcessData(urineSystem.SystemStatus, waterProcessor.SystemStatus);
+                waterProcessor.ProcessData(wasteTank.Level);
+
+                var nextUrineSystem = new UrineSystemData(urineSystem);
+                var nextWasteTank = new WasteWaterStorageTankData {
                     TankId = "Main",
-                    Level = wt.Level,
+                    Level = wasteTank.Level,
                 };
 
-                var nextwp = new WaterProcessorData {
-                    SystemStatus = wp.SystemStatus,
-                    PumpOn = wp.PumpOn,
-                    FiltersOk = wp.FiltersOk,
-                    HeaterOn = wp.HeaterOn,
-                    PostHeaterTemp = rand.NextDouble() * 100,
-                    PostReactorQualityOk = wp.PostReactorQualityOk,
-                    DiverterValvePosition = wp.DiverterValvePosition,
-                    ProductTankLevel = wp.ProductTankLevel,
-                };
+                var nextWaterProcessor = new WaterProcessorData(waterProcessor);
 
-                db.UrineProcessorData.Add(nextup);
-                db.WasteWaterStorageTankData.Add(next);
-                db.WaterProcessorData.Add(nextwp);
+                db.UrineProcessorData.Add(nextUrineSystem);
+                db.WasteWaterStorageTankData.Add(nextWasteTank);
+                db.WaterProcessorData.Add(nextWaterProcessor);
                 await db.SaveChangesAsync(token);
             }
 

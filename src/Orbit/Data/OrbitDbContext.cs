@@ -27,13 +27,8 @@ namespace Orbit.Data
 
         public DbSet<CarbonDioxideRemediation> CarbonDioxideRemoverData { get; set; }
 
-        public DbSet<Battery> BatteryData { get; set; }
+        public DbSet<PowerSystemData> PowerSystemData { get; set; }
 
-        public DbSet<Radiator> RadiatorData { get; set; }
-
-        public DbSet<ShuntUnit> ShuntUnitData { get; set; }
-
-        public DbSet<SolarArray> SolarArrayData { get; set; }
 
         public DbSet<InternalCoolantLoopData> InternalCoolantLoopData { get; set; }
 
@@ -53,7 +48,7 @@ namespace Orbit.Data
                 PurgePumpOn = false,
                 SystemStatus = SystemStatus.Standby,
                 UrineTankLevel = 40,
-            });
+            }); ;
 
             this.WasteWaterStorageTankData.Add(new WasteWaterStorageTankData {
                 TankId = "Main",
@@ -93,10 +88,7 @@ namespace Orbit.Data
             modelBuilder.Entity<Atmosphere>(MapModelCommonProps);
             modelBuilder.Entity<CarbonDioxideRemediation>(MapModelCommonProps);
             modelBuilder.Entity<OxygenGenerator>(MapModelCommonProps);
-            modelBuilder.Entity<Battery>(MapModelCommonProps);
-            modelBuilder.Entity<Radiator>(MapModelCommonProps);
-            modelBuilder.Entity<SolarArray>(MapModelCommonProps);
-            modelBuilder.Entity<ShuntUnit>(MapModelCommonProps);
+            modelBuilder.Entity<PowerSystemData>(MapModelCommonProps);
             modelBuilder.Entity<ExternalCoolantLoopData>(MapModelCommonProps);
             modelBuilder.Entity<InternalCoolantLoopData>(MapModelCommonProps);
             modelBuilder.Entity<WaterGeneratorData>(MapModelCommonProps);
