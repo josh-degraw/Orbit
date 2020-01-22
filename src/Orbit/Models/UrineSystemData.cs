@@ -17,9 +17,9 @@ namespace Orbit.Models
         private const int distillerSpeedLowerLimit = 1100;
         private const int distillerSpeedTolerance = 100;
 
-        private const double distillerTempUpperLimit = 55;
-        private const double distillerTempLowerLimit = 35;
-        private const double distillerTempTolerance = 5;
+        private const int distillerTempUpperLimit = 55;
+        private const int distillerTempLowerLimit = 35;
+        private const int distillerTempTolerance = 5;
 
         private const int brineTankLevelUpperLimit = 100;
         private const int brineTankLevelTolerance = 5;
@@ -84,14 +84,38 @@ namespace Orbit.Models
 
         #endregion Properties
 
-        public void ProcessData(double urineTankLevel, double temp, int speed)
+        #region Constructor
+
+        public UrineSystemData()
         {
-            DistillerTemp = temp;
-            DistillerSpeed = speed;
+
+        }
+        public UrineSystemData (UrineSystemData other)
+        {
+            ReportDateTime = DateTimeOffset.Now;
+            SystemStatus = other.SystemStatus;
+            UrineTankLevel = other.UrineTankLevel;
+            SupplyPumpOn = other.SupplyPumpOn;
+            DistillerOn = other.DistillerOn;
+            DistillerTemp = other.DistillerTemp;
+            DistillerSpeed = other.DistillerSpeed;
+            PurgePumpOn = other.PurgePumpOn;
+            BrineTankLevel = other.BrineTankLevel;
+
+        }
+
+        #endregion Constructor
+
+        public void ProcessData(double wasteTankLevel)
+        {
+            GenerateData();
+
             if (SystemStatus == SystemStatus.Standby)
             {
+                // if urine tank is full and the waste and brine tanks are not, change to 'processing' state
+                // and simulate processing
                 if (UrineTankLevel >= urineTankUpperLimit * .8
-                    && urineTankLevel < urineTankUpperLimit
+                    && wasteTankLevel < urineTankUpperLimit
                     && BrineTankLevel < brineTankLevelUpperLimit)
                 {
                     SystemStatus = SystemStatus.Processing;
@@ -101,6 +125,7 @@ namespace Orbit.Models
                     PurgePumpOn = true;
                     BrineTankLevel += 2;
                 }
+                // if urine tank not full, stay in standby and simulate urine tank filling
                 else
                 {
                     UrineTankLevel += 3;
@@ -108,11 +133,12 @@ namespace Orbit.Models
             }
             else if (SystemStatus == SystemStatus.Processing)
             {
+                // no more urine to process, change to 'standby' state
                 if (UrineTankLevel <= 0
-                    || urineTankLevel >= urineTankUpperLimit
+                    || wasteTankLevel >= urineTankUpperLimit
                     || BrineTankLevel >= brineTankLevelUpperLimit)
                 {
-                    SystemStatus = SystemStatus.Ready;
+                    SystemStatus = SystemStatus.Standby;
                     SupplyPumpOn = false;
                     DistillerOn = false;
                     PurgePumpOn = false;
@@ -122,6 +148,7 @@ namespace Orbit.Models
                 }
                 else
                 {
+                    // simulate processing
                     UrineTankLevel -= 5;
                     BrineTankLevel += 2;
                 }
@@ -132,6 +159,22 @@ namespace Orbit.Models
                 SupplyPumpOn = false;
                 DistillerOn = false;
                 PurgePumpOn = false;
+            }
+        }
+
+        private void GenerateData()
+        {
+            Random rand = new Random();
+
+           if(SystemStatus == SystemStatus.Processing)
+            {
+                DistillerTemp = rand.Next(distillerTempLowerLimit, distillerTempUpperLimit);
+                DistillerSpeed = rand.Next(distillerSpeedLowerLimit, distillerSpeedUpperLimit);
+            }
+            else
+            {
+                DistillerTemp = 20;  // something close to ambient air temp
+                DistillerSpeed = 0;
             }
         }
 
@@ -315,5 +358,6 @@ namespace Orbit.Models
         public static bool operator !=(UrineSystemData left, UrineSystemData right) => !Equals(left, right);
 
         #endregion Equality members
+
     }
 }
