@@ -21,7 +21,7 @@ namespace Orbit.Data
 
         public DbSet<WasteWaterStorageTankData> WasteWaterStorageTankData { get; set; }
 
-        public DbSet<Atmosphere> CabinAtmosphereData { get; set; }
+        public DbSet<AtmosphereData> AtmosphereData { get; set; }
 
         public DbSet<OxygenGenerator> OxygenGeneratorData { get; set; }
 
@@ -85,7 +85,7 @@ namespace Orbit.Data
             modelBuilder.Entity<UrineSystemData>(MapModelCommonProps);
             modelBuilder.Entity<WaterProcessorData>(MapModelCommonProps);
             modelBuilder.Entity<WasteWaterStorageTankData>(MapModelCommonProps);
-            modelBuilder.Entity<Atmosphere>(MapModelCommonProps);
+            modelBuilder.Entity<AtmosphereData>(MapModelCommonProps);
             modelBuilder.Entity<CarbonDioxideRemediation>(MapModelCommonProps);
             modelBuilder.Entity<OxygenGenerator>(MapModelCommonProps);
             modelBuilder.Entity<PowerSystemData>(MapModelCommonProps);
