@@ -25,7 +25,6 @@ namespace Orbit.Models
         private int solarVoltageTolerance = 10;
 
         private int minOutputToCharge = 160;
-        private double batteryDischargeRate = 0.5;
 
         private int batteryTemperatureUpperLimit = 35;
         private int batteryTemperatureLowerLimit = -10;
@@ -39,6 +38,10 @@ namespace Orbit.Models
         private int batteryVoltageLowerLimit = 110;
         private int batteryVoltageTolerance = 10;
 
+        private int dayCount;
+        private int dayLength = 20;
+        private bool isDay;
+
         #endregion Private Limits
 
         #region Public Properties
@@ -47,13 +50,26 @@ namespace Orbit.Models
         public string ComponentName => "Power System";
         public DateTimeOffset ReportDateTime { get; private set; } = DateTimeOffset.Now;
 
-        public SystemStatus Status { get; set; } 
+        /// <summary>
+        /// the overall status of the system 
+        /// </summary>
+        public SystemStatus Status { get; set; }
+
+        /// <summary>
+        /// determines whether the batteries are charging or discharging
+        /// </summary>
+        public PowerShuntState ShuntStatus { get; set; }
 
         /// <summary>
         /// the positional rotation of the solar array in degrees
         /// </summary>
         [Range(-205, 205)]
         public int SolarArrayRotation { get; set; }
+
+        /// <summary>
+        /// direction of panel movement as degrees are increasing or decreasing 
+        /// </summary>
+        public bool SolarRotationIncreasing { get; set; }
 
         /// <summary>
         /// voltage output from solar array, will be primary power for station when >= 160v
@@ -97,29 +113,26 @@ namespace Orbit.Models
 
         public void ProcessData()
         {
-            if((BatteryChargeLevel <= 40) 
-                || (BatteryTemperature >= batteryTemperatureUpperLimit) 
-                || (BatteryTemperature <= batteryTemperatureLowerLimit)
-                || (BatteryVoltage <= batteryVoltageLowerLimit))
+            GenerateData();
+
+            if ((BatteryTemperature >= batteryTemperatureUpperLimit)
+                || (BatteryTemperature <= batteryTemperatureLowerLimit))
             {
                 Trouble();
             }
 
-            if (!SolarDeployed)
+            if (SolarArrayVoltage < minOutputToCharge)
             {
-                SolarArrayVoltage = 0;
-            }
-
-             if(SolarArrayVoltage >= minOutputToCharge)
-            {
-                BatteryIsCharging = true;
-                BatteryChargeLevel++;
+                ShuntStatus = PowerShuntState.Discharge;
+                SimulateDrain();
             }
             else
             {
-                BatteryIsCharging = false;
-                BatteryChargeLevel -= batteryDischargeRate;
+                ShuntStatus = PowerShuntState.Charge;
+                SimulateCharge();
             }
+
+            RotatePanels();
         }
 
         #endregion Public Methods
@@ -127,12 +140,99 @@ namespace Orbit.Models
 
         #region Private Methods
 
-        #endregion Private Methods
+        private void GenerateData()
+        {
+            Random rand = new Random();
+
+            // toggle between 'day' and 'night' cycles when solar panels will and will not be generating power
+            if(dayCount >= dayLength)
+            {
+                isDay = !isDay;
+                dayCount = 0;
+            }
+            else
+            {
+                dayCount++;
+            }
+
+            if (!SolarDeployed)
+            {
+                SolarArrayVoltage = 0;
+            }
+            else  if(isDay)
+            {
+                SolarArrayVoltage = rand.Next(minOutputToCharge, solarVoltageUpperLimit);
+            }
+            else
+            {
+                SolarArrayVoltage = rand.Next(solarVoltageLowerLimit, solarVoltageLowerLimit + solarVoltageTolerance);
+            }
+
+            // get a new battery temperature
+            BatteryTemperature = rand.Next(batteryTemperatureLowerLimit, batteryTemperatureUpperLimit);
+
+        }
+        private void SimulateDrain()
+        {
+            if(BatteryChargeLevel <= batteryChargeLevelLowerLimit
+                || (BatteryVoltage < batteryVoltageLowerLimit)
+                || (BatteryVoltage > batteryVoltageUpperLimit))
+            {
+                Trouble();
+            }
+
+            if(BatteryChargeLevel > 0)
+            {
+                BatteryChargeLevel--;
+            }
+            else
+            {
+                BatteryChargeLevel = 0;
+            }
+        }
+
+        private void SimulateCharge()
+        {
+            if((SolarArrayVoltage > solarVoltageUpperLimit)
+                || (SolarArrayVoltage < minOutputToCharge))
+            {
+                Trouble();
+            }
+
+            if(BatteryChargeLevel < batteryChargeLevelUpperLimit)
+            {
+                BatteryChargeLevel++;
+            }
+            else
+            {
+                BatteryChargeLevel = batteryChargeLevelUpperLimit;
+            }
+        }
+
+        private void RotatePanels()
+        {
+            // rotate solar panel back and forth between range bounds
+            if (SolarRotationIncreasing && (SolarArrayRotation < solarRotationUpperLimit))
+            {
+                SolarArrayRotation++;
+            }
+            else if (!SolarRotationIncreasing && (SolarArrayRotation > solarRotationLowerLimit))
+            {
+                SolarArrayRotation--;
+            }
+            else
+            {
+                // reached a bound, switch direction
+                SolarRotationIncreasing = !SolarRotationIncreasing;
+            }
+        }
 
         private void Trouble()
         {
             Status = SystemStatus.Trouble;
         }
+
+        #endregion Private Methods
 
         #region Check Alerts
 
