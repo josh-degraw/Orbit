@@ -38,9 +38,9 @@ namespace Orbit.Models
         private int batteryVoltageLowerLimit = 110;
         private int batteryVoltageTolerance = 10;
 
-        private int dayCount;
-        private int dayLength = 20;
-        private bool isDay;
+        private int eclipseCount;
+        private int eclipseLength = 20;
+        private bool inEclipse;
 
         #endregion Private Limits
 
@@ -100,13 +100,30 @@ namespace Orbit.Models
         [Range(0, 170)]
         public double BatteryVoltage { get; set; }
 
-        /// <summary>
-        /// indicator if battery is in a charging or discharging state 
-        /// value is true when solar voltage >= 160v; false otherwise
-        /// </summary>
-        public bool BatteryIsCharging { get; set; }
-
         #endregion Public Properties
+
+        #region Constructors
+
+        public PowerSystemData() { }
+
+        public PowerSystemData(PowerSystemData other)
+        {
+            ReportDateTime = DateTimeOffset.Now;
+            Status = other.Status;
+            ShuntStatus = other.ShuntStatus;
+            SolarArrayRotation = other.SolarArrayRotation;
+            SolarRotationIncreasing = other.SolarRotationIncreasing;
+            SolarArrayVoltage = other.SolarArrayVoltage;
+            SolarDeployed = other.SolarDeployed;
+            BatteryVoltage = other.BatteryVoltage;
+            BatteryChargeLevel = other.BatteryChargeLevel;
+            
+            // for creating rudimentory sun/eclipse cycles
+            inEclipse = other.inEclipse;
+            eclipseCount = other.eclipseCount;
+        }
+
+        #endregion Constructors
 
 
         #region Public Methods
@@ -145,24 +162,27 @@ namespace Orbit.Models
             Random rand = new Random();
 
             // toggle between 'day' and 'night' cycles when solar panels will and will not be generating power
-            if(dayCount >= dayLength)
+            if(eclipseCount >= eclipseLength)
             {
-                isDay = !isDay;
-                dayCount = 0;
+                inEclipse = !inEclipse;
+                eclipseCount = 0;
             }
             else
             {
-                dayCount++;
+                eclipseCount++;
             }
 
+            // no voltage can be generated if the solar panels are retracted
             if (!SolarDeployed)
             {
                 SolarArrayVoltage = 0;
             }
-            else  if(isDay)
+            // simulatse station behind Earth or Moon, so no sunlight on solar panels
+            else  if(inEclipse)
             {
                 SolarArrayVoltage = rand.Next(minOutputToCharge, solarVoltageUpperLimit);
             }
+            // simulates station in sun, so panels can produce voltage
             else
             {
                 SolarArrayVoltage = rand.Next(solarVoltageLowerLimit, solarVoltageLowerLimit + solarVoltageTolerance);
@@ -365,13 +385,14 @@ namespace Orbit.Models
                 return true;
             return this.ReportDateTime.Equals(other.ReportDateTime)
                 && this.Status == other.Status
+                && this.ShuntStatus == other.ShuntStatus
                 && this.SolarArrayRotation == other.SolarArrayRotation
+                && this.SolarRotationIncreasing == other.SolarRotationIncreasing
                 && this.SolarArrayVoltage == other.SolarArrayVoltage
                 && this.SolarDeployed == other.SolarDeployed
                 && this.BatteryTemperature == other.BatteryTemperature
                 && this.BatteryChargeLevel == other.BatteryChargeLevel
-                && this.BatteryVoltage == other.BatteryVoltage
-                && this.BatteryIsCharging == other.BatteryIsCharging;
+                && this.BatteryVoltage == other.BatteryVoltage;
         }
 
         public override bool Equals(object obj)
@@ -384,12 +405,13 @@ namespace Orbit.Models
             return HashCode.Combine(
                 this.ReportDateTime, 
                 this.Status,
+                this.ShuntStatus,
                 this.SolarArrayRotation,
+                this.SolarRotationIncreasing,
                 this.SolarArrayVoltage,
                 this.SolarDeployed,
-                this.BatteryTemperature,
-                this.BatteryChargeLevel,
-                (this.BatteryVoltage, this.BatteryIsCharging)
+                
+                (this.BatteryTemperature, this.BatteryChargeLevel, this.BatteryVoltage)
                 );
         }
 
