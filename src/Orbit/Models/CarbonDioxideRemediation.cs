@@ -82,6 +82,24 @@ namespace Orbit.Models
 
         #endregion Public Properties
 
+        #region Constructors
+
+        public CarbonDioxideRemediation() { }
+
+        public CarbonDioxideRemediation(CarbonDioxideRemediation other)
+        {
+            Status = other.Status;
+            FanOn = other.FanOn;
+            BedSelectorValve = other.BedSelectorValve;
+            AbsorbingBed = other.AbsorbingBed;
+            RegeneratingBed = other.RegeneratingBed;
+            Bed1Temperature = other.Bed1Temperature;
+            Bed2Temperature = other.Bed2Temperature;
+            Co2Level = other.Co2Level;
+        }
+
+    #endregion Constructors
+
         #region Public Methods
 
         public void ProcessData( )
