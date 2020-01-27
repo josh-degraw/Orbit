@@ -6,12 +6,13 @@ using Microsoft.Extensions.DependencyInjection;
 
 using Orbit.Models;
 using Orbit.Data;
+using Orbit.Util;
 
 namespace Orbit
 {
     public class SystemFacade
     {
-        private IServiceProvider ServiceProvider { get; }
+        private IServiceProvider ServiceProvider => Orbit.Util.OrbitServiceProvider.Instance;
         private IServiceCollection serviceCollection;
 
         //Will be replaced with Unity Binding
@@ -70,21 +71,12 @@ namespace Orbit
 
         public SystemFacade()
         {
-            var serviceCollection = new ServiceCollection();
-            serviceCollection.AddTransient<OrbitDbContext>();
-            /*
-             * 
-             * InvalidOperationException: Unable to resolve service for type 
-             * 'Microsoft.EntityFrameworkCore.DbContextOptions`1[Orbit.Data.OrbitDbContext]' 
-             * while attempting to activate 'Orbit.Data.OrbitDbContext'.
-             * 
-             */ 
-            //serviceCollection.AddTransient<DbContextOptions>();
-            this.ServiceProvider = serviceCollection.BuildServiceProvider();   
+              
         }
 
         public async void StartService()
         {
+            DataGenerator.Instance.Start();   
             using var scope = ServiceProvider.CreateScope();
             var provider = scope.ServiceProvider;
             var db = provider.GetRequiredService<OrbitDbContext>();
