@@ -21,23 +21,20 @@ namespace Orbit.Data
 
         public DbSet<WasteWaterStorageTankData> WasteWaterStorageTankData { get; set; }
 
-        public DbSet<Atmosphere> CabinAtmosphereData { get; set; }
+        public DbSet<AtmosphereData> AtmosphereData { get; set; }
 
         public DbSet<OxygenGenerator> OxygenGeneratorData { get; set; }
 
         public DbSet<CarbonDioxideRemediation> CarbonDioxideRemoverData { get; set; }
 
-        public DbSet<Battery> BatteryData { get; set; }
+        public DbSet<PowerSystemData> PowerSystemData { get; set; }
 
-        public DbSet<Radiator> RadiatorData { get; set; }
-
-        public DbSet<ShuntUnit> ShuntUnitData { get; set; }
-
-        public DbSet<SolarArray> SolarArrayData { get; set; }
 
         public DbSet<InternalCoolantLoopData> InternalCoolantLoopData { get; set; }
 
         public DbSet<ExternalCoolantLoopData> ExternalCoolantLoopData { get; set; }
+
+        public DbSet<WaterGeneratorData> WaterGeneratorData { get; set; }
 
         public void InsertSeedData()
         {
@@ -88,15 +85,13 @@ namespace Orbit.Data
             modelBuilder.Entity<UrineSystemData>(MapModelCommonProps);
             modelBuilder.Entity<WaterProcessorData>(MapModelCommonProps);
             modelBuilder.Entity<WasteWaterStorageTankData>(MapModelCommonProps);
-            modelBuilder.Entity<Atmosphere>(MapModelCommonProps);
+            modelBuilder.Entity<AtmosphereData>(MapModelCommonProps);
             modelBuilder.Entity<CarbonDioxideRemediation>(MapModelCommonProps);
             modelBuilder.Entity<OxygenGenerator>(MapModelCommonProps);
-            modelBuilder.Entity<Battery>(MapModelCommonProps);
-            modelBuilder.Entity<Radiator>(MapModelCommonProps);
-            modelBuilder.Entity<SolarArray>(MapModelCommonProps);
-            modelBuilder.Entity<ShuntUnit>(MapModelCommonProps);
+            modelBuilder.Entity<PowerSystemData>(MapModelCommonProps);
             modelBuilder.Entity<ExternalCoolantLoopData>(MapModelCommonProps);
             modelBuilder.Entity<InternalCoolantLoopData>(MapModelCommonProps);
+            modelBuilder.Entity<WaterGeneratorData>(MapModelCommonProps);
         }
     }
 }
