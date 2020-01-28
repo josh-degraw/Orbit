@@ -2,7 +2,6 @@
 
   <PropertyGroup>
     <TargetFramework>netstandard2.0</TargetFramework>
-    <DefineConstants Condition="'$(TargetFramework)' == 'netstandard2.1'">NETSTANDARD_21;$(DefineConstants)</DefineConstants>
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
     <RunPostBuildEvent>OnOutputUpdated</RunPostBuildEvent>
   </PropertyGroup>
@@ -34,12 +33,6 @@
   </ItemGroup>
 
   <Target Name="CopyFiles" AfterTargets="PostBuildEvent">
-    <Copy SourceFiles="@(MySourceFiles)" DestinationFolder="..\Orbit.Unity\Assets">
-      <!--<Output TaskParameter="CopiedFiles" ItemName="SuccessfullyCopiedFiles" />-->
-    </Copy>
+    <Copy SourceFiles="@(MySourceFiles)" DestinationFolder="..\Orbit.Unity\Assets\Dependencies"/>
   </Target>
-
-  <!--<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="copy '$(TargetDir)**\*.dll' '..\Orbit.Unity\Assets'" />
-  </Target>-->
 </Project>
