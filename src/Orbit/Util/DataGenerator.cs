@@ -82,7 +82,7 @@ namespace Orbit.Util
                 WaterProcessorData waterProcessor = db.WaterProcessorData.Last();
 
                 urineSystem.ProcessData(wasteTank.Level);
-                wasteTank.ProcessData(urineSystem.SystemStatus, waterProcessor.SystemStatus);
+                wasteTank.ProcessData(urineSystem.Status, waterProcessor.SystemStatus);
                 waterProcessor.ProcessData(wasteTank.Level);
 
                 var nextUrineSystem = new UrineSystemData(urineSystem);
