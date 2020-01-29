@@ -20,7 +20,7 @@ namespace Orbit.Util
             AppDomain.CurrentDomain.ProcessExit += (s, e) => this._cancellationTokenSource.Cancel();
         }
 
-        private Task? _eventThread;
+        private Thread? _eventThread;
 
         private readonly CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
@@ -30,7 +30,8 @@ namespace Orbit.Util
         {
             if (_eventThread == null)
             {
-                _eventThread = Task.Run(SimulateDataGeneration, _cancellationTokenSource.Token);
+                _eventThread = new Thread(SimulateDataGeneration);
+                _eventThread.Start();
             }
         }
 
@@ -50,14 +51,15 @@ namespace Orbit.Util
         /// This method simulates generating real-world data and inserting it into the database.
         /// </summary>
         /// <returns> </returns>
-        private async Task SimulateDataGeneration()
+        private void SimulateDataGeneration()
         {
             CancellationToken token = _cancellationTokenSource.Token;
-            var rand = new Random();
+
             this.Started?.Invoke(this, EventArgs.Empty);
-            while (true)
+            bool isFirst = true;
+            while (!token.IsCancellationRequested)
             {
-                await Task.Delay(TimeSpan.FromSeconds(3), token).ConfigureAwait(true);
+                Thread.Sleep(TimeSpan.FromSeconds(3));
 
                 if (token.IsCancellationRequested)
                 {
@@ -67,49 +69,37 @@ namespace Orbit.Util
                 using var scope = ServiceProvider.CreateScope();
                 using var db = scope.ServiceProvider.GetRequiredService<OrbitDbContext>();
 
-                WasteWaterStorageTankData wt = db.WasteWaterStorageTankData.First();
-                UrineSystemData up = db.UrineProcessorData.First();
-                WaterProcessorData wp = db.WaterProcessorData.First();
+                if (isFirst)
+                {
+                    db.InsertSeedData();
+                    isFirst = false;
+                    db.SaveChanges();
+                    continue;
+                }
 
-                // these should probably be moved out of the db connection method, but not sure how without breaking stuff
-                up.ProcessData(wt.Level, rand.NextDouble() * 100, rand.Next(0, 3500));
-                wt.ProcessData(up.SystemStatus, wp.SystemStatus);
-                wp.ProcessData(wt.Level, rand.NextDouble() * 100);
-                
-                var nextup = new UrineSystemData {
-                    SystemStatus = up.SystemStatus,
-                    UrineTankLevel = up.UrineTankLevel,
-                    SupplyPumpOn = up.SupplyPumpOn,
-                    DistillerOn = up.DistillerOn,
-                    DistillerTemp = rand.NextDouble() * 100,
-                    DistillerSpeed = up.DistillerSpeed,
-                    PurgePumpOn = up.PurgePumpOn,
-                    BrineTankLevel = up.BrineTankLevel,
-                };
-                var next = new WasteWaterStorageTankData {
+                WasteWaterStorageTankData wasteTank = db.WasteWaterStorageTankData.Last();
+                UrineSystemData urineSystem = db.UrineProcessorData.Last();
+                WaterProcessorData waterProcessor = db.WaterProcessorData.Last();
+
+                urineSystem.ProcessData(wasteTank.Level);
+                wasteTank.ProcessData(urineSystem.Status, waterProcessor.SystemStatus);
+                waterProcessor.ProcessData(wasteTank.Level);
+
+                var nextUrineSystem = new UrineSystemData(urineSystem);
+                var nextWasteTank = new WasteWaterStorageTankData {
                     TankId = "Main",
-                    Level = wt.Level,
+                    Level = wasteTank.Level,
                 };
 
-                var nextwp = new WaterProcessorData {
-                    SystemStatus = wp.SystemStatus,
-                    PumpOn = wp.PumpOn,
-                    FiltersOk = wp.FiltersOk,
-                    HeaterOn = wp.HeaterOn,
-                    PostHeaterTemp = rand.NextDouble() * 100,
-                    PostReactorQualityOk = wp.PostReactorQualityOk,
-                    DiverterValvePosition = wp.DiverterValvePosition,
-                    ProductTankLevel = wp.ProductTankLevel,
-                };
+                var nextWaterProcessor = new WaterProcessorData(waterProcessor);
 
-                db.UrineProcessorData.Add(nextup);
-                db.WasteWaterStorageTankData.Add(next);
-                db.WaterProcessorData.Add(nextwp);
-                await db.SaveChangesAsync(token);
+                db.UrineProcessorData.Add(nextUrineSystem);
+                db.WasteWaterStorageTankData.Add(nextWasteTank);
+                db.WaterProcessorData.Add(nextWaterProcessor);
+                db.SaveChanges();
             }
 
             this.Stopped?.Invoke(this, EventArgs.Empty);
         }
-
     }
 }

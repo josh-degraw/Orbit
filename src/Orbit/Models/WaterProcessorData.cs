@@ -10,14 +10,20 @@ namespace Orbit.Models
     {
         #region Limits
 
-        private const double postHeaterTempUpperLimit = 130.5;
-        private const double postHeaterTempLowerLimit = 120.5;
-        private const double postHeaterTempTolerance = 5;
+        private const int postHeaterTempUpperLimit = 130;
+        private const int postHeaterTempLowerLimit = 120;
+        private const int postHeaterTempTolerance = 5;
 
         private const int productTankLevelUpperLimit = 100;
         private const int productTankLevelTolerance = 20;
 
+        const int smallIncrement = 2;
+        const int largeIncrement = 5;
+        const int highLevel = productTankLevelUpperLimit - productTankLevelTolerance;
+
         #endregion Limits
+
+        #region Public Properties
 
         public DateTimeOffset ReportDateTime { get; private set; } = DateTimeOffset.Now;
 
@@ -68,12 +74,31 @@ namespace Orbit.Models
         [Range(0, 100)]
         public double ProductTankLevel { get; set; }
 
-        public void ProcessData(double wasteTankLevel, double heaterTemp)
+        #endregion Public Properties
+
+        #region Constructors
+
+        public WaterProcessorData() { }
+
+        public WaterProcessorData(WaterProcessorData other)
         {
-            PostHeaterTemp = heaterTemp;
-            const int smallIncrement = 2;
-            const int largeIncrement = 5;
-            const int highLevel = productTankLevelUpperLimit - productTankLevelTolerance;
+            SystemStatus = other.SystemStatus;
+            PumpOn = other.PumpOn;
+            FiltersOk = other.FiltersOk;
+            HeaterOn = other.HeaterOn;
+            PostHeaterTemp = other.PostHeaterTemp;
+            PostReactorQualityOk = other.PostReactorQualityOk;
+            DiverterValvePosition = other.DiverterValvePosition;
+            ProductTankLevel = other.ProductTankLevel;
+        }
+
+        #endregion Constructors
+
+        #region Logic Methods
+
+        public void ProcessData(double wasteTankLevel)
+        {
+            GenerateData();
 
             if (SystemStatus == SystemStatus.Standby)
             {
@@ -120,12 +145,26 @@ namespace Orbit.Models
             }
             else //(wasteTankLevel <= 0)
             {
-                SystemStatus = SystemStatus.Standby;
                 PumpOn = false;
                 HeaterOn = false;
                 ProductTankLevel -= smallIncrement;
             }
         }
+
+        private void GenerateData()
+        {
+            Random rand = new Random();
+
+            if (SystemStatus == SystemStatus.Processing)
+            {
+                PostHeaterTemp = rand.Next(postHeaterTempLowerLimit, postHeaterTempUpperLimit);
+            }
+            else
+            {
+                PostHeaterTemp = 19; // somewhere close to ambient air temp
+            }
+        }
+        #endregion Logic Methods
 
         #region ValueCheckMethods
 
@@ -214,8 +253,6 @@ namespace Orbit.Models
             }
         }
 
-        #endregion ValueCheckMethods
-
         IEnumerable<Alert> IAlertableModel.GenerateAlerts()
         {
             return this.CheckProductTankLevel()
@@ -224,6 +261,8 @@ namespace Orbit.Models
                 .Concat(this.CheckPostReactorQuality())
                 .Concat(this.CheckSystemStatus());
         }
+
+        #endregion ValueCheckMethods
 
         #region Implementation of IModuleComponent
 
