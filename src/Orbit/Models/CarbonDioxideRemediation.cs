@@ -17,7 +17,7 @@ namespace Orbit.Models
     /// simplicity, this class is based on using the zeolite system.
     /// </summary>
    
-    public class CarbonDioxideRemediation : IAlertableModel
+    public class CarbonDioxideRemediation : IAlertableModel, IEquatable<CarbonDioxideRemediation>
     {
         #region Limits
 
