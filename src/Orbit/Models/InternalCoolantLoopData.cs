@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Orbit.Models
 {
-    public class InternalCoolantLoopData : IAlertableModel
+    public class InternalCoolantLoopData : IAlertableModel, IEquatable<InternalCoolantLoopData>
     {
         #region Limits
 
