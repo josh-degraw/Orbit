@@ -26,9 +26,10 @@ namespace Orbit.Models
         private const double TemperatureTolerance = 10;
         private const double CarbonDioxideOutputLimit = 2;  // im ppm
         private const double CarbonDioxideOutputTolerance = 2;
+        private const double CarbonDioxideStandbyValue = .5;
                 
         // temporary pseudo-timer 
-        private int count = 0;
+        public int count = 0;
         private int countLength = 30;
 
         #endregion Limits
@@ -76,6 +77,12 @@ namespace Orbit.Models
         public int Bed2Temperature { get; set; }
 
         /// <summary>
+        /// the level of co2 in the air leaving the unit and entering the cabin
+        /// </summary>
+        [Range(0, 13)]
+        public double Co2OutputLevel { get; set; }
+
+        /// <summary>
         /// the level of carbon dioxide in air entering the co2 scrubber
         /// </summary>
         public double Co2Level { get; set; }
@@ -96,16 +103,29 @@ namespace Orbit.Models
             Bed1Temperature = other.Bed1Temperature;
             Bed2Temperature = other.Bed2Temperature;
             Co2Level = other.Co2Level;
+
+            GenerateData();
         }
 
     #endregion Constructors
 
         #region Public Methods
 
+        public void SeedData()
+        {
+            Status = SystemStatus.Standby;
+            FanOn = false;
+            BedSelectorValve = BedOptions.Bed1;
+            AbsorbingBed = BedOptions.Bed1;
+            RegeneratingBed = BedOptions.Bed2;
+            Bed1Temperature = 20;
+            Bed2Temperature = 20;
+            Co2OutputLevel = 0;
+            Co2Level = 3;
+        }
+
         public void ProcessData( )
         {
-            GenerateData();
-
             if (Status == SystemStatus.Processing)
             {
                 if (Co2Level <= CarbonDioxideOutputLimit)
@@ -167,10 +187,7 @@ namespace Orbit.Models
         }
         private void SimulateProcessing()
         {
-            if (!FanOn
-                || (Co2Level > CarbonDioxideOutputLimit)
-                || Bed1Temperature > TemperatureUpperLimit
-                || Bed2Temperature > TemperatureUpperLimit)
+            if (!FanOn || Co2OutputLevel > CarbonDioxideOutputLimit)
             {
                 Trouble();
                 return;
@@ -178,20 +195,43 @@ namespace Orbit.Models
 
             if (count < countLength)
             {
+                // bed1 is absorbing and sould be cool, bed2 is regenerating and should be hot
+                if (BedSelectorValve == BedOptions.Bed1)
+                {
+                    if ((Bed2Temperature > TemperatureUpperLimit)
+                        || (Bed2Temperature < TemperatureLowerLimit)
+                        || (Bed1Temperature > TemperatureLowerLimit))
+                    {
+                        Trouble();
+                    }
+                }
+
+                else
+                {
+                    if ((Bed1Temperature > TemperatureUpperLimit)
+                        || (Bed1Temperature < TemperatureLowerLimit)
+                        || (Bed2Temperature > TemperatureLowerLimit))
+                    {
+                        Trouble();
+                    }
+                }
+
                 count++;
             }
             else
             {        
                 count = 0;
-                if(BedSelectorValve == BedOptions.Bed1)
-                {
-                    AbsorbingBed = BedOptions.Bed1;
-                    RegeneratingBed = BedOptions.Bed2;
-                }
-                else
+                if(BedSelectorValve == BedOptions.Bed1)        
                 {
                     AbsorbingBed = BedOptions.Bed2;
                     RegeneratingBed = BedOptions.Bed1;
+                    BedSelectorValve = BedOptions.Bed2;
+                }
+                else
+                {
+                    AbsorbingBed = BedOptions.Bed1;
+                    RegeneratingBed = BedOptions.Bed2;
+                    BedSelectorValve = BedOptions.Bed1;
                 }
             }
         }
