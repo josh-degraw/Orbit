@@ -47,7 +47,7 @@ namespace Orbit.Tests.Models
             o2.lastWorkingStatus = SystemStatus.Standby;
             o2.ProcessData();
             // numactive cells = 1 * 270 output/cell
-            Assert.True(o2.SystemOutput == 270);
+            Assert.True(o2.SystemOutput == 0);
         }
 
         [Fact]
