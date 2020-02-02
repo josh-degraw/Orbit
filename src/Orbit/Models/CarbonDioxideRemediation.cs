@@ -95,6 +95,7 @@ namespace Orbit.Models
 
         public CarbonDioxideRemediation(CarbonDioxideRemediation other)
         {
+            ReportDateTime = DateTimeOffset.Now;
             Status = other.Status;
             FanOn = other.FanOn;
             BedSelectorValve = other.BedSelectorValve;
