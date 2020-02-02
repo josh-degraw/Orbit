@@ -171,6 +171,54 @@ namespace Orbit.Tests.Models
             Assert.True(co2.Status == SystemStatus.Trouble);
         }
 
+        [Fact]
+        public void TestCopyConstructor()
+        {
+            CarbonDioxideRemediation co2 = new CarbonDioxideRemediation();
+            co2.SeedData();
+            CarbonDioxideRemediation newco2 = new CarbonDioxideRemediation(co2);
+            Assert.True(co2.AbsorbingBed == newco2.AbsorbingBed);
+        }
+
+        [Fact]
+        public void TestGenerateNewCo2Level()
+        {
+            CarbonDioxideRemediation co2 = new CarbonDioxideRemediation();
+            co2.SeedData();
+            CarbonDioxideRemediation newco2 = new CarbonDioxideRemediation(co2);
+            Assert.False(co2.Co2Level == newco2.Co2Level);
+        }
+
+        [Fact]
+        public void TestGenerateBed2RegeneratingTemp()
+        {
+            CarbonDioxideRemediation co2 = new CarbonDioxideRemediation();
+            co2.SeedData();
+            co2.Status = SystemStatus.Processing;
+            co2.FanOn = true;
+            CarbonDioxideRemediation newco2 = new CarbonDioxideRemediation(co2);
+            Assert.True(newco2.Bed2Temperature > 119);
+        }
+
+        [Fact]
+        public void TestGenerateBed1RegeneratingTemp()
+        {
+            CarbonDioxideRemediation co2 = new CarbonDioxideRemediation();
+            co2.SeedData();
+            co2.Status = SystemStatus.Processing;
+            co2.FanOn = true;
+            CarbonDioxideRemediation newco2 = new CarbonDioxideRemediation(co2);
+            Assert.False(co2.Bed1Temperature > 119);
+        }
+
+        [Fact]
+        public void TestStandbyBed1Temp()
+        {
+            CarbonDioxideRemediation co2 = new CarbonDioxideRemediation();
+            co2.SeedData();
+            CarbonDioxideRemediation newco2 = new CarbonDioxideRemediation(co2);
+            Assert.True(co2.Bed1Temperature < 33);
+        }
 
 
     }
