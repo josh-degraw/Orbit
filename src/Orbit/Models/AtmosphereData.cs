@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Orbit.Models
 {
-    public class AtmosphereData : IAlertableModel
+    public class AtmosphereData : IAlertableModel, IEquatable<AtmosphereData>
     {
         #region Limits
         //values in decibels
@@ -15,7 +15,7 @@ namespace Orbit.Models
 
         // values are percentages
         private const double cabinHumidityLevelLowerLimit = 30;
-        private const double cabinHumidityLevelTolerance = 10;
+        private const double cabinHumidityLevelTolerance = 5;
         private const double cabinHumidityLevelUpperLimit = 80;
 
         // values in psia
@@ -25,7 +25,7 @@ namespace Orbit.Models
 
         // degrees Celsius
         private const int cabinTemperatureCrewedLowerLimit = 17;
-        private const int cabinTemperatureTolerance = 3;
+        private const double cabinTemperatureTolerance = 2;
 
         private const int cabinTemperatureUncrewedLowerLimit = 4;
         private const int cabinTemperatureUpperLimit = 30;
@@ -144,7 +144,7 @@ namespace Orbit.Models
 
         public AtmosphereData(AtmosphereData other)
         {
-            ReportDateTime = other.ReportDateTime;
+            ReportDateTime = DateTimeOffset.Now;
             CabinStatus = other.CabinStatus;
             AmbientNoiseLevel = other.AmbientNoiseLevel;
             HumidityLevel = other.HumidityLevel;
@@ -160,19 +160,38 @@ namespace Orbit.Models
             SeperatorSpeed = other.SeperatorSpeed;
             SeperatorFull = other.SeperatorFull;
             TempControlBafflePosition = other.TempControlBafflePosition;
+
+            GenerateData();
         }
 
         #endregion Constructors
 
         #region Methods
 
+        public void SeedData()
+        {
+            ReportDateTime = DateTimeOffset.Now;
+            CabinStatus = Modes.Uncrewed;
+            HumidityLevel = 40;
+            HumiditySetLevel = 40;
+            Temperature = 19;
+            SetTemperatureDay = 19;
+            SetTemperatureNight = 17;
+            ReprocessBafflePosition = DiverterValvePositions.Accept;
+            FanSpeed = 40;
+            LiquidInOutflow = false;
+            Pressure = 14;
+            SetPressure = 14;
+            SeperatorSpeed = 0;
+            SeperatorFull = false;
+            TempControlBafflePosition = 60;
+        }
+
         public void ProcessData()
         {
-            GenerateData();
-
             // too hot or humid
             if (Temperature > (SetTemperatureDay + tempControlIncrement)
-                || HumidityLevel > HumiditySetLevel) 
+                || HumidityLevel > (HumiditySetLevel + cabinHumidityLevelTolerance)) 
             {
                 DecreaseTemperature();
             }
@@ -181,7 +200,7 @@ namespace Orbit.Models
             if (CabinStatus == Modes.Crewed)
             {
                 if(Temperature < (SetTemperatureDay - tempControlIncrement)
-                    || HumidityLevel < HumiditySetLevel) 
+                    || (HumidityLevel < (HumiditySetLevel - cabinHumidityLevelTolerance)))
                 {
                     IncreaseTemperature();
                 }
@@ -189,7 +208,7 @@ namespace Orbit.Models
             else if (CabinStatus == Modes.Uncrewed)
             {
                 if(Temperature < (cabinTemperatureUncrewedLowerLimit - tempControlIncrement)
-                    || HumidityLevel < HumiditySetLevel)
+                    || (HumidityLevel < (HumiditySetLevel - cabinHumidityLevelTolerance)) )
                 {
                     IncreaseTemperature();
                 }
@@ -210,7 +229,7 @@ namespace Orbit.Models
             // open baffle to allow more air across cooling condensor
             if (TempControlBafflePosition < 100)
             {
-                TempControlBafflePosition++;
+                TempControlBafflePosition ++;
             }
             else
             {
@@ -234,13 +253,25 @@ namespace Orbit.Models
         private void GenerateData()
         {
             Random rand = new Random();
-            Temperature = rand.Next(150, 320) / 10.0;
-            HumidityLevel = rand.Next(10, 80);
-            Pressure = rand.Next(50, 110);
-            AmbientNoiseLevel = rand.Next(0, 72);
-            SeperatorSpeed = rand.Next(1000, 3000);
 
-            if(rand.Next(0, 100) % 7 == 0)
+            if(CabinStatus == Modes.Uncrewed)
+            {
+                Temperature = rand.Next(5, 100) / 10.0;
+                AmbientNoiseLevel = rand.Next(0, 40);
+                HumidityLevel = rand.Next(20, 40);
+                Pressure = rand.Next(30, 80);
+                SeperatorSpeed = 0;
+            }
+            else
+            {
+                Temperature = rand.Next(150, 300) / 10.0;
+                HumidityLevel = rand.Next(30, 80);
+                Pressure = rand.Next(80, 110);
+                AmbientNoiseLevel = rand.Next(20, 72);
+                SeperatorSpeed = rand.Next(1000, 3000);
+            }
+
+            if (rand.Next(0, 100) % 7 == 0)
             {
                 LiquidInOutflow = true;
             }

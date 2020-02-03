@@ -63,17 +63,6 @@ namespace Orbit.Tests.Models
         }
 
         [Fact]
-        public void TestBubbleSensorTrue()
-        {
-            OxygenGenerator o2 = new OxygenGenerator();
-            o2.SeedData();
-            o2.Status = SystemStatus.Processing;
-            o2.InflowBubblesPresent = true;
-            o2.ProcessData();
-            Assert.True(o2.DiverterValvePosition == DiverterValvePositions.Reprocess);
-        }
-
-        [Fact]
         public void TestDecreaseActiveCells()
         {
             OxygenGenerator o2 = new OxygenGenerator();
@@ -83,6 +72,17 @@ namespace Orbit.Tests.Models
             o2.OxygenLevel = 22;
             o2.ProcessData();
             Assert.True(o2.NumActiveCells == 2);
+        }
+
+        [Fact]
+        public void TestBubbleSensorTrue()
+        {
+            OxygenGenerator o2 = new OxygenGenerator();
+            o2.SeedData();
+            o2.Status = SystemStatus.Processing;
+            o2.InflowBubblesPresent = true;
+            o2.ProcessData();
+            Assert.True(o2.DiverterValvePosition == DiverterValvePositions.Reprocess);
         }
 
         [Fact]
@@ -177,5 +177,22 @@ namespace Orbit.Tests.Models
             o2.ProcessData();
             Assert.True(o2.Status == SystemStatus.Trouble);
         }
+
+        [Fact]
+        public void TestOxygenLevelGeneration()
+        {
+            OxygenGenerator o2 = new OxygenGenerator();
+            OxygenGenerator new02 = new OxygenGenerator(o2);
+            Assert.False(o2.OxygenLevel == new02.OxygenLevel);
+        }
+
+        [Fact]
+        public void TestCopyConstructor()
+        {
+            OxygenGenerator o2 = new OxygenGenerator();
+            OxygenGenerator new02 = new OxygenGenerator(o2);
+            Assert.True(o2.OxygenSetLevel == new02.OxygenSetLevel);
+        }
+
     }
 }
