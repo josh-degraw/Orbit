@@ -135,6 +135,7 @@ namespace Orbit.Models
             H2StoreLevel = 20;
             Co2StoreLevel = 25;
         }
+
         public void ProcessData()
         {
             if(Status == SystemStatus.Processing)
@@ -154,7 +155,7 @@ namespace Orbit.Models
                 SimulateStandby();
 
                 // if stores are getting full, change to processing state
-                if ((H2StoreLevel > storeReadyToProcess) && (Co2StoreLevel > storeReadyToProcess))
+                if ((H2StoreLevel > storeReadyToProcess) || (Co2StoreLevel > storeReadyToProcess))
                 {
                     Status = SystemStatus.Processing;
                     lastStatus = Status;
@@ -178,7 +179,7 @@ namespace Orbit.Models
             }
             else
             {
-                SeperatorMotorSpeed = rand.Next(0, seperatorSpeedStandbyMax);
+                SeperatorMotorSpeed = 0;
                 ReactorTemp = rand.Next(16, reactorTempStandbyMax);
             }
         }
@@ -186,14 +187,15 @@ namespace Orbit.Models
         private void SimulateProcessing()
         {
             // check for trouble states
-            if ((ReactorTemp <= reactorTempLowerLimit)
-                || (ReactorTemp >= reactorTempUpperLimit)
+            if ((ReactorTemp < reactorTempLowerLimit)
+                || (ReactorTemp > reactorTempUpperLimit)
                 || (!SeperatorOn)
                 || (!PumpOn)
                 || (MethaneStoreLevel >= storeFull)
-                || (HeaterOn && (ReactorTemp < reactorTempLowerLimit))
-                || (SeperatorMotorSpeed >= seperatorSpeedUpperLimit)
-                || (SeperatorMotorSpeed <= seperatorSpeedLowerLimit))
+                || (!HeaterOn && (ReactorTemp < reactorTempLowerLimit))
+                || (HeaterOn && (ReactorTemp > reactorTempUpperLimit))
+                || (SeperatorMotorSpeed > seperatorSpeedUpperLimit)
+                || (SeperatorMotorSpeed < seperatorSpeedLowerLimit))
             {
                 Trouble();
             }
@@ -232,7 +234,7 @@ namespace Orbit.Models
         private void SimulateStandby()
         {
             // check for trouble states
-            if ((ReactorTemp > (reactorTempLowerLimit - reactorTempTolerance))
+            if ((ReactorTemp > reactorTempStandbyMax)
                 || SeperatorOn
                 || PumpOn
                 || HeaterOn
