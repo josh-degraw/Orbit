@@ -100,6 +100,7 @@ namespace Orbit.Models
 
         public WaterGeneratorData(WaterGeneratorData other)
         {
+            ReportDateTime = DateTimeOffset.Now;
             Status = other.Status;
             SeperatorOn = other.SeperatorOn;
             SeperatorMotorSpeed = other.SeperatorMotorSpeed;
@@ -111,16 +112,32 @@ namespace Orbit.Models
             MethaneStoreLevel = other.MethaneStoreLevel;
             H2StoreLevel = other.H2StoreLevel;
             Co2StoreLevel = other.Co2StoreLevel;
+
+            GenerateData();
         }
 
         #endregion Constructors
 
         #region Methods
 
+        public void SeedData()
+        {
+            ReportDateTime = DateTimeOffset.Now;
+            Status = SystemStatus.Standby;
+            SeperatorOn = false;
+            SeperatorMotorSpeed = 0;
+            SeperatorMotorSetSpeed = 2000;
+            HeaterOn = false;
+            ReactorTemp = 18;
+            ReactorSetTemp = 500;
+            PumpOn = false;
+            MethaneStoreLevel = 30;
+            H2StoreLevel = 20;
+            Co2StoreLevel = 25;
+        }
+
         public void ProcessData()
         {
-            GenerateData();
-
             if(Status == SystemStatus.Processing)
             {
                 SimulateProcessing();
@@ -138,7 +155,7 @@ namespace Orbit.Models
                 SimulateStandby();
 
                 // if stores are getting full, change to processing state
-                if ((H2StoreLevel > storeReadyToProcess) && (Co2StoreLevel > storeReadyToProcess))
+                if ((H2StoreLevel > storeReadyToProcess) || (Co2StoreLevel > storeReadyToProcess))
                 {
                     Status = SystemStatus.Processing;
                     lastStatus = Status;
@@ -162,7 +179,7 @@ namespace Orbit.Models
             }
             else
             {
-                SeperatorMotorSpeed = rand.Next(0, seperatorSpeedStandbyMax);
+                SeperatorMotorSpeed = 0;
                 ReactorTemp = rand.Next(16, reactorTempStandbyMax);
             }
         }
@@ -170,14 +187,15 @@ namespace Orbit.Models
         private void SimulateProcessing()
         {
             // check for trouble states
-            if ((ReactorTemp <= reactorTempLowerLimit)
-                || (ReactorTemp >= reactorTempUpperLimit)
+            if ((ReactorTemp < reactorTempLowerLimit)
+                || (ReactorTemp > reactorTempUpperLimit)
                 || (!SeperatorOn)
                 || (!PumpOn)
                 || (MethaneStoreLevel >= storeFull)
-                || (HeaterOn && (ReactorTemp < reactorTempLowerLimit))
-                || (SeperatorMotorSpeed >= seperatorSpeedUpperLimit)
-                || (SeperatorMotorSpeed <= seperatorSpeedLowerLimit))
+                || (!HeaterOn && (ReactorTemp < reactorTempLowerLimit))
+                || (HeaterOn && (ReactorTemp > reactorTempUpperLimit))
+                || (SeperatorMotorSpeed > seperatorSpeedUpperLimit)
+                || (SeperatorMotorSpeed < seperatorSpeedLowerLimit))
             {
                 Trouble();
             }
@@ -190,7 +208,7 @@ namespace Orbit.Models
             }
             else
             {
-                H2StoreLevel = storeEmpty;
+                H2StoreLevel = 0;
             }
             
             if (Co2StoreLevel >= (storeEmpty + Co2FillValue))
@@ -199,7 +217,7 @@ namespace Orbit.Models
             }
             else
             {
-                Co2StoreLevel = storeEmpty;
+                Co2StoreLevel = 0;
             }
 
             // simulate methane fill and venting
@@ -209,14 +227,14 @@ namespace Orbit.Models
             }
             else
             {
-                MethaneStoreLevel = storeEmpty;
+                MethaneStoreLevel = 0;
             }
         }
 
         private void SimulateStandby()
         {
             // check for trouble states
-            if ((ReactorTemp > (reactorTempLowerLimit - reactorTempTolerance))
+            if ((ReactorTemp > reactorTempStandbyMax)
                 || SeperatorOn
                 || PumpOn
                 || HeaterOn
@@ -233,7 +251,7 @@ namespace Orbit.Models
             }
             else
             {
-                H2StoreLevel = storeEmpty;
+                H2StoreLevel = storeFull;
             }
             if (Co2StoreLevel < storeFull)
             {
@@ -241,7 +259,7 @@ namespace Orbit.Models
             }
             else
             {
-                Co2StoreLevel = storeEmpty;
+                Co2StoreLevel = storeFull;
             }
         }
 
