@@ -104,23 +104,38 @@ namespace Orbit.Models
             NumActiveCells = other.NumActiveCells;
             SystemOutput = other.SystemOutput;
             OxygenSetLevel = other.OxygenSetLevel;
-            OxygenLevel = other.OxygenLevel;
             lastWorkingStatus = other.lastWorkingStatus;
+
+            GenerateData();
         }
 
         #endregion Constructors
 
         #region Methods
 
+        public void SeedData()
+        {
+            Status = SystemStatus.Standby;
+            Mode = Modes.Crewed;
+            InflowBubblesPresent = false;
+            DiverterValvePosition = DiverterValvePositions.Accept;
+            HydrogenSensor = false;
+            SeparatorOn = false;
+            RecirculationPumpOn = false;
+            NumActiveCells = 0;
+            SystemOutput = 0;
+            OxygenSetLevel = 20;
+            OxygenLevel = 15;
+            lastWorkingStatus = SystemStatus.Standby;
+        }
+
         public void ProcessData() 
         {
-            GenerateData();
-
-            if (Status.Equals(SystemStatus.Processing))
+            if (Status == SystemStatus.Processing)
             {
                 SimulateProcessing();
             }
-            else if (Status.Equals(SystemStatus.Standby))
+            else if (Status == SystemStatus.Standby)
             {
                 SimulateStandby();
             }
@@ -139,8 +154,11 @@ namespace Orbit.Models
 
         private void SimulateProcessing()
         {
-            SeparatorOn = true;
-            RecirculationPumpOn = true;
+            // system cannot work if any of these components fail (simulated by an 'off' state)
+            if (HydrogenSensor || !SeparatorOn || !RecirculationPumpOn)
+            {
+                Status = SystemStatus.Trouble;
+            }
 
             if (OxygenLevel < OxygenSetLevel)
             {
@@ -152,28 +170,21 @@ namespace Orbit.Models
             }
 
             // if there are bubbles in replenishment water, reject it to avoid unwanted gasses in H2 flow downstream
-            DiverterValvePosition = InflowBubbleSensor();
-
-            // system cannot work if any of these components fail (simulated by an 'off' state)
-            if (HydrogenSensor || !SeparatorOn || !RecirculationPumpOn)
-            {
-                Status = SystemStatus.Trouble;
-            }
+            InflowBubbleSensor();
         }
 
         private void SimulateStandby()
         {
-            SeparatorOn = false;
-            RecirculationPumpOn = false;
-            NumActiveCells = 0;
-
             if (OxygenLevel < OxygenSetLevel)
             {
                 Status = SystemStatus.Processing;
                 lastWorkingStatus = Status;
+                SeparatorOn = true;
+                RecirculationPumpOn = true;
             }
+
             // all components shoud be off while in 'Standby', else there is a system fault
-            if ( SeparatorOn || RecirculationPumpOn)
+            if (SeparatorOn || RecirculationPumpOn)
             {
                 Status = SystemStatus.Trouble;
             }
@@ -192,33 +203,36 @@ namespace Orbit.Models
             }
         }
 
-        private void GenerateData()
+        public void GenerateData()
         {
             Random rand = new Random();
             OxygenLevel = rand.Next(OxygenSetLevel - oxygenLevelTolerance, OxygenSetLevel + oxygenLevelTolerance);
             
-            // trigger hydrogen sensor on occasion
-            if(rand.Next(0, 100) % 9 == 0)
+            if(Status == SystemStatus.Processing)
             {
-                HydrogenSensor = true;
-            }
-            else
-            {
-                HydrogenSensor = false;
-            }
+                // trigger hydrogen sensor on occasion
+                if (rand.Next(0, 100) == 9)
+                {
+                    HydrogenSensor = true;
+                }
+                else
+                {
+                    HydrogenSensor = false;
+                }
 
-            // trigger bubble sensor on occasion
-            if(rand.Next(0, 100) % 7 == 0)
-            {
-                InflowBubblesPresent = true; 
-            }
-            else
-            {
-                InflowBubblesPresent = false;
+                // trigger bubble sensor on occasion
+                if (rand.Next(0, 10) == 7)
+                {
+                    InflowBubblesPresent = true;
+                }
+                else
+                {
+                    InflowBubblesPresent = false;
+                }
             }
         }
 
-        private void IncreaseActiveCells()
+        public void IncreaseActiveCells()
         {
             // increase number of cells making oxygen, if more are available
             if (NumActiveCells < totalNumOfCells)
@@ -231,36 +245,40 @@ namespace Orbit.Models
             }
         }
 
-        private void DecreaseActiveCells()
+        public void DecreaseActiveCells()
         {
-            // decrease number of cells making oxygen, go to 'Standby' if last cell is 'turned off'
-            if (NumActiveCells > 0)
+            // decrease number of cells making oxygen
+            if (NumActiveCells > 1)
             {
                 NumActiveCells--;
             }
+            // go to 'Standby' if last cell is 'turned off'
             else
             {
+                NumActiveCells = 0;
                 Status = SystemStatus.Standby;
                 lastWorkingStatus = Status;
+                SeparatorOn = false;
+                RecirculationPumpOn = false;
             }
         }
 
-        private DiverterValvePositions InflowBubbleSensor()
+        private void InflowBubbleSensor()
         {
             if (InflowBubblesPresent)
             {
-                return DiverterValvePositions.Reprocess;
+                DiverterValvePosition = DiverterValvePositions.Reprocess;
             }
             else
             {
-                return DiverterValvePositions.Accept;
+                DiverterValvePosition = DiverterValvePositions.Accept;
             }
         }
 
         private int SimulateOutput()
         {
             return NumActiveCells * cellOutputLiters;
-        }
+        }                                                                             
 
         #endregion Private Methods
 
