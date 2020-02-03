@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace Orbit.Models
 {
-    public class AtmosphereData : IAlertableModel
+    public class AtmosphereData : IAlertableModel, IEquatable<AtmosphereData>
     {
         #region Limits
         //values in decibels
