@@ -121,17 +121,29 @@ namespace Orbit.Models
             // for creating rudimentory sun/eclipse cycles
             inEclipse = other.inEclipse;
             eclipseCount = other.eclipseCount;
+
+            GenerateData();
         }
 
         #endregion Constructors
 
-
         #region Public Methods
+
+        public void SeedData()
+        {
+            Status = SystemStatus.On;
+            ShuntStatus = PowerShuntState.Charge;
+            SolarArrayRotation = 0;
+            SolarRotationIncreasing = true;
+            SolarArrayVoltage = 172;
+            SolarDeployed = true;
+            BatteryTemperature = 8;
+            BatteryChargeLevel = 85;
+            BatteryVoltage = 126;
+        }
 
         public void ProcessData()
         {
-            GenerateData();
-
             if ((BatteryTemperature >= batteryTemperatureUpperLimit)
                 || (BatteryTemperature <= batteryTemperatureLowerLimit))
             {
@@ -154,7 +166,6 @@ namespace Orbit.Models
 
         #endregion Public Methods
 
-
         #region Private Methods
 
         private void GenerateData()
@@ -165,7 +176,7 @@ namespace Orbit.Models
             if(eclipseCount >= eclipseLength)
             {
                 inEclipse = !inEclipse;
-                eclipseCount = 0;
+                eclipseCount = 0;                                                                                                    
             }
             else
             {
@@ -178,7 +189,7 @@ namespace Orbit.Models
                 SolarArrayVoltage = 0;
             }
             // simulatse station behind Earth or Moon, so no sunlight on solar panels
-            else  if(inEclipse)
+            else if(!inEclipse)
             {
                 SolarArrayVoltage = rand.Next(minOutputToCharge, solarVoltageUpperLimit);
             }
@@ -210,11 +221,9 @@ namespace Orbit.Models
                 BatteryChargeLevel = 0;
             }
         }
-
         private void SimulateCharge()
         {
-            if((SolarArrayVoltage > solarVoltageUpperLimit)
-                || (SolarArrayVoltage < minOutputToCharge))
+            if(SolarArrayVoltage > solarVoltageUpperLimit)
             {
                 Trouble();
             }
