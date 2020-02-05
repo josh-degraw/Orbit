@@ -68,5 +68,14 @@ namespace Orbit.Properties {
                 return ResourceManager.GetString("ERR_NO_DATA_RETRIEVED", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to No RangeAttribute found on property &apos;{0}&apos;..
+        /// </summary>
+        internal static string Error_RangedPropertyAttributeNotFound {
+            get {
+                return ResourceManager.GetString("Error_RangedPropertyAttributeNotFound", resourceCulture);
+            }
+        }
     }
 }
