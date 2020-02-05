@@ -117,6 +117,10 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="Error_RangedPropertyAttributeNotFound" xml:space="preserve">
+    <value>No RangeAttribute found on property '{0}'.</value>
+    <comment>In order to infer the range of a property, it must have a valid RangeAttribute applied.</comment>
+  </data>
   <data name="ERR_NO_DATA_RETRIEVED" xml:space="preserve">
     <value>No data retrieved</value>
   </data>

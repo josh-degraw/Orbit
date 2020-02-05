@@ -1,5 +1,5 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace Orbit.Models
 {
@@ -15,12 +15,13 @@ namespace Orbit.Models
         }
 
         public string PropertyName { get; }
+
         public string Message { get; }
 
         public AlertLevel AlertLevel { get; }
 
         /// <summary>
-        /// Optionally specify additional data via key-value pairs.
+        ///   Optionally specify additional data via key-value pairs.
         /// </summary>
         public IDictionary<string, object> Data { get; } = new Dictionary<string, object>();
 
