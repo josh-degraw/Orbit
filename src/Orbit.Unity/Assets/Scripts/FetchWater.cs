@@ -10,12 +10,11 @@ using Orbit.Models;
 
 public class FetchWater : MonoBehaviour
 {
-    Text textComponent;
+    public Text textComponent;
 
     // Start is called before the first frame update
     void Start()
     {
-        this.textComponent = GetComponent<Text>();
         InvokeRepeating(nameof(HandleUpdate), 0, 2f);
     }
 
