@@ -18,7 +18,7 @@ namespace Orbit
     /// <summary>
     /// Indicates a component that is able to generate snapshot alerts of its values.
     /// </summary>
-    internal interface IAlertableModel : IModel
+    public interface IAlertableModel : IModel
     {
         IEnumerable<Alert> GenerateAlerts();
     }
