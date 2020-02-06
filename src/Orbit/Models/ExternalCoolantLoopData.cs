@@ -143,6 +143,8 @@ namespace Orbit.Models
         
         public void ProcessData()
         {
+            trouble = false;
+
             if((Status == SystemStatus.On) || (Status == SystemStatus.Processing))
             {
                 // pump failure (loss of pump motor rotation, regardless of line pressure) 
@@ -174,7 +176,7 @@ namespace Orbit.Models
                 // simulate radiator rotation
                 RotateRadiator();
             }
-            else
+            else if((Status == SystemStatus.Ready) || (Status == SystemStatus.Standby))
             {
                 if(PumpAOn || PumpBOn)
                 {
@@ -188,7 +190,7 @@ namespace Orbit.Models
             }
             else
             {
-                Status = lastWorkingStatus;
+                Status = SystemStatus.On;
             }
         }
 
@@ -309,11 +311,14 @@ namespace Orbit.Models
             }
             else
             {
-                // assumes radiator returns to 'neutral' state when retracted
+                // assumes radiator returns to a 'neutral' state when retracted
                 RadiatorRotation = 0;
             }
         }
 
+        /// <summary>
+        /// Toggles a flag to change the staus to 'trouble' if there is some kind of trouble with the system
+        /// </summary>
         private void Trouble()
         {
             if (!trouble)
