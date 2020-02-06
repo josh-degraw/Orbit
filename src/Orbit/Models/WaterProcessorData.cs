@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using Orbit.Annotations;
 
 namespace Orbit.Models
 {
@@ -55,6 +56,7 @@ namespace Orbit.Models
         /// reactor Nominal is 130.5
         /// </summary>
         [Range(32, 150)]
+        [IdealValue(130.5)]
         public double PostHeaterTemp { get; set; }
 
         /// <summary>
