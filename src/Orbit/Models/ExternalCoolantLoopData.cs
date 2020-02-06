@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Orbit.Annotations;
+
 using System.Linq;
 
 namespace Orbit.Models
@@ -13,12 +15,12 @@ namespace Orbit.Models
         private const int radiatorRotationLowerLimit = -215;
         private const int radiatorRotationTolerance = 10;
 
-        private const int fluidPressureUpperLimit = 480;
-        private const int fluidPressureLowerLimit = 170;
-        private const int fluidPressureTolerance = 30;
+        private const int fluidPressureUpperLimit = 3309;
+        private const int fluidPressureLowerLimit = 345;
+        private const int fluidPressureTolerance = 827;
 
-        private const double outputFluidTemperatueUpperLimit = 19;
-        private const double outputFluidTemperatureLowerLimit = 1;
+        private const double outputFluidTemperatueUpperLimit = 8.1;
+        private const double outputFluidTemperatureLowerLimit = 1.6;
         private const double outputFluidTemperatureTolerance = 2;
 
         private int mixValveUpperLimit = 100;
@@ -46,6 +48,8 @@ namespace Orbit.Models
         /// position in degrees from neutral point.
         /// </summary>
         [Range(-215, 215)]
+        [IdealRange(-205, 205)]
+        [UnitType("deg.")]
         public int RadiatorRotation { get; set; }
 
         /// <summary>
@@ -63,18 +67,25 @@ namespace Orbit.Models
         /// returning from radiator. Acts like a shower temp valve. 0 = all 'hot', 100 = all 'cold'
         /// </summary>
         [Range(0, 100)]
+        [UnitType("%")]
         public int MixValvePosition { get; set; }
 
         /// <summary>
         /// pressure of fluid in loop A
         /// </summary>
-        [Range(0, 600)]
+        [Range(345, 3309)]
+        [IdealRange(1172, 2482)]
+        [IdealValue(2068)]
+        [UnitType("kpa")]
         public int LineAPressure { get; set; }
 
         /// <summary>
         /// pressure of fluid in loop B
         /// </summary>
-        [Range(0, 600)]
+        [Range(345, 3309)]
+        [IdealRange(1172, 2482)]
+        [IdealValue(2068)]
+        [UnitType("kpa")]
         public int LineBPressure { get; set; }
 
         /// <summary>
@@ -91,12 +102,16 @@ namespace Orbit.Models
         /// <summary>
         /// temperature of fluid returning from radiator flow control valve to internal/external heat exchanger
         /// </summary>
-        [Range(0, 20)]
+        [Range(1.6, 8.1)]
+        [IdealRange(2.2, 6.1)]
+        [UnitType("C")]
         public double OutputFluidTemperature { get; set; }
 
         /// <summary>
         /// goal output fluid temperature
         /// </summary>
+        [Range(2.2, 6.1)]
+        [UnitType("C")]
         public double SetTemperature { get; set; }
 
         #endregion Public Properties
@@ -133,12 +148,12 @@ namespace Orbit.Models
             PumpAOn = true;
             PumpBOn = true;
             MixValvePosition = 25;
-            LineAPressure = 415;
-            LineBPressure = 395;
+            LineAPressure = 2050;
+            LineBPressure = 2060;
             LineHeaterOn = false;
             RadiatorDeployed = true;
-            OutputFluidTemperature = 4;
-            SetTemperature = 4;
+            OutputFluidTemperature = 2.8;
+            SetTemperature = 2.8;
         }
         
         public void ProcessData()
@@ -200,7 +215,7 @@ namespace Orbit.Models
 
             LineAPressure = rand.Next(0, 600);
             LineBPressure = rand.Next(100, 600);
-            OutputFluidTemperature = rand.Next(-600, 800) / 10.0;
+            OutputFluidTemperature = rand.Next(10, 200) / 10.0;
 
             if (rand.Next(0, 10) == 5)
             {
@@ -273,6 +288,8 @@ namespace Orbit.Models
                 Trouble();
             }
             else if ((LineAPressure > fluidPressureUpperLimit - fluidPressureTolerance)
+                || (LineBPressure > fluidPressureUpperLimit - fluidPressureTolerance)
+                || (LineAPressure < fluidPressureLowerLimit + fluidPressureTolerance)
                 || (LineBPressure < fluidPressureLowerLimit + fluidPressureTolerance))
             {
                 Trouble();
