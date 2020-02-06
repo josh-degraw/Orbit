@@ -72,7 +72,7 @@ namespace Orbit.Tests.Models
         {
             ExternalCoolantLoopData ec = new ExternalCoolantLoopData();
             ec.SeedData();
-            ec.LineAPressure = 481;
+            ec.LineAPressure = 3310;
             ec.ProcessData();
             Assert.False(ec.PumpAOn);
         }
@@ -82,7 +82,7 @@ namespace Orbit.Tests.Models
         {
             ExternalCoolantLoopData ec = new ExternalCoolantLoopData();
             ec.SeedData();
-            ec.LineBPressure = 481;
+            ec.LineBPressure = 3311;
             ec.ProcessData();
             Assert.False(ec.PumpBOn);
         }
@@ -92,7 +92,7 @@ namespace Orbit.Tests.Models
         {
             ExternalCoolantLoopData ec = new ExternalCoolantLoopData();
             ec.SeedData();
-            ec.LineAPressure = 481;
+            ec.LineAPressure = 2861;
             ec.ProcessData();
             Assert.True(ec.Status == SystemStatus.Trouble);
         }
@@ -102,7 +102,7 @@ namespace Orbit.Tests.Models
         {
             ExternalCoolantLoopData ec = new ExternalCoolantLoopData();
             ec.SeedData();
-            ec.LineBPressure = 481;
+            ec.LineBPressure = 2862;
             ec.ProcessData();
             Assert.True(ec.Status == SystemStatus.Trouble);
         }
