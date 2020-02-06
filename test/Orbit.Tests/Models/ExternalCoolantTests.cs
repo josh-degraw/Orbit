@@ -97,7 +97,65 @@ namespace Orbit.Tests.Models
             Assert.True(ec.Status == SystemStatus.Trouble);
         }
 
+        [Fact]
+        public void Test_LineBPressure_High()
+        {
+            ExternalCoolantLoopData ec = new ExternalCoolantLoopData();
+            ec.SeedData();
+            ec.LineBPressure = 481;
+            ec.ProcessData();
+            Assert.True(ec.Status == SystemStatus.Trouble);
+        }
 
+        [Fact]
+        public void Test_Increase_Radiator_Rotation()
+        {
+            ExternalCoolantLoopData ec = new ExternalCoolantLoopData();
+            ec.SeedData();
+            ec.ProcessData();
+            Assert.True(ec.RadiatorRotation == 1);
+        }
 
+        [Fact]
+        public void Test_Change_Radiator_Rotation_Direction()
+        {
+            ExternalCoolantLoopData ec = new ExternalCoolantLoopData();
+            ec.SeedData();
+            ec.RadiatorRotation = 205;
+            ec.ProcessData();
+            Assert.False(ec.radiatorRotationIncreasing);
+        }
+
+        [Fact]
+        public void Test_Decrease_Radiator_Rotation()
+        {
+            ExternalCoolantLoopData ec = new ExternalCoolantLoopData();
+            ec.SeedData();
+            ec.radiatorRotationIncreasing = false;
+            ec.ProcessData();
+            Assert.True(ec.RadiatorRotation == -1);
+        }
+
+        [Fact]
+        public void Test_Radiator_Rotation_Not_Deployed()
+        {
+            ExternalCoolantLoopData ec = new ExternalCoolantLoopData();
+            ec.SeedData();
+            ec.RadiatorDeployed = false;
+            ec.RadiatorRotation = 11;
+            ec.ProcessData();
+            Assert.True(ec.RadiatorRotation == 0);
+        }
+
+        [Fact]
+        public void Test_Change_Status_From_Trouble_To_On()
+        {
+            ExternalCoolantLoopData ec = new ExternalCoolantLoopData();
+            ec.SeedData();
+            ec.Status = SystemStatus.Trouble;
+            ec.ProcessData();
+            Assert.True(ec.Status == SystemStatus.On);
+
+        }
     }
 }
