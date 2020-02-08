@@ -6,7 +6,7 @@ namespace Orbit.Models
     {
         private readonly Dictionary<string, object> _data = new Dictionary<string, object>();
 
-        internal Alert(string propertyName, string message, AlertLevel level, PropertyMetadata? information = null, object? currentValue = default)
+        internal Alert(string propertyName, string message, AlertLevel level, PropertyMetadata? information = null, object? currentValue = null)
         {
             this.PropertyName = propertyName;
             this.Message = message;
