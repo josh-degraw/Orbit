@@ -29,6 +29,6 @@ namespace Orbit.Annotations
         /// <summary>
         ///   The ideal value for the property.
         /// </summary>
-        public object IdealValue { get; }
+        public double IdealValue { get; }
     }
 }

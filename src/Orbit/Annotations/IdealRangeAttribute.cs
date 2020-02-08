@@ -44,12 +44,12 @@ namespace Orbit.Annotations
         /// <summary>
         ///   The ideal minimum value (inclusive) for the property.
         /// </summary>
-        public object IdealMinimum { get; }
+        public double IdealMinimum { get; }
 
         /// <summary>
         ///   The ideal maximum value (inclusive) for the property.
         /// </summary>
-        public object IdealMaximum { get; }
+        public double IdealMaximum { get; }
     }
 
 
