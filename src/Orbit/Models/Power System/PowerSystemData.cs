@@ -269,15 +269,15 @@ namespace Orbit.Models
         {
             if(SolarArrayVoltage > solarVoltageUpperLimit)
             {
-                yield return new Alert(nameof(SolarArrayVoltage), "Voltage is above limit", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.SolarArrayVoltage, "Voltage is above limit", AlertLevel.HighError);
             }
             else if(SolarArrayVoltage >= (solarVoltageUpperLimit - solarVoltageTolerance))
             {
-                yield return new Alert(nameof(SolarArrayVoltage), "Voltage output is elevated", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.SolarArrayVoltage, "Voltage output is elevated", AlertLevel.HighWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(SolarArrayVoltage));
+                yield return this.CreateAlert(a => a.SolarArrayVoltage);
             }
         }
 
@@ -285,23 +285,23 @@ namespace Orbit.Models
         {
             if(SolarArrayRotation > solarRotationUpperLimit)
             {
-                yield return new Alert(nameof(SolarArrayRotation), "Solar array has exceeded maximum rotation", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.SolarArrayRotation, "Solar array has exceeded maximum rotation", AlertLevel.HighError);
             }
             else if(SolarArrayRotation >= (solarRotationUpperLimit - solarRotationTolerance))
             {
-                yield return new Alert(nameof(SolarArrayRotation), "Solar array rotation is at maximum", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.SolarArrayRotation, "Solar array rotation is at maximum", AlertLevel.HighWarning);
             }
             else if (SolarArrayRotation < solarRotationLowerLimit)
             {
-                yield return new Alert(nameof(SolarArrayRotation), "Solar array has exceeded maximum rotation", AlertLevel.LowError);
+                yield return this.CreateAlert(a => a.SolarArrayRotation, "Solar array has exceeded maximum rotation", AlertLevel.LowError);
             }
             else if (SolarArrayRotation <= (solarRotationLowerLimit - solarRotationTolerance))
             {
-                yield return new Alert(nameof(SolarArrayRotation), "Solar array rotation is at maximum", AlertLevel.LowWarning);
+                yield return this.CreateAlert(a => a.SolarArrayRotation, "Solar array rotation is at maximum", AlertLevel.LowWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(SolarArrayRotation));
+                yield return this.CreateAlert(a => a.SolarArrayRotation);
             }
         }
 
@@ -309,19 +309,19 @@ namespace Orbit.Models
         {
             if(BatteryChargeLevel > batteryChargeLevelUpperLimit)
             {
-                yield return new Alert(nameof(BatteryChargeLevel), "Battery charge has exceeded maximum", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.BatteryChargeLevel, "Battery charge has exceeded maximum", AlertLevel.HighError);
             }
             else if(BatteryChargeLevel <= (batteryChargeLevelLowerLimit + batteryChargeLevelTolerance))
             {
-                yield return new Alert(nameof(BatteryChargeLevel), "Battery charge is approaching minimum", AlertLevel.LowWarning);
+                yield return this.CreateAlert(a => a.BatteryChargeLevel, "Battery charge is approaching minimum", AlertLevel.LowWarning);
             }
             else if (BatteryChargeLevel < batteryChargeLevelLowerLimit)
             {
-                yield return new Alert(nameof(BatteryChargeLevel), "Battery charge level is below minimum", AlertLevel.LowError);
+                yield return this.CreateAlert(a => a.BatteryChargeLevel, "Battery charge level is below minimum", AlertLevel.LowError);
             }
             else
             {
-                yield return Alert.Safe(nameof(BatteryChargeLevel));
+                yield return this.CreateAlert(a => a.BatteryChargeLevel);
             }
         }
 
@@ -329,23 +329,23 @@ namespace Orbit.Models
         {
             if(BatteryVoltage > batteryVoltageUpperLimit)
             {
-                yield return new Alert(nameof(BatteryVoltage), "Battery voltage has exceeded maximum", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.BatteryVoltage, "Battery voltage has exceeded maximum", AlertLevel.HighError);
             }
             else if(BatteryVoltage >= (batteryVoltageUpperLimit - batteryVoltageTolerance))
             {
-                yield return new Alert(nameof(BatteryVoltage), "Battery voltage is high", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.BatteryVoltage, "Battery voltage is high", AlertLevel.HighWarning);
             }
             else if(BatteryVoltage < batteryVoltageLowerLimit)
             {
-                yield return new Alert(nameof(BatteryVoltage), "Battery voltage is below minimum", AlertLevel.LowError);
+                yield return this.CreateAlert(a => a.BatteryVoltage, "Battery voltage is below minimum", AlertLevel.LowError);
             }
             else if(BatteryVoltage <= (batteryVoltageLowerLimit - batteryVoltageTolerance))
             {
-                yield return new Alert(nameof(BatteryVoltage), "Battery voltage is low", AlertLevel.LowWarning);
+                yield return this.CreateAlert(a => a.BatteryVoltage, "Battery voltage is low", AlertLevel.LowWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(BatteryVoltage));
+                yield return this.CreateAlert(a => a.BatteryVoltage);
             }
         }
 
@@ -353,23 +353,23 @@ namespace Orbit.Models
         {
             if(BatteryTemperature > batteryVoltageUpperLimit)
             {
-                yield return new Alert(nameof(BatteryTemperature), "Battery temperature is above maximum", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.BatteryTemperature, "Battery temperature is above maximum", AlertLevel.HighError);
             }
             else if (BatteryTemperature >= (batteryTemperatureUpperLimit - batteryTemperatureTolerance))
             {
-                yield return new Alert(nameof(BatteryTemperature), "Battery temperature is high", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.BatteryTemperature, "Battery temperature is high", AlertLevel.HighWarning);
             }
             else if (BatteryTemperature < batteryTemperatureLowerLimit)
             {
-                yield return new Alert(nameof(BatteryTemperature), "Battery temperature is below minumum", AlertLevel.LowError);
+                yield return this.CreateAlert(a => a.BatteryTemperature, "Battery temperature is below minumum", AlertLevel.LowError);
             }
             else if(BatteryTemperature <= (batteryTemperatureLowerLimit - batteryTemperatureTolerance))
             {
-                yield return new Alert(nameof(BatteryTemperature), "Battery temperature is low", AlertLevel.LowWarning);
+                yield return this.CreateAlert(a => a.BatteryTemperature, "Battery temperature is low", AlertLevel.LowWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(BatteryTemperature));
+                yield return this.CreateAlert(a => a.BatteryTemperature);
             }
         }
 

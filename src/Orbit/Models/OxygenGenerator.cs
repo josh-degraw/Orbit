@@ -289,11 +289,11 @@ namespace Orbit.Models
             if (HydrogenSensor)
             {
                 Trouble();
-                yield return new Alert(nameof(HydrogenSensor), "Hydrogen detected in outflow", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.HydrogenSensor, "Hydrogen detected in outflow", AlertLevel.HighError);
             }
             else
             {
-                yield return Alert.Safe(nameof(HydrogenSensor));
+                yield return this.CreateAlert(a => a.HydrogenSensor);
             }
         }
 
@@ -304,7 +304,7 @@ namespace Orbit.Models
                 if (!SeparatorOn)
                 {
                     Trouble();
-                    yield return new Alert(nameof(SeparatorOn), "Seperator off while in processing status", AlertLevel.HighError);
+                    yield return this.CreateAlert(a => a.SeparatorOn, "Seperator off while in processing status", AlertLevel.HighError);
                 }
             }
             else if (Status.Equals(SystemStatus.Standby))
@@ -312,12 +312,12 @@ namespace Orbit.Models
                 if (SeparatorOn)
                 {
                     Trouble();
-                    yield return new Alert(nameof(SeparatorOn), "Seperator on while in Standby status", AlertLevel.HighError);
+                    yield return this.CreateAlert(a => a.SeparatorOn, "Seperator on while in Standby status", AlertLevel.HighError);
                 }
             }
             else
             {
-                yield return Alert.Safe(nameof(SeparatorOn));
+                yield return this.CreateAlert(a => a.SeparatorOn);
             }
         }
 
@@ -328,7 +328,7 @@ namespace Orbit.Models
                 if (!RecirculationPumpOn)
                 {
                     Trouble();
-                    yield return new Alert(nameof(RecirculationPumpOn), "Pump is off while in Processing status", AlertLevel.HighError);
+                    yield return this.CreateAlert(a => a.RecirculationPumpOn, "Pump is off while in Processing status", AlertLevel.HighError);
                 }
             }
             else if (Status.Equals(SystemStatus.Standby))
@@ -336,12 +336,12 @@ namespace Orbit.Models
                 if (RecirculationPumpOn)
                 {
                     Trouble();
-                    yield return new Alert(nameof(RecirculationPumpOn), "Pump in on while in Standby status", AlertLevel.HighError);
+                    yield return this.CreateAlert(a => a.RecirculationPumpOn, "Pump in on while in Standby status", AlertLevel.HighError);
                 }
             }
             else
             {
-                yield return Alert.Safe(nameof(RecirculationPumpOn));
+                yield return this.CreateAlert(a => a.RecirculationPumpOn);
             }
         }
 
@@ -350,15 +350,15 @@ namespace Orbit.Models
             // at maximum output and cabin oxygen concentration is still low
             if((NumActiveCells >= totalNumOfCells) && (OxygenLevel < (OxygenSetLevel - oxygenLevelTolerance)))
             {
-                yield return new Alert(nameof(NumActiveCells), "Maximum oxygen production not maintaining set oxygen level", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.NumActiveCells, "Maximum oxygen production not maintaining set oxygen level", AlertLevel.HighError);
             }
             else if(NumActiveCells >= totalNumOfCells && (OxygenLevel <= OxygenSetLevel))
             {
-                yield return new Alert(nameof(NumActiveCells), "All oxygen production cells currently active", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.NumActiveCells, "All oxygen production cells currently active", AlertLevel.HighWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(NumActiveCells));
+                yield return this.CreateAlert(a => a.NumActiveCells);
             }
         }
 

@@ -190,11 +190,11 @@ namespace Orbit.Models
         {
             if (this.FiltersOk)
             {
-                yield return Alert.Safe(nameof(this.FiltersOk));
+                yield return this.CreateAlert(a => a.FiltersOk);
             }
             else
             {
-                yield return new Alert(nameof(this.FiltersOk), "Filters in need of changing", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.FiltersOk, "Filters in need of changing", AlertLevel.HighWarning);
             }
         }
 
@@ -226,11 +226,11 @@ namespace Orbit.Models
         {
             if (this.PostReactorQualityOk)
             {
-                yield return Alert.Safe(nameof(this.PostReactorQualityOk));
+                yield return this.CreateAlert(a => a.PostReactorQualityOk);
             }
             else
             {
-                yield return new Alert(nameof(this.PostReactorQualityOk), "Post reactor water quality is below limit(s). Reprocessing", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.PostReactorQualityOk, "Post reactor water quality is below limit(s). Reprocessing", AlertLevel.HighWarning);
             }
         }
 
@@ -246,12 +246,11 @@ namespace Orbit.Models
 
             if (this.SystemStatus == SystemStatus.Trouble)
             {
-                yield return new Alert(nameof(SystemStatus), "Potential issue in Water processor",
-                    AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.SystemStatus, "Potential issue in Water processor", AlertLevel.HighError);
             }
             else
             {
-                yield return Alert.Safe(nameof(SystemStatus));
+                yield return this.CreateAlert(a => a.SystemStatus);
             }
         }
 

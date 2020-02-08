@@ -21,10 +21,14 @@ namespace Orbit.Models
 
         public AlertLevel AlertLevel { get; }
 
+        /// <summary>
+        ///   Contains additional information about the property that triggered the alert, such as range information and
+        ///   unit type.
+        /// </summary>
         public PropertyMetadata Metadata { get; }
 
         /// <summary>
-        /// The value of the relevant property at the time of the alert.
+        ///   The value of the relevant property at the time of the alert.
         /// </summary>
         public object? CurrentValue { get; }
 
@@ -33,18 +37,27 @@ namespace Orbit.Models
         /// </summary>
         public IReadOnlyDictionary<string, object> Data => _data;
 
-        public static Alert Safe(string propertyName) => new Alert(propertyName, "", AlertLevel.Safe);
-
         public bool IsSafe => this.Message.Length == 0 && this.AlertLevel == AlertLevel.Safe;
 
         public override string ToString() => $"({PropertyName} {AlertLevel}): {Message}";
 
+        /// <summary>
+        ///   Adds the provided <see cref="key"/> and <see cref="value"/> to the <see cref="Data"/> of this <see cref="Alert"/>.
+        /// </summary>
+        /// <param name="key">The key.</param>
+        /// <param name="value">The value.</param>
+        /// <returns>This Alert for method chaining.</returns>
         internal Alert WithData(string key, object value)
         {
             _data.Add(key, value);
             return this;
         }
 
+        /// <summary>
+        ///   Adds the provided KeyValuePairs to the <see cref="Data"/> of this <see cref="Alert"/>.
+        /// </summary>
+        /// <param name="data">A collection of key-value pairs, e.g. an <see cref="IDictionary{TKey, TValue}"/></param>
+        /// <returns>This Alert for method chaining.</returns>
         internal Alert WithData(IEnumerable<KeyValuePair<string, object>> data)
         {
             foreach (var item in data)

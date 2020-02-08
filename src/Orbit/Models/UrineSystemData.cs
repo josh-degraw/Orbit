@@ -251,15 +251,15 @@ namespace Orbit.Models
             // system should start/be processing if wastetank < 95%, else shut down
             if (UrineTankLevel >= urineTankUpperLimit)
             {
-                yield return new Alert(nameof(UrineTankLevel), "Urine tank level is at capacity", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.UrineTankLevel, "Urine tank level is at capacity", AlertLevel.HighError);
             }
             else if (UrineTankLevel >= (urineTankUpperLimit - urineTankLevelTolerance))
             {
-                yield return new Alert(nameof(UrineTankLevel), "Urine tank level is nearing capacity", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.UrineTankLevel, "Urine tank level is nearing capacity", AlertLevel.HighWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(UrineTankLevel));
+                yield return this.CreateAlert(a => a.UrineTankLevel);
             }
         }
 
@@ -268,24 +268,24 @@ namespace Orbit.Models
             if (DistillerSpeed >= distillerSpeedUpperLimit)
             {
                 //TODO: shut down system
-                yield return new Alert(nameof(DistillerSpeed), "Distiller speed above maximum", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.DistillerSpeed, "Distiller speed above maximum", AlertLevel.HighError);
             }
             else if (DistillerSpeed > (distillerSpeedUpperLimit - distillerSpeedTolerance))
             {
-                yield return new Alert(nameof(DistillerSpeed), "Distiller speed is too high", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.DistillerSpeed, "Distiller speed is too high", AlertLevel.HighWarning);
             }
             else if (DistillerOn && (DistillerSpeed < distillerSpeedLowerLimit))
             {
-                yield return new Alert(nameof(DistillerSpeed), "Distiller speed is below minimum", AlertLevel.LowError);
+                yield return this.CreateAlert(a => a.DistillerSpeed, "Distiller speed is below minimum", AlertLevel.LowError);
             }
             else if (DistillerOn && (DistillerSpeed <= (distillerSpeedLowerLimit + distillerSpeedTolerance)))
             {
                 // TODO: shut down system
-                yield return new Alert(nameof(DistillerSpeed), "Distiller speed is too low", AlertLevel.LowWarning);
+                yield return this.CreateAlert(a => a.DistillerSpeed, "Distiller speed is too low", AlertLevel.LowWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(DistillerSpeed));
+                yield return this.CreateAlert(a => a.DistillerSpeed);
             }
         }
 
@@ -293,23 +293,23 @@ namespace Orbit.Models
         {
             if (DistillerTemp >= distillerTempUpperLimit)
             {
-                yield return new Alert(nameof(DistillerTemp), "Distiller temp above maximum", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.DistillerTemp, "Distiller temp above maximum", AlertLevel.HighError);
             }
             else if (DistillerTemp > (distillerTempUpperLimit - distillerTempTolerance))
             {
-                yield return new Alert(nameof(DistillerTemp), "Distiller temp is too high", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.DistillerTemp, "Distiller temp is too high", AlertLevel.HighWarning);
             }
             else if (DistillerOn && (DistillerTemp < distillerTempLowerLimit))
             {
-                yield return new Alert(nameof(DistillerTemp), "Distiller temp is below minimum", AlertLevel.LowError);
+                yield return this.CreateAlert(a => a.DistillerTemp, "Distiller temp is below minimum", AlertLevel.LowError);
             }
             else if (DistillerOn && (DistillerTemp <= (distillerTempLowerLimit + distillerTempTolerance)))
             {
-                yield return new Alert(nameof(DistillerTemp), "Distiller Temp is too low", AlertLevel.LowWarning);
+                yield return this.CreateAlert(a => a.DistillerTemp, "Distiller Temp is too low", AlertLevel.LowWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(DistillerTemp));
+                yield return this.CreateAlert(a => a.DistillerTemp);
             }
         }
 
@@ -318,15 +318,15 @@ namespace Orbit.Models
             if (BrineTankLevel >= brineTankLevelUpperLimit)
             {
                 // TODO: shut down system
-                yield return new Alert(nameof(BrineTankLevel), "Brine tank is at capacity", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.BrineTankLevel, "Brine tank is at capacity", AlertLevel.HighError);
             }
             else if (BrineTankLevel >= (brineTankLevelUpperLimit - brineTankLevelTolerance))
             {
-                yield return new Alert(nameof(BrineTankLevel), "Brine tank is nearing capacity", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.BrineTankLevel, "Brine tank is nearing capacity", AlertLevel.HighWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(BrineTankLevel));
+                yield return this.CreateAlert(a => a.BrineTankLevel);
             }
         }
 
