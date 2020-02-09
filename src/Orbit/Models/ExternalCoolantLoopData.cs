@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
+using Orbit.Annotations;
+
 using System.Linq;
 
 namespace Orbit.Models
@@ -13,19 +15,21 @@ namespace Orbit.Models
         private const int radiatorRotationLowerLimit = -215;
         private const int radiatorRotationTolerance = 10;
 
-        private const int fluidPressureUpperLimit = 480;
-        private const int fluidPressureLowerLimit = 170;
-        private const int fluidPressureTolerance = 30;
+        private const int fluidPressureUpperLimit = 3309;
+        private const int fluidPressureLowerLimit = 345;
+        private const int fluidPressureTolerance = 827;
 
-        private const double outputFluidTemperatueUpperLimit = 19;
-        private const double outputFluidTemperatureLowerLimit = 1;
+        private const double outputFluidTemperatueUpperLimit = 8.1;
+        private const double outputFluidTemperatureLowerLimit = 1.6;
         private const double outputFluidTemperatureTolerance = 2;
 
         private int mixValveUpperLimit = 100;
         private int mixValveLowerLimit = 0;
         private int mixValveTolerance = 5;
 
-        private bool radiatorRotationIncreasing = true;
+        public bool radiatorRotationIncreasing = true;
+        private bool trouble = false;
+        private SystemStatus lastWorkingStatus;
 
         #endregion Limits
 
@@ -44,6 +48,8 @@ namespace Orbit.Models
         /// position in degrees from neutral point.
         /// </summary>
         [Range(-215, 215)]
+        [IdealRange(-205, 205)]
+        [UnitType("deg.")]
         public int RadiatorRotation { get; set; }
 
         /// <summary>
@@ -60,18 +66,26 @@ namespace Orbit.Models
         /// position of the valve that mixes 'hot' fluid returning from heat exchanger and 'cold' fluid 
         /// returning from radiator. Acts like a shower temp valve. 0 = all 'hot', 100 = all 'cold'
         /// </summary>
+        [Range(0, 100)]
+        [UnitType("%")]
         public int MixValvePosition { get; set; }
 
         /// <summary>
         /// pressure of fluid in loop A
         /// </summary>
-        [Range(0, 600)]
+        [Range(345, 3309)]
+        [IdealRange(1172, 2482)]
+        [IdealValue(2068)]
+        [UnitType("kpa")]
         public int LineAPressure { get; set; }
 
         /// <summary>
         /// pressure of fluid in loop B
         /// </summary>
-        [Range(0, 600)]
+        [Range(345, 3309)]
+        [IdealRange(1172, 2482)]
+        [IdealValue(2068)]
+        [UnitType("kpa")]
         public int LineBPressure { get; set; }
 
         /// <summary>
@@ -88,12 +102,16 @@ namespace Orbit.Models
         /// <summary>
         /// temperature of fluid returning from radiator flow control valve to internal/external heat exchanger
         /// </summary>
-        [Range(-157, 121)]
+        [Range(1.6, 8.1)]
+        [IdealRange(2.2, 6.1)]
+        [UnitType("C")]
         public double OutputFluidTemperature { get; set; }
 
         /// <summary>
         /// goal output fluid temperature
         /// </summary>
+        [Range(2.2, 6.1)]
+        [UnitType("C")]
         public double SetTemperature { get; set; }
 
         #endregion Public Properties
@@ -115,68 +133,73 @@ namespace Orbit.Models
             RadiatorDeployed = other.RadiatorDeployed;
             OutputFluidTemperature = other.OutputFluidTemperature;
             SetTemperature = other.SetTemperature;
+
+            GenerateData();
         }
 
         #endregion Constructors
 
         #region Methods
 
+        public void SeedData()
+        {
+            Status = SystemStatus.On;
+            RadiatorRotation = 0;
+            PumpAOn = true;
+            PumpBOn = true;
+            MixValvePosition = 25;
+            LineAPressure = 2050;
+            LineBPressure = 2060;
+            LineHeaterOn = false;
+            RadiatorDeployed = true;
+            OutputFluidTemperature = 2.8;
+            SetTemperature = 2.8;
+        }
+        
         public void ProcessData()
         {
-            GenerateData();
-            bool troubleFlag = false;
+            trouble = false;
 
-            // pump failure (loss of pump motor rotation, regardless of line pressure)
-            if (!PumpAOn || !PumpBOn)
+            if((Status == SystemStatus.On) || (Status == SystemStatus.Processing))
             {
-                troubleFlag = true;
-            }
-
-            if (OutputFluidTemperature > SetTemperature)
-            {
-                // open the mixing valve and allow more 'cold' fluid in the mix
-                IncreaseFluidMix();
-            }
-            else if (OutputFluidTemperature < SetTemperature)
-            {
-                // close the mixing valve to keep more 'hot' fluid in the mix
-                DecreaseFluidMix();
-            }
-
-            if ((LineAPressure > fluidPressureUpperLimit) || (LineAPressure < fluidPressureLowerLimit))
-            {
-                // problem in fluid line A (while pump on and working), shut off pumpA to prevent pump damage 
-                PumpAOn = false;
-                troubleFlag = true;
-            }
-            else
-            {   // many need to make this a manual restart in event presssure restore is due to heat expansion?
-                PumpAOn = true;
-            }
-
-            if ((LineBPressure > fluidPressureUpperLimit) || (LineBPressure < fluidPressureLowerLimit))
-            {
-                // problem in fluid line B (while pump on and working), shut off pumpB to prevent pump damage
-                PumpBOn = false;
-                troubleFlag = true;
-            }
-            else
-            {   // many need to make this a manual restart in event presssure restore is due to heat expansion?
-                PumpBOn = true;
-            }
-
-            if (RadiatorDeployed)
-            {
-                // moved beyond bounds
-                if ((RadiatorRotation > radiatorRotationUpperLimit) || (RadiatorRotation < radiatorRotationLowerLimit))
+                // pump failure (loss of pump motor rotation, regardless of line pressure) 
+                if (!PumpAOn || !PumpBOn)
                 {
-                    troubleFlag = true;
+                    Trouble();
                 }
+                // system cannot work if radiator is retracted
+                if (!RadiatorDeployed)
+                {
+                    Trouble();
+                    PumpAOn = false;                      
+                    PumpBOn = false;
+                }
+
+                if (OutputFluidTemperature > SetTemperature)
+                {
+                    // open the mixing valve and allow more 'cold' fluid in the mix
+                    IncreaseFluidMix();
+                }
+                else if (OutputFluidTemperature < SetTemperature)
+                {
+                    // close the mixing valve to keep more 'hot' fluid in the mix
+                    DecreaseFluidMix();
+                }
+
+                LinePressures();
+
                 // simulate radiator rotation
                 RotateRadiator();
             }
+            else if((Status == SystemStatus.Ready) || (Status == SystemStatus.Standby))
+            {
+                if(PumpAOn || PumpBOn)
+                {
+                    Trouble();
+                }
+            }
 
-            if (troubleFlag)
+            if (trouble)
             {
                 Status = SystemStatus.Trouble;
             }
@@ -192,7 +215,7 @@ namespace Orbit.Models
 
             LineAPressure = rand.Next(0, 600);
             LineBPressure = rand.Next(100, 600);
-            OutputFluidTemperature = rand.Next(-600, 800) / 10.0;
+            OutputFluidTemperature = rand.Next(10, 200) / 10.0;
 
             if (rand.Next(0, 10) == 5)
             {
@@ -220,6 +243,11 @@ namespace Orbit.Models
                 {
                     MixValvePosition++;
                 }
+                else
+                {
+                    MixValvePosition = mixValveUpperLimit;
+                    Trouble();
+                }
             }
         }
 
@@ -230,6 +258,11 @@ namespace Orbit.Models
 
             if (MixValvePosition == mixValveLowerLimit)
             {
+                if (LineHeaterOn &&( OutputFluidTemperature < outputFluidTemperatureLowerLimit))
+                {
+                    // heater is not enough
+                    Trouble();
+                }
                 // heat load from station is too low to keep fluid above min temp, turn heater on
                 LineHeaterOn = true;
             }
@@ -239,21 +272,76 @@ namespace Orbit.Models
             }
         }
 
+        private void LinePressures()
+        {
+            // pressure out of range signaling a problem, but not critical
+            if ((LineAPressure > fluidPressureUpperLimit) || (LineAPressure < fluidPressureLowerLimit))
+            {
+                // critical problem in fluid line A (while pump on and working), shut off pumpA to prevent pump damage 
+                PumpAOn = false;
+                Trouble();
+            }
+            else if ((LineBPressure > fluidPressureUpperLimit) || (LineBPressure < fluidPressureLowerLimit))
+            {
+                // critical problem in fluid line B (while pump on and working), shut off pumpB to prevent pump damage
+                PumpBOn = false;
+                Trouble();
+            }
+            else if ((LineAPressure > fluidPressureUpperLimit - fluidPressureTolerance)
+                || (LineBPressure > fluidPressureUpperLimit - fluidPressureTolerance)
+                || (LineAPressure < fluidPressureLowerLimit + fluidPressureTolerance)
+                || (LineBPressure < fluidPressureLowerLimit + fluidPressureTolerance))
+            {
+                Trouble();
+            }
+            else
+            {   // pressures in range
+                PumpAOn = true;
+                PumpBOn = true;
+            }
+        }
+
         private void RotateRadiator()
         {
-            // rotate radiator back and forth between range bounds
-            if (radiatorRotationIncreasing && (RadiatorRotation < radiatorRotationUpperLimit))
+            if (RadiatorDeployed)
             {
-                RadiatorRotation++;
-            }
-            else if (!radiatorRotationIncreasing && (RadiatorRotation > radiatorRotationLowerLimit))
-            {
-                RadiatorRotation--;
+                // radiators have exceeded normal operating range
+                if((RadiatorRotation > radiatorRotationUpperLimit) ||( RadiatorRotation < radiatorRotationLowerLimit))
+                {
+                    Trouble();
+                }
+
+                // rotate radiator back and forth between range bounds
+                if (radiatorRotationIncreasing && RadiatorRotation < (radiatorRotationUpperLimit - radiatorRotationTolerance))
+                {
+                    RadiatorRotation++;
+                }
+                else if (!radiatorRotationIncreasing && RadiatorRotation > (radiatorRotationLowerLimit + radiatorRotationTolerance))
+                {
+                    RadiatorRotation--;
+                }
+                else
+                {
+                    // reached a bound, switch rotation direction
+                    radiatorRotationIncreasing = !radiatorRotationIncreasing;
+                }
             }
             else
             {
-                // reached a bound, switch direction
-                radiatorRotationIncreasing = !radiatorRotationIncreasing;
+                // assumes radiator returns to a 'neutral' state when retracted
+                RadiatorRotation = 0;
+            }
+        }
+
+        /// <summary>
+        /// Toggles a flag to change the staus to 'trouble' if there is some kind of trouble with the system
+        /// </summary>
+        private void Trouble()
+        {
+            if (!trouble)
+            {
+                lastWorkingStatus = Status;
+                trouble = true;
             }
         }
 
