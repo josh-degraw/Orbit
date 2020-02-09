@@ -39,7 +39,7 @@ namespace Orbit.Models
             var value = propSelector.Compile()(model);
 
             var info = GetMetadata(member);
-            return new Alert(member.Name, message, level, info, value);
+            return new Alert  (member.Name, message, level, info, value);
         }
     }
 }

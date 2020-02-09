@@ -347,23 +347,23 @@ namespace Orbit.Models
         {
             if (TempLowLoop >= lowTempCoolantLoopUpperLimit)
             {
-                yield return new Alert(nameof(TempLowLoop), "Low loop temperature is above maximum", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.TempLowLoop, "Low loop temperature is above maximum", AlertLevel.HighError);
             }
             else if (TempLowLoop >= (lowTempCoolantLoopUpperLimit - lowTempCoolantLoopTolerance))
             {
-                yield return new Alert(nameof(TempLowLoop), "Low loop temperature is high", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.TempLowLoop, "Low loop temperature is high", AlertLevel.HighWarning);
             }
             else if (TempLowLoop <= lowTempCoolantLoopLowerLimit)
             {
-                yield return new Alert(nameof(TempLowLoop), "Low loop temperature is low", AlertLevel.LowError);
+                yield return this.CreateAlert(a => a.TempLowLoop, "Low loop temperature is low", AlertLevel.LowError);
             }
             else if (TempLowLoop <= (lowTempCoolantLoopLowerLimit + lowTempCoolantLoopTolerance))
             {
-                yield return new Alert(nameof(TempLowLoop), "Low loop temperature is below minimum", AlertLevel.LowWarning);
+                yield return this.CreateAlert(a => a.TempLowLoop, "Low loop temperature is below minimum", AlertLevel.LowWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(TempLowLoop));
+                yield return this.CreateAlert(a=>TempLowLoop);
             }
         }
 
@@ -371,23 +371,23 @@ namespace Orbit.Models
         {
             if (TempMedLoop >= medCoolantLoopUpperLimit)
             {
-                yield return new Alert(nameof(TempMedLoop), "Med loop temperature is above maximum", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.TempMedLoop, "Med loop temperature is above maximum", AlertLevel.HighError);
             }
             else if (TempMedLoop >= (medCoolantLoopUpperLimit - medCoolantLoopTolerance))
             {
-                yield return new Alert(nameof(TempMedLoop), "Med loop temperature is high", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.TempMedLoop, "Med loop temperature is high", AlertLevel.HighWarning);
             }
             else if (TempMedLoop <= medCoolantLoopLowerLimit)
             {
-                yield return new Alert(nameof(TempMedLoop), "Med loop temperature is low", AlertLevel.LowError);
+                yield return this.CreateAlert(a => a.TempMedLoop, "Med loop temperature is low", AlertLevel.LowError);
             }
             else if (TempMedLoop <= (medCoolantLoopLowerLimit + medCoolantLoopTolerance))
             {
-                yield return new Alert(nameof(TempMedLoop), "Med loop temperature is below minimum", AlertLevel.LowWarning);
+                yield return this.CreateAlert(a => a.TempMedLoop, "Med loop temperature is below minimum", AlertLevel.LowWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(TempMedLoop));
+                yield return this.CreateAlert(a => a.TempMedLoop);
             }
         }
 
@@ -395,23 +395,23 @@ namespace Orbit.Models
         {
             if(LowTempMixValvePosition >= mixValveMaxOpen)
             {
-                yield return new Alert(nameof(LowTempMixValvePosition), "Low temp mixing valve is fully open", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.LowTempMixValvePosition, "Low temp mixing valve is fully open", AlertLevel.HighError);
             }
             if(LowTempMixValvePosition > (mixValveMaxOpen - mixValveTolerance))
             {
-                yield return new Alert(nameof(LowTempMixValvePosition), "Low temp mixing valve is almost fully open", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.LowTempMixValvePosition, "Low temp mixing valve is almost fully open", AlertLevel.HighWarning);
             }
             if(LowTempMixValvePosition <= mixValveMaxClosed)
             {
-                yield return new Alert(nameof(LowTempMixValvePosition), "Low temp mixing valve is fully closed", AlertLevel.LowError);
+                yield return this.CreateAlert(a => a.LowTempMixValvePosition, "Low temp mixing valve is fully closed", AlertLevel.LowError);
             }
             if(LowTempMixValvePosition < (mixValveMaxClosed - mixValveTolerance))
             {
-                yield return new Alert(nameof(LowTempMixValvePosition), "Low temp mixing valve is almost fully closed", AlertLevel.LowWarning);
+                yield return this.CreateAlert(a => a.LowTempMixValvePosition, "Low temp mixing valve is almost fully closed", AlertLevel.LowWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(LowTempMixValvePosition));
+                yield return this.CreateAlert(a => a.LowTempMixValvePosition);
             }
         }
 
@@ -419,23 +419,23 @@ namespace Orbit.Models
         {
             if (MedTempMixValvePosition >= mixValveMaxOpen)
             {
-                yield return new Alert(nameof(MedTempMixValvePosition), "Med temp mixing valve is fully open", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.MedTempMixValvePosition, "Med temp mixing valve is fully open", AlertLevel.HighError);
             }
             if (MedTempMixValvePosition > (mixValveMaxOpen - mixValveTolerance))
             {
-                yield return new Alert(nameof(MedTempMixValvePosition), "Med temp mixing valve is almost fully open", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.MedTempMixValvePosition, "Med temp mixing valve is almost fully open", AlertLevel.HighWarning);
             }
             if (MedTempMixValvePosition <= mixValveMaxClosed)
             {
-                yield return new Alert(nameof(LowTempMixValvePosition), "Med temp mixing valve is fully closed", AlertLevel.LowError);
+                yield return this.CreateAlert(a => a.LowTempMixValvePosition, "Med temp mixing valve is fully closed", AlertLevel.LowError);
             }
             if (MedTempMixValvePosition < (mixValveMaxClosed - mixValveTolerance))
             {
-                yield return new Alert(nameof(MedTempMixValvePosition), "Med temp mixing valve is almost fully closed", AlertLevel.LowWarning);
+                yield return this.CreateAlert(a => a.MedTempMixValvePosition, "Med temp mixing valve is almost fully closed", AlertLevel.LowWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(MedTempMixValvePosition));
+                yield return this.CreateAlert(a => a.MedTempMixValvePosition);
             }
         }
 
@@ -443,23 +443,23 @@ namespace Orbit.Models
         {
             if (CrossoverMixValvePosition >= mixValveMaxOpen)
             {
-                yield return new Alert(nameof(CrossoverMixValvePosition), "Crossover mixing valve is fully open", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.CrossoverMixValvePosition, "Crossover mixing valve is fully open", AlertLevel.HighError);
             }
             if (CrossoverMixValvePosition > (mixValveMaxOpen - mixValveTolerance))
             {
-                yield return new Alert(nameof(CrossoverMixValvePosition), "Crossover mixing valve is almost fully open", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.CrossoverMixValvePosition, "Crossover mixing valve is almost fully open", AlertLevel.HighWarning);
             }
             if (CrossoverMixValvePosition <= mixValveMaxClosed)
             {
-                yield return new Alert(nameof(CrossoverMixValvePosition), "Crossover mixing valve is fully closed", AlertLevel.LowError);
+                yield return this.CreateAlert(a => a.CrossoverMixValvePosition, "Crossover mixing valve is fully closed", AlertLevel.LowError);
             }
             if (CrossoverMixValvePosition < (mixValveMaxClosed - mixValveTolerance))
             {
-                yield return new Alert(nameof(CrossoverMixValvePosition), "Crossover mixing valve is almost fully closed", AlertLevel.LowWarning);
+                yield return this.CreateAlert(a => a.CrossoverMixValvePosition, "Crossover mixing valve is almost fully closed", AlertLevel.LowWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(CrossoverMixValvePosition));
+                yield return this.CreateAlert(a => a.CrossoverMixValvePosition);
             }
         }
 
@@ -467,11 +467,11 @@ namespace Orbit.Models
         {
             if (!LowTempPumpOn)
             {
-                yield return new Alert(nameof(LowTempPumpOn), "Low temperature pump is off", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.LowTempPumpOn, "Low temperature pump is off", AlertLevel.HighError);
             }
             else
             {
-                yield return Alert.Safe(nameof(LowTempPumpOn));
+                yield return this.CreateAlert(a => a.LowTempPumpOn);
             }
         }
 
@@ -479,11 +479,11 @@ namespace Orbit.Models
         {
             if (!MedTempPumpOn)
             {
-                yield return new Alert(nameof(MedTempPumpOn), "Med temperature pump is off", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.MedTempPumpOn, "Med temperature pump is off", AlertLevel.HighError);
             }
             else
             {
-                yield return Alert.Safe(nameof(MedTempPumpOn));
+                yield return this.CreateAlert(a => a.MedTempPumpOn);
             }
         }
 

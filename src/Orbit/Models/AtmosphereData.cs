@@ -296,15 +296,15 @@ namespace Orbit.Models
         {
             if (AmbientNoiseLevel > cabinAmbientNoiseUpperLimit)
             {
-                yield return new Alert(nameof(AmbientNoiseLevel), "Cabin noise has exceeded maximum", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.AmbientNoiseLevel, "Cabin noise has exceeded maximum", AlertLevel.HighError);
             }
             else if (AmbientNoiseLevel >= (cabinAmbientNoiseUpperLimit - cabinAmbientNoiseTolerance))
             {
-                yield return new Alert(nameof(AmbientNoiseLevel), "Cabin noise is elevated", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.AmbientNoiseLevel, "Cabin noise is elevated", AlertLevel.HighWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(AmbientNoiseLevel));
+                yield return this.CreateAlert(a => a.AmbientNoiseLevel);
             }
         }
 
@@ -312,23 +312,23 @@ namespace Orbit.Models
         {
             if (HumidityLevel >= cabinHumidityLevelUpperLimit)
             {
-                yield return new Alert(nameof(HumidityLevel), "Cabin humidity is above maximum", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.HumidityLevel, "Cabin humidity is above maximum", AlertLevel.HighError);
             }
             else if (HumidityLevel >= (cabinHumidityLevelUpperLimit - cabinHumidityLevelTolerance))
             {
-                yield return new Alert(nameof(HumidityLevel), "Humidity is elevated", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.HumidityLevel, "Humidity is elevated", AlertLevel.HighWarning);
             }
             else if (HumidityLevel <= cabinHumidityLevelLowerLimit)
             {
-                yield return new Alert(nameof(HumidityLevel), "Humidity is below minimum", AlertLevel.LowError);
+                yield return this.CreateAlert(a => a.HumidityLevel, "Humidity is below minimum", AlertLevel.LowError);
             }
             else if (HumidityLevel <= (cabinHumidityLevelLowerLimit + cabinHumidityLevelTolerance))
             {
-                yield return new Alert(nameof(HumidityLevel), "Humidity is low", AlertLevel.LowWarning);
+                yield return this.CreateAlert(a => a.HumidityLevel, "Humidity is low", AlertLevel.LowWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(HumidityLevel));
+                yield return this.CreateAlert(a => a.HumidityLevel);
             }
         }
 
@@ -336,42 +336,42 @@ namespace Orbit.Models
         {
             if (Pressure >= cabinPressureUpperLimit)
             {
-                yield return new Alert(nameof(Pressure), "Cabin pressure has exceeded maximum", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.Pressure, "Cabin pressure has exceeded maximum", AlertLevel.HighError);
             }
             else if (Pressure >= (cabinPressureUpperLimit - cabinPressureTolerance))
             {
-                yield return new Alert(nameof(Pressure), "Cabin pressure is elevated", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.Pressure, "Cabin pressure is elevated", AlertLevel.HighWarning);
             }
             else if (Pressure <= cabinPressureLowerLimit)
             {
-                yield return new Alert(nameof(Pressure), "Cabin pressure below minimum", AlertLevel.LowError);
+                yield return this.CreateAlert(a => a.Pressure, "Cabin pressure below minimum", AlertLevel.LowError);
             }
             else if (Pressure < (cabinPressureLowerLimit + cabinPressureTolerance))
             {
-                yield return new Alert(nameof(Pressure), "Cabin pressure is low", AlertLevel.LowWarning);
+                yield return this.CreateAlert(a => a.Pressure, "Cabin pressure is low", AlertLevel.LowWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(Pressure));
+                yield return this.CreateAlert(a => a.Pressure);
             }
         }
         private IEnumerable<Alert> CheckCabinTemperature()
         {
             if (Temperature > cabinTemperatureUpperLimit)
             {
-                yield return new Alert(nameof(Temperature), "Cabin temperature is above maximum", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.Temperature, "Cabin temperature is above maximum", AlertLevel.HighError);
             }
             else if (Temperature >= (cabinTemperatureUpperLimit - cabinTemperatureTolerance))
             {
-                yield return new Alert(nameof(Temperature), "Cabin temperature is high", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.Temperature, "Cabin temperature is high", AlertLevel.HighWarning);
             }
             else if (Temperature < cabinTemperatureCrewedLowerLimit)
             {
-                yield return new Alert(nameof(Temperature), "Cabin temperature is below minimum", AlertLevel.LowError);
+                yield return this.CreateAlert(a => a.Temperature, "Cabin temperature is below minimum", AlertLevel.LowError);
             }
             else
             {
-                yield return Alert.Safe(nameof(Temperature));
+                yield return this.CreateAlert(a => a.Temperature);
             }
         }
 
@@ -379,23 +379,23 @@ namespace Orbit.Models
         {
             if (FanSpeed > fanSpeedUpperLimit)
             {
-                yield return new Alert(nameof(FanSpeed), "Fan speed is above maximum", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.FanSpeed, "Fan speed is above maximum", AlertLevel.HighError);
             }
             else if (FanSpeed >= (fanSpeedUpperLimit - fanSpeedTolerance))
             {
-                yield return new Alert(nameof(FanSpeed), "Fan speed is high", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.FanSpeed, "Fan speed is high", AlertLevel.HighWarning);
             }
             else if (FanSpeed < fanSpeedLowerLimit)
             {
-                yield return new Alert(nameof(FanSpeed), "Fan speed is below minimum", AlertLevel.LowError);
+                yield return this.CreateAlert(a => a.FanSpeed, "Fan speed is below minimum", AlertLevel.LowError);
             }
             else if (FanSpeed <= (fanSpeedLowerLimit - fanSpeedTolerance))
             {
-                yield return new Alert(nameof(FanSpeed), "Fan speed is low", AlertLevel.LowWarning);
+                yield return this.CreateAlert(a => a.FanSpeed, "Fan speed is low", AlertLevel.LowWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(FanSpeed));
+                yield return this.CreateAlert(a => a.FanSpeed);
             }
         }
 
@@ -403,23 +403,23 @@ namespace Orbit.Models
         {
             if (SeperatorSpeed > sepertorSpeedUpperLimit)
             {
-                yield return new Alert(nameof(SeperatorSpeed), "Seperator speed is above maximum", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.SeperatorSpeed, "Seperator speed is above maximum", AlertLevel.HighError);
             }
             else if (SeperatorSpeed > (sepertorSpeedUpperLimit - seperatorTolerance))
             {
-                yield return new Alert(nameof(SeperatorSpeed), "Seperator speed is high", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.SeperatorSpeed, "Seperator speed is high", AlertLevel.HighWarning);
             }
             else if (SeperatorSpeed < seperatorSpeedLowerLimit)
             {
-                yield return new Alert(nameof(SeperatorSpeed), "Seperator speed is below minimum", AlertLevel.LowError);
+                yield return this.CreateAlert(a => a.SeperatorSpeed, "Seperator speed is below minimum", AlertLevel.LowError);
             }
             else if (SeperatorSpeed < (seperatorSpeedLowerLimit + seperatorTolerance))
             {
-                yield return new Alert(nameof(SeperatorSpeed), "Seperator speed is too slow", AlertLevel.LowWarning);
+                yield return this.CreateAlert(a => a.SeperatorSpeed, "Seperator speed is too slow", AlertLevel.LowWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(SeperatorSpeed));
+                yield return this.CreateAlert(a => a.SeperatorSpeed);
             }
         }
 
@@ -427,11 +427,11 @@ namespace Orbit.Models
         {
             if (LiquidInOutflow)
             {
-                yield return new Alert(nameof(LiquidInOutflow), "Water detected in condensor return flow", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.LiquidInOutflow, "Water detected in condensor return flow", AlertLevel.HighWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(LiquidInOutflow));
+                yield return this.CreateAlert(a => a.LiquidInOutflow);
             }
         }
 

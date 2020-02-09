@@ -264,19 +264,19 @@ namespace Orbit.Models
             {
                 if(!FanOn)
                 {
-                    yield return new Alert(nameof(FanOn), "No fan running while system processing", AlertLevel.HighError);
+                    yield return this.CreateAlert(a => a.FanOn, "No fan running while system processing", AlertLevel.HighError);
                 }
             }
             else if(Status == SystemStatus.Standby)
             {
                 if (FanOn)
                 {
-                    yield return new Alert(nameof(FanOn), "Fan running while system in standby", AlertLevel.HighWarning);
+                    yield return this.CreateAlert(a => a.FanOn, "Fan running while system in standby", AlertLevel.HighWarning);
                 }
             }
             else
             {
-                yield return Alert.Safe(nameof(FanOn));
+                yield return this.CreateAlert(a => a.FanOn);
             }
         }
         private IEnumerable<Alert> CheckRegenerationTemp()
@@ -285,46 +285,46 @@ namespace Orbit.Models
             {
                 if (Bed1Temperature > TemperatureUpperLimit)
                 {
-                    yield return new Alert(nameof(Bed1Temperature), "Bed 1 temperature is above maximum", AlertLevel.HighError);
+                    yield return this.CreateAlert(a => a.Bed1Temperature, "Bed 1 temperature is above maximum", AlertLevel.HighError);
                 }
                 else if (Bed1Temperature >= (TemperatureUpperLimit - TemperatureTolerance))
                 {
-                    yield return new Alert(nameof(Bed1Temperature), "Bed 1 temperature is elevated", AlertLevel.HighWarning);
+                    yield return this.CreateAlert(a => a.Bed1Temperature, "Bed 1 temperature is elevated", AlertLevel.HighWarning);
                 }
                 else if (Bed1Temperature < TemperatureLowerLimit)
                 {
-                    yield return new Alert(nameof(Bed1Temperature), "Bed 1 temperature is below minimum", AlertLevel.LowError);
+                    yield return this.CreateAlert(a => a.Bed1Temperature, "Bed 1 temperature is below minimum", AlertLevel.LowError);
                 }
                 else if (Bed1Temperature <= (TemperatureLowerLimit + TemperatureTolerance))
                 {
-                    yield return new Alert(nameof(Bed1Temperature), "Bed 1 temperature is low", AlertLevel.LowWarning);
+                    yield return this.CreateAlert(a => a.Bed1Temperature, "Bed 1 temperature is low", AlertLevel.LowWarning);
                 }
                 else
                 {
-                    yield return Alert.Safe(nameof(Bed1Temperature));
+                    yield return this.CreateAlert(a => a.Bed1Temperature);
                 }
             }
             else
             {
                 if (Bed2Temperature > TemperatureUpperLimit)
                 {
-                    yield return new Alert(nameof(Bed2Temperature), "Bed 2 temperature is above maximum", AlertLevel.HighError);
+                    yield return this.CreateAlert(a => a.Bed2Temperature, "Bed 2 temperature is above maximum", AlertLevel.HighError);
                 }
                 else if (Bed2Temperature >= (TemperatureUpperLimit - TemperatureTolerance))
                 {
-                    yield return new Alert(nameof(Bed2Temperature), "Bed 2 temperature is elevated", AlertLevel.HighWarning);
+                    yield return this.CreateAlert(a => a.Bed2Temperature, "Bed 2 temperature is elevated", AlertLevel.HighWarning);
                 }
                 else if (Bed2Temperature < TemperatureLowerLimit)
                 {
-                    yield return new Alert(nameof(Bed2Temperature), "Bed 2 temperature is below minimum", AlertLevel.LowError);
+                    yield return this.CreateAlert(a => a.Bed2Temperature, "Bed 2 temperature is below minimum", AlertLevel.LowError);
                 }
                 else if (Bed2Temperature <= (TemperatureLowerLimit + TemperatureTolerance))
                 {
-                    yield return new Alert(nameof(Bed2Temperature), "Bed 2 temperature is low", AlertLevel.LowWarning);
+                    yield return this.CreateAlert(a => a.Bed2Temperature, "Bed 2 temperature is low", AlertLevel.LowWarning);
                 }
                 else
                 {
-                    yield return Alert.Safe(nameof(Bed2Temperature));
+                    yield return this.CreateAlert(a => a.Bed2Temperature);
                 }
             }
         }
@@ -332,26 +332,26 @@ namespace Orbit.Models
         {
             if(Co2Level > CarbonDioxideOutputLimit )
             {
-                yield return new Alert(nameof(Co2Level), "Carbon dioxide output is above maximum", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.Co2Level, "Carbon dioxide output is above maximum", AlertLevel.HighError);
             }
             else if(Co2Level >= (CarbonDioxideOutputLimit - CarbonDioxideOutputTolerance))
             {
-                yield return new Alert(nameof(Co2Level), "CarbonDioxide output is elevated", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.Co2Level, "CarbonDioxide output is elevated", AlertLevel.HighWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(Co2Level));
+                yield return this.CreateAlert(a => a.Co2Level);
             }
         }
         private IEnumerable<Alert> CheckBedsAlternate()
         {
             if(AbsorbingBed == RegeneratingBed)
             {
-                yield return new Alert(nameof(RegeneratingBed), "Regenerating bed is same as absorbing bed", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.RegeneratingBed, "Regenerating bed is same as absorbing bed", AlertLevel.HighError);
             }
             else
             {
-                yield return Alert.Safe(nameof(RegeneratingBed));
+                yield return this.CreateAlert(a => a.RegeneratingBed);
             }
         }
         

@@ -353,11 +353,11 @@ namespace Orbit.Models
         {
             if (!PumpAOn)
             {
-                yield return new Alert(nameof(PumpAOn), "External coolant pump A is off", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.PumpAOn, "External coolant pump A is off", AlertLevel.HighError);
             }
             else
             {
-                yield return Alert.Safe(nameof(PumpAOn));
+                yield return this.CreateAlert(a => a.PumpAOn);
             }
         }
 
@@ -365,11 +365,11 @@ namespace Orbit.Models
         {
             if (!PumpBOn)
             {
-                yield return new Alert(nameof(PumpBOn), "External coolant pump B is off", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.PumpBOn, "External coolant pump B is off", AlertLevel.HighError);
             }
             else
             {
-                yield return Alert.Safe(nameof(PumpBOn));
+                yield return this.CreateAlert(a => a.PumpBOn);
             }
         }
 
@@ -377,23 +377,23 @@ namespace Orbit.Models
         {
             if (MixValvePosition >= mixValveUpperLimit)
             {
-                yield return new Alert(nameof(MixValvePosition), "Mix valve position is at maximum", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.MixValvePosition, "Mix valve position is at maximum", AlertLevel.HighError);
             }
             else if (MixValvePosition >= (mixValveUpperLimit - mixValveTolerance))
             {
-                yield return new Alert(nameof(MixValvePosition), "Mix valve position is approaching maximum", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.MixValvePosition, "Mix valve position is approaching maximum", AlertLevel.HighWarning);
             }
             else if (MixValvePosition <= mixValveLowerLimit)
             {
-                yield return new Alert(nameof(MixValvePosition), "Mix valve position is at minimum", AlertLevel.LowError);
+                yield return this.CreateAlert(a => a.MixValvePosition, "Mix valve position is at minimum", AlertLevel.LowError);
             }
             else if (MixValvePosition <= (mixValveLowerLimit - mixValveTolerance))
             {
-                yield return new Alert(nameof(MixValvePosition), "Mix valve position is approaching minimum", AlertLevel.LowWarning);
+                yield return this.CreateAlert(a => a.MixValvePosition, "Mix valve position is approaching minimum", AlertLevel.LowWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(MixValvePosition));
+                yield return this.CreateAlert(a => a.MixValvePosition);
             }
         }
 
@@ -401,11 +401,11 @@ namespace Orbit.Models
         {
             if (!RadiatorDeployed)
             {
-                yield return new Alert(nameof(RadiatorDeployed), "External coolant radiator is retracted", AlertLevel.LowWarning);
+                yield return this.CreateAlert(a => a.RadiatorDeployed, "External coolant radiator is retracted", AlertLevel.LowWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(RadiatorDeployed));
+                yield return this.CreateAlert(a => a.RadiatorDeployed);
             }
         }
 
@@ -413,23 +413,23 @@ namespace Orbit.Models
         {
             if (RadiatorRotation > radiatorRotationUpperLimit)
             {
-                yield return new Alert(nameof(RadiatorRotation), "Coolant radiator has exceeded maximum available rotation", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.RadiatorRotation, "Coolant radiator has exceeded maximum available rotation", AlertLevel.HighError);
             }
             else if (RadiatorRotation >= (radiatorRotationUpperLimit - radiatorRotationTolerance))
             {
-                yield return new Alert(nameof(RadiatorRotation), "Coolant radiator has exceeded allowed rotation", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.RadiatorRotation, "Coolant radiator has exceeded allowed rotation", AlertLevel.HighWarning);
             }
             else if (RadiatorRotation < radiatorRotationLowerLimit)
             {
-                yield return new Alert(nameof(RadiatorRotation), "Coolant radiator has exceeded maximum available rotation", AlertLevel.LowError);
+                yield return this.CreateAlert(a => a.RadiatorRotation, "Coolant radiator has exceeded maximum available rotation", AlertLevel.LowError);
             }
             else if (RadiatorRotation <= (radiatorRotationLowerLimit + radiatorRotationTolerance))
             {
-                yield return new Alert(nameof(RadiatorRotation), "Coolant radiator has exceeded allowed rotation", AlertLevel.LowWarning);
+                yield return this.CreateAlert(a => a.RadiatorRotation, "Coolant radiator has exceeded allowed rotation", AlertLevel.LowWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(RadiatorRotation));
+                yield return this.CreateAlert(a => a.RadiatorRotation);
             }
         }
 
@@ -437,23 +437,23 @@ namespace Orbit.Models
         {
             if (LineAPressure >= fluidPressureUpperLimit)
             {
-                yield return new Alert(nameof(LineAPressure), "Coolant line A pressure is above maximum", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.LineAPressure, "Coolant line A pressure is above maximum", AlertLevel.HighError);
             }
             else if (LineAPressure >= (fluidPressureUpperLimit - fluidPressureTolerance))
             {
-                yield return new Alert(nameof(LineAPressure), "Coolant line A pressure is too high", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.LineAPressure, "Coolant line A pressure is too high", AlertLevel.HighWarning);
             }
             else if (LineAPressure < fluidPressureLowerLimit)
             {
-                yield return new Alert(nameof(LineAPressure), "Coolant line A pressure is below minimum", AlertLevel.LowError);
+                yield return this.CreateAlert(a => a.LineAPressure, "Coolant line A pressure is below minimum", AlertLevel.LowError);
             }
             else if (LineAPressure <= (fluidPressureLowerLimit + fluidPressureTolerance))
             {
-                yield return new Alert(nameof(LineAPressure), "Coolant line A pressure is too low", AlertLevel.LowWarning);
+                yield return this.CreateAlert(a => a.LineAPressure, "Coolant line A pressure is too low", AlertLevel.LowWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(LineAPressure));
+                yield return this.CreateAlert(a => a.LineAPressure);
             }
         }
 
@@ -461,23 +461,23 @@ namespace Orbit.Models
         {
             if (LineBPressure >= fluidPressureUpperLimit)
             {
-                yield return new Alert(nameof(LineBPressure), "Coolant line B pressure is above maximum", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.LineBPressure, "Coolant line B pressure is above maximum", AlertLevel.HighError);
             }
             else if (LineBPressure >= (fluidPressureUpperLimit - fluidPressureTolerance))
             {
-                yield return new Alert(nameof(LineBPressure), "Coolant line B  pressure is too high", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.LineBPressure, "Coolant line B  pressure is too high", AlertLevel.HighWarning);
             }
             else if (LineBPressure < fluidPressureLowerLimit)
             {
-                yield return new Alert(nameof(LineBPressure), "Coolant line B pressure is below minimum", AlertLevel.LowError);
+                yield return this.CreateAlert(a => a.LineBPressure, "Coolant line B pressure is below minimum", AlertLevel.LowError);
             }
             else if (LineBPressure <= (fluidPressureLowerLimit + fluidPressureTolerance))
             {
-                yield return new Alert(nameof(LineBPressure), "Coolant line B pressure is too low", AlertLevel.LowWarning);
+                yield return this.CreateAlert(a => a.LineBPressure, "Coolant line B pressure is too low", AlertLevel.LowWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(LineBPressure));
+                yield return this.CreateAlert(a => a.LineBPressure);
             }
         }
 
@@ -485,23 +485,23 @@ namespace Orbit.Models
         {
             if (OutputFluidTemperature >= outputFluidTemperatueUpperLimit)
             {
-                yield return new Alert(nameof(OutputFluidTemperature), "External coolant temperature is above maximum", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.OutputFluidTemperature, "External coolant temperature is above maximum", AlertLevel.HighError);
             }
             else if (OutputFluidTemperature >= (outputFluidTemperatueUpperLimit - outputFluidTemperatureTolerance))
             {
-                yield return new Alert(nameof(OutputFluidTemperature), "External coolant temperature is too high", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.OutputFluidTemperature, "External coolant temperature is too high", AlertLevel.HighWarning);
             }
             else if (OutputFluidTemperature <= outputFluidTemperatureLowerLimit)
             {
-                yield return new Alert(nameof(OutputFluidTemperature), "External coolant temperature is below minimum", AlertLevel.LowError);
+                yield return this.CreateAlert(a => a.OutputFluidTemperature, "External coolant temperature is below minimum", AlertLevel.LowError);
             }
             else if (OutputFluidTemperature <= (outputFluidTemperatureLowerLimit + outputFluidTemperatureTolerance))
             {
-                yield return new Alert(nameof(OutputFluidTemperature), "External coolant temperature is low", AlertLevel.LowWarning);
+                yield return this.CreateAlert(a => a.OutputFluidTemperature, "External coolant temperature is low", AlertLevel.LowWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(OutputFluidTemperature));
+                yield return this.CreateAlert(a => a.OutputFluidTemperature);
             }
         }
 

@@ -60,23 +60,23 @@ namespace Orbit.Models
         {
             if (this.Level >= 100)
             {
-                yield return new Alert(nameof(this.Level), "Tank overflowing", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.Level, "Tank overflowing", AlertLevel.HighError);
             }
             else if (this.Level >= 70)
             {
-                yield return new Alert(nameof(this.Level), "Water level high", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.Level, "Water level high", AlertLevel.HighWarning);
             }
             else if (this.Level <= 0)
             {
-                yield return new Alert(nameof(this.Level), "Water level very low", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.Level, "Water level very low", AlertLevel.HighError);
             }
             else if (this.Level < 5)
             {
-                yield return new Alert(nameof(this.Level), "Water level low", AlertLevel.LowWarning);
+                yield return this.CreateAlert(a => a.Level, "Water level low", AlertLevel.LowWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(this.Level));
+                yield return this.CreateAlert(a => a.Level);
             }
         }
 

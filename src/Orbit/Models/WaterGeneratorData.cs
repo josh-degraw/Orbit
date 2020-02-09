@@ -319,22 +319,22 @@ namespace Orbit.Models
             {
                 if (SeperatorOn)
                 {
-                    yield return Alert.Safe(nameof(SeperatorOn));
+                    yield return this.CreateAlert(a => a.SeperatorOn);
                 }
                 else
                 {
-                    yield return new Alert(nameof(SeperatorOn), "Seperator off while system processing", AlertLevel.HighWarning);
+                    yield return this.CreateAlert(a => a.SeperatorOn, "Seperator off while system processing", AlertLevel.HighWarning);
                 }
             }
             else
             {
                 if (SeperatorOn)
                 {
-                    yield return new Alert(nameof(SeperatorOn), "Seperator on while system not processing", AlertLevel.HighError);
+                    yield return this.CreateAlert(a => a.SeperatorOn, "Seperator on while system not processing", AlertLevel.HighError);
                 }
                 else
                 {
-                    yield return Alert.Safe(nameof(SeperatorOn));
+                    yield return this.CreateAlert(a => a.SeperatorOn);
                 }
             }
         }
@@ -345,34 +345,34 @@ namespace Orbit.Models
             {
                 if(SeperatorMotorSpeed > (seperatorSpeedUpperLimit - seperatorSpeedTolerance))
                 {
-                    yield return new Alert(nameof(SeperatorMotorSpeed), "Seperator speed is above maximum", AlertLevel.HighError);
+                    yield return this.CreateAlert(a => a.SeperatorMotorSpeed, "Seperator speed is above maximum", AlertLevel.HighError);
                 }
                 else if(SeperatorMotorSpeed > (SeperatorMotorSetSpeed + seperatorSpeedTolerance))
                 {
-                    yield return new Alert(nameof(SeperatorMotorSpeed), "Seperator speed is above set speed", AlertLevel.HighWarning);
+                    yield return this.CreateAlert(a => a.SeperatorMotorSpeed, "Seperator speed is above set speed", AlertLevel.HighWarning);
                 }
                 else if(SeperatorMotorSpeed < (seperatorSpeedLowerLimit + seperatorSpeedTolerance))
                 {
-                    yield return new Alert(nameof(SeperatorMotorSpeed), "Seperator speed is below minimum", AlertLevel.LowError);
+                    yield return this.CreateAlert(a => a.SeperatorMotorSpeed, "Seperator speed is below minimum", AlertLevel.LowError);
                 }
                 else if (SeperatorMotorSpeed < (SeperatorMotorSetSpeed - seperatorSpeedTolerance))
                 {
-                    yield return new Alert(nameof(SeperatorMotorSpeed), "Seperator speed is below set speed", AlertLevel.LowWarning);
+                    yield return this.CreateAlert(a => a.SeperatorMotorSpeed, "Seperator speed is below set speed", AlertLevel.LowWarning);
                 }
                 else
                 {
-                    yield return Alert.Safe(nameof(SeperatorMotorSpeed));
+                    yield return this.CreateAlert(a => a.SeperatorMotorSpeed);
                 }
             }
             else  
             {
                 if(SeperatorMotorSpeed > (seperatorSpeedLowerLimit - seperatorSpeedTolerance))
                 {
-                    yield return new Alert(nameof(SeperatorMotorSpeed), "Seperator on while system in standby", AlertLevel.HighError);
+                    yield return this.CreateAlert(a => a.SeperatorMotorSpeed, "Seperator on while system in standby", AlertLevel.HighError);
                 }
                 else
                 {
-                    yield return Alert.Safe(nameof(SeperatorMotorSpeed));
+                    yield return this.CreateAlert(a => a.SeperatorMotorSpeed);
                 }
             }
         }
@@ -383,26 +383,26 @@ namespace Orbit.Models
             {
                 if(!HeaterOn && (ReactorTemp < reactorTempLowerLimit))
                 {
-                    yield return new Alert(nameof(HeaterOn), "Heater off while reactor temp too low for processing", AlertLevel.LowError);
+                    yield return this.CreateAlert(a => a.HeaterOn, "Heater off while reactor temp too low for processing", AlertLevel.LowError);
                 }
                 else if(HeaterOn && (ReactorTemp > reactorTempLowerLimit))
                 {
-                    yield return new Alert(nameof(HeaterOn), "Heater on while reactor above minimum temperature", AlertLevel.HighError);
+                    yield return this.CreateAlert(a => a.HeaterOn, "Heater on while reactor above minimum temperature", AlertLevel.HighError);
                 }
                 else
                 {
-                    yield return Alert.Safe(nameof(HeaterOn));
+                    yield return this.CreateAlert(a => a.HeaterOn);
                 }
             }
             else  
             {
                 if (HeaterOn)
                 {
-                    yield return new Alert(nameof(HeaterOn), "Heater on while system not processing", AlertLevel.HighError);
+                    yield return this.CreateAlert(a => a.HeaterOn, "Heater on while system not processing", AlertLevel.HighError);
                 }
                 else
                 {
-                    yield return Alert.Safe(nameof(HeaterOn));
+                    yield return this.CreateAlert(a => a.HeaterOn);
                 }
             }
         }
@@ -413,34 +413,34 @@ namespace Orbit.Models
             {
                 if (ReactorTemp > reactorTempUpperLimit)
                 {
-                    yield return new Alert(nameof(ReactorTemp), "Reactor temperature is above maximum", AlertLevel.HighError);
+                    yield return this.CreateAlert(a => a.ReactorTemp, "Reactor temperature is above maximum", AlertLevel.HighError);
                 }
                 else if (ReactorTemp > (ReactorSetTemp + reactorTempTolerance))
                 {
-                    yield return new Alert(nameof(ReactorTemp), "Reactor temperature is above set temperature", AlertLevel.HighWarning);
+                    yield return this.CreateAlert(a => a.ReactorTemp, "Reactor temperature is above set temperature", AlertLevel.HighWarning);
                 }
                 else if (ReactorTemp < reactorTempLowerLimit)
                 {
-                    yield return new Alert(nameof(ReactorTemp), "Reactor temperature is below  minumum", AlertLevel.LowError);
+                    yield return this.CreateAlert(a => a.ReactorTemp, "Reactor temperature is below  minumum", AlertLevel.LowError);
                 }
                 else if (ReactorTemp < (ReactorSetTemp - reactorTempTolerance))
                 {
-                    yield return new Alert(nameof(ReactorTemp), "Reactor temperature is below set temperture", AlertLevel.LowWarning);
+                    yield return this.CreateAlert(a => a.ReactorTemp, "Reactor temperature is below set temperture", AlertLevel.LowWarning);
                 }
                 else
                 {
-                    yield return Alert.Safe(nameof(ReactorTemp));
+                    yield return this.CreateAlert(a => a.ReactorTemp);
                 }
             }
             else 
             {
                 if(ReactorTemp > (reactorTempLowerLimit - reactorTempTolerance))
                 {
-                    yield return new Alert(nameof(ReactorTemp), "Reactor temperature elevated", AlertLevel.HighError);
+                    yield return this.CreateAlert(a => a.ReactorTemp, "Reactor temperature elevated", AlertLevel.HighError);
                 }
                 else
                 {
-                    yield return Alert.Safe(nameof(ReactorTemp));
+                    yield return this.CreateAlert(a => a.ReactorTemp);
                 }
             }
 
@@ -452,22 +452,22 @@ namespace Orbit.Models
             {
                 if (PumpOn)
                 {
-                    yield return Alert.Safe(nameof(PumpOn));
+                    yield return this.CreateAlert(a => a.PumpOn);
                 }
                 else
                 {
-                    yield return new Alert(nameof(PumpOn), "Pump off while processing", AlertLevel.LowError);
+                    yield return this.CreateAlert(a => a.PumpOn, "Pump off while processing", AlertLevel.LowError);
                 }
             }
             else
             {
                 if (PumpOn)
                 {
-                    yield return new Alert(nameof(PumpOn), "Pump on while system off", AlertLevel.LowError);
+                    yield return this.CreateAlert(a => a.PumpOn, "Pump on while system off", AlertLevel.LowError);
                 }
                 else
                 {
-                    yield return Alert.Safe(nameof(PumpOn));
+                    yield return this.CreateAlert(a => a.PumpOn);
                 }
             }
         }
@@ -476,15 +476,15 @@ namespace Orbit.Models
         {
             if(MethaneStoreLevel >= storeFull)
             {
-                yield return new Alert(nameof(MethaneStoreLevel), "Methane store is at capacity", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.MethaneStoreLevel, "Methane store is at capacity", AlertLevel.HighError);
             }
             else if(MethaneStoreLevel > (storeFull - storeTolerance))
             {
-                yield return new Alert(nameof(MethaneStoreLevel), "Methane store is nearing capacity", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.MethaneStoreLevel, "Methane store is nearing capacity", AlertLevel.HighWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(MethaneStoreLevel));
+                yield return this.CreateAlert(a => a.MethaneStoreLevel);
             }
         }
 
@@ -492,15 +492,15 @@ namespace Orbit.Models
         {
             if(Co2StoreLevel >= storeFull)
             {
-                yield return new Alert(nameof(Co2StoreLevel), "CO2 store is at capacity", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.Co2StoreLevel, "CO2 store is at capacity", AlertLevel.HighError);
             }
             else if(Co2StoreLevel > (storeFull - storeTolerance))
             {
-                yield return new Alert(nameof(Co2StoreLevel), "Co2 store is nearing capacity", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.Co2StoreLevel, "Co2 store is nearing capacity", AlertLevel.HighWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(Co2StoreLevel));
+                yield return this.CreateAlert(a => a.Co2StoreLevel);
             }
         }
 
@@ -508,15 +508,15 @@ namespace Orbit.Models
         {
             if(H2StoreLevel >= storeFull)
             {
-                yield return new Alert(nameof(H2StoreLevel), "Hydrogen store is at capacity", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.H2StoreLevel, "Hydrogen store is at capacity", AlertLevel.HighError);
             }
             else if (H2StoreLevel > (storeFull - storeTolerance))
             {
-                yield return new Alert(nameof(H2StoreLevel), "Hydrogen store is nearing capacity", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.H2StoreLevel, "Hydrogen store is nearing capacity", AlertLevel.HighWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(H2StoreLevel));
+                yield return this.CreateAlert(a => a.H2StoreLevel);
             }
 
         }
