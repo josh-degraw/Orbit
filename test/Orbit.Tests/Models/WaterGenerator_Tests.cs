@@ -26,7 +26,7 @@ namespace Orbit.Tests.Models
             wg.ReactorTemp = 500;
             wg.SeperatorMotorSpeed = 2000;
             wg.ProcessData();
-            Assert.True(wg.MethaneStoreLevel == 35);
+            Assert.Equal(35, wg.MethaneStoreLevel);
         }
 
         [Fact]
@@ -39,7 +39,7 @@ namespace Orbit.Tests.Models
             wg.ReactorTemp = 400;
             wg.SeperatorMotorSpeed = 2000;
             wg.ProcessData();
-            Assert.True(wg.H2StoreLevel == 18);
+            Assert.Equal(18, wg.H2StoreLevel);
         }
 
         [Fact]
@@ -52,7 +52,7 @@ namespace Orbit.Tests.Models
             wg.ReactorTemp = 400;
             wg.SeperatorMotorSpeed = 2000;
             wg.ProcessData();
-            Assert.True(wg.Co2StoreLevel == 22);
+            Assert.Equal(22, wg.Co2StoreLevel);
         }
 
         [Fact]
@@ -67,7 +67,7 @@ namespace Orbit.Tests.Models
             wg.SeperatorMotorSpeed = 2000;
             wg.MethaneStoreLevel = 95;
             wg.ProcessData();
-            Assert.True(wg.MethaneStoreLevel == 0);
+            Assert.Equal(0, wg.MethaneStoreLevel);
         }
 
         [Fact]
@@ -82,7 +82,7 @@ namespace Orbit.Tests.Models
             wg.SeperatorMotorSpeed = 2000;
             wg.H2StoreLevel = 2;
             wg.ProcessData();
-            Assert.True(wg.H2StoreLevel == 0);
+            Assert.Equal(0, wg.H2StoreLevel);
         }
 
         [Fact]
@@ -97,7 +97,7 @@ namespace Orbit.Tests.Models
             wg.SeperatorMotorSpeed = 2000;
             wg.Co2StoreLevel = 4;
             wg.ProcessData();
-            Assert.True(wg.Co2StoreLevel == 0);
+            Assert.Equal(0, wg.Co2StoreLevel);
         }
 
         [Fact]
@@ -112,7 +112,7 @@ namespace Orbit.Tests.Models
             wg.SeperatorMotorSpeed = 2000;
             wg.Co2StoreLevel = 4;
             wg.ProcessData();
-            Assert.True(wg.Status == SystemStatus.Standby);
+            Assert.Equal(SystemStatus.Standby, wg.Status);
         }
 
         [Fact]
@@ -127,7 +127,7 @@ namespace Orbit.Tests.Models
             wg.SeperatorMotorSpeed = 2000;
             wg.H2StoreLevel = 2;
             wg.ProcessData();
-            Assert.True(wg.Status == SystemStatus.Standby);
+            Assert.Equal(SystemStatus.Standby, wg.Status);
         }
 
         [Fact]
@@ -151,7 +151,7 @@ namespace Orbit.Tests.Models
             WaterGeneratorData wg = new WaterGeneratorData();
             wg.SeedData();
             wg.ProcessData();
-            Assert.True(wg.Status == SystemStatus.Standby);
+            Assert.Equal(SystemStatus.Standby, wg.Status);
         }
 
         [Fact]
@@ -160,7 +160,7 @@ namespace Orbit.Tests.Models
             WaterGeneratorData wg = new WaterGeneratorData();
             wg.SeedData();
             wg.ProcessData();
-            Assert.True(wg.H2StoreLevel == 22); //20 start level + fill value of 2
+            Assert.Equal(22, wg.H2StoreLevel); //20 start level + fill value of 2
         }
 
         [Fact]
@@ -170,7 +170,7 @@ namespace Orbit.Tests.Models
             wg.SeedData();
             wg.Co2StoreLevel = 76;
             wg.ProcessData();
-            Assert.True(wg.Status == SystemStatus.Processing);
+            Assert.Equal(SystemStatus.Processing, wg.Status);
         }
 
         [Fact]
@@ -180,7 +180,7 @@ namespace Orbit.Tests.Models
             wg.SeedData();
             wg.H2StoreLevel = 76;
             wg.ProcessData();
-            Assert.True(wg.Status == SystemStatus.Processing);
+            Assert.Equal(SystemStatus.Processing, wg.Status);
         }
 
         [Fact]
@@ -210,7 +210,7 @@ namespace Orbit.Tests.Models
             WaterGeneratorData wg = new WaterGeneratorData();
             wg.SeedData();
             WaterGeneratorData newwg = new WaterGeneratorData(wg);
-            Assert.True(newwg.Status == wg.Status);
+            Assert.Equal(wg.Status, newwg.Status);
         }
 
         [Fact]
@@ -223,7 +223,7 @@ namespace Orbit.Tests.Models
             wg.SeperatorOn = true;
             wg.SeperatorMotorSpeed = 2000;
             WaterGeneratorData newwg = new WaterGeneratorData(wg);
-            Assert.False(newwg.ReactorTemp == wg.ReactorTemp);
+            Assert.NotEqual(wg.ReactorTemp, newwg.ReactorTemp);
         }
 
         [Fact]
@@ -232,7 +232,7 @@ namespace Orbit.Tests.Models
             WaterGeneratorData wg = new WaterGeneratorData();
             wg.SeedData();
             WaterGeneratorData newwg = new WaterGeneratorData(wg);
-            Assert.False(newwg.ReactorTemp == wg.ReactorTemp);
+            Assert.NotEqual(wg.ReactorTemp, newwg.ReactorTemp);
         }
 
         [Fact]
@@ -246,7 +246,7 @@ namespace Orbit.Tests.Models
             wg.SeperatorOn = true;
             wg.SeperatorMotorSpeed = 2000;
             wg.ProcessData();
-            Assert.True(wg.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, wg.Status);
         }
 
         [Fact]
@@ -260,7 +260,7 @@ namespace Orbit.Tests.Models
             wg.SeperatorOn = true;
             wg.SeperatorMotorSpeed = 2000;
             wg.ProcessData();
-            Assert.True(wg.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, wg.Status);
         }
 
         [Fact]
@@ -274,7 +274,7 @@ namespace Orbit.Tests.Models
             wg.SeperatorOn = false;
             wg.SeperatorMotorSpeed = 2000;
             wg.ProcessData();
-            Assert.True(wg.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, wg.Status);
         }
 
         [Fact]
@@ -288,7 +288,7 @@ namespace Orbit.Tests.Models
             wg.SeperatorOn = true;
             wg.SeperatorMotorSpeed = 2000;
             wg.ProcessData();
-            Assert.True(wg.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, wg.Status);
         }
 
         [Fact]
@@ -303,7 +303,7 @@ namespace Orbit.Tests.Models
             wg.SeperatorMotorSpeed = 2000;
             wg.MethaneStoreLevel = 100;
             wg.ProcessData();
-            Assert.True(wg.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, wg.Status);
         }
 
         [Fact]
@@ -318,7 +318,7 @@ namespace Orbit.Tests.Models
             wg.SeperatorOn = true;
             wg.SeperatorMotorSpeed = 2000;
             wg.ProcessData();
-            Assert.True(wg.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, wg.Status);
         }
 
         [Fact]
@@ -333,7 +333,7 @@ namespace Orbit.Tests.Models
             wg.SeperatorOn = true;
             wg.SeperatorMotorSpeed = 2000;
             wg.ProcessData();
-            Assert.True(wg.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, wg.Status);
         }
 
         [Fact]
@@ -347,7 +347,7 @@ namespace Orbit.Tests.Models
             wg.SeperatorOn = true;
             wg.SeperatorMotorSpeed = 2401;
             wg.ProcessData();
-            Assert.True(wg.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, wg.Status);
         }
 
         [Fact]
@@ -361,7 +361,7 @@ namespace Orbit.Tests.Models
             wg.SeperatorOn = true;
             wg.SeperatorMotorSpeed = 999;
             wg.ProcessData();
-            Assert.True(wg.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, wg.Status);
         }
 
         [Fact]
@@ -371,7 +371,7 @@ namespace Orbit.Tests.Models
             wg.SeedData();
             wg.ReactorTemp = 426;
             wg.ProcessData();
-            Assert.True(wg.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, wg.Status);
         }
 
         [Fact]
@@ -381,7 +381,7 @@ namespace Orbit.Tests.Models
             wg.SeedData();
             wg.SeperatorOn = true;
             wg.ProcessData();
-            Assert.True(wg.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, wg.Status);
         }
 
         [Fact]
@@ -391,7 +391,7 @@ namespace Orbit.Tests.Models
             wg.SeedData();
             wg.PumpOn = true;
             wg.ProcessData();
-            Assert.True(wg.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, wg.Status);
         }
 
         [Fact]
@@ -401,7 +401,7 @@ namespace Orbit.Tests.Models
             wg.SeedData();
             wg.HeaterOn = true;
             wg.ProcessData();
-            Assert.True(wg.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, wg.Status);
         }
 
         [Fact]
@@ -411,7 +411,7 @@ namespace Orbit.Tests.Models
             wg.SeedData();
             wg.MethaneStoreLevel = 91;
             wg.ProcessData();
-            Assert.True(wg.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, wg.Status);
         }
 
 

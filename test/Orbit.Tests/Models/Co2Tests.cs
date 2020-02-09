@@ -23,7 +23,7 @@ namespace Orbit.Tests.Models
             co2.SeedData();
             co2.Co2Level = 1;
             co2.ProcessData();
-            Assert.True(co2.Status == SystemStatus.Standby);
+            Assert.Equal(SystemStatus.Standby, co2.Status);
         }
 
         [Fact]
@@ -42,7 +42,7 @@ namespace Orbit.Tests.Models
             CarbonDioxideRemediation co2 = new CarbonDioxideRemediation();
             co2.SeedData();
             co2.ProcessData();
-            Assert.True(co2.Status == SystemStatus.Processing);
+            Assert.Equal(SystemStatus.Processing, co2.Status);
         }
 
         [Fact]
@@ -52,7 +52,7 @@ namespace Orbit.Tests.Models
             co2.SeedData();
             co2.Co2Level = 1;
             co2.ProcessData();
-            Assert.True(co2.Status == SystemStatus.Standby);
+            Assert.Equal(SystemStatus.Standby, co2.Status);
         }
 
         [Fact]
@@ -63,7 +63,7 @@ namespace Orbit.Tests.Models
             co2.Status = SystemStatus.Processing;
             co2.FanOn = false;
             co2.ProcessData();
-            Assert.True(co2.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, co2.Status);
         }
 
         [Fact]
@@ -75,7 +75,7 @@ namespace Orbit.Tests.Models
             co2.FanOn = true;
             co2.Bed2Temperature = 240;
             co2.ProcessData();
-            Assert.True(co2.Status == SystemStatus.Processing);
+            Assert.Equal(SystemStatus.Processing, co2.Status);
         }
 
         [Fact]
@@ -88,7 +88,7 @@ namespace Orbit.Tests.Models
             co2.Bed2Temperature = 230;
             co2.count = 31;
             co2.ProcessData();
-            Assert.True(co2.AbsorbingBed == BedOptions.Bed2);
+            Assert.Equal(BedOptions.Bed2, co2.AbsorbingBed);
         }
 
         [Fact]
@@ -104,7 +104,7 @@ namespace Orbit.Tests.Models
             co2.RegeneratingBed = BedOptions.Bed1;
             co2.count = 31;
             co2.ProcessData();
-            Assert.True(co2.RegeneratingBed == BedOptions.Bed2);
+            Assert.Equal(BedOptions.Bed2, co2.RegeneratingBed);
         }
 
         [Fact]
@@ -115,7 +115,7 @@ namespace Orbit.Tests.Models
             co2.Status = SystemStatus.Processing;
             co2.Bed2Temperature = 230;
             co2.ProcessData();
-            Assert.True(co2.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, co2.Status);
         }
 
         [Fact]
@@ -128,7 +128,7 @@ namespace Orbit.Tests.Models
             co2.Bed2Temperature = 230;
             co2.Co2OutputLevel = 5;
             co2.ProcessData();
-            Assert.True(co2.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, co2.Status);
         }
 
         [Fact]
@@ -141,7 +141,7 @@ namespace Orbit.Tests.Models
             co2.Bed1Temperature = 230;
             co2.Bed2Temperature = 230;
             co2.ProcessData();
-            Assert.True(co2.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, co2.Status);
         }
 
         [Fact]
@@ -153,7 +153,7 @@ namespace Orbit.Tests.Models
             co2.FanOn = true;
             co2.Bed2Temperature = 21;
             co2.ProcessData();
-            Assert.True(co2.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, co2.Status);
         }
 
         /// <summary>
@@ -168,7 +168,7 @@ namespace Orbit.Tests.Models
             co2.FanOn = true;
             co2.Bed2Temperature = 260;
             co2.ProcessData();
-            Assert.True(co2.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, co2.Status);
         }
 
         [Fact]
@@ -177,7 +177,7 @@ namespace Orbit.Tests.Models
             CarbonDioxideRemediation co2 = new CarbonDioxideRemediation();
             co2.SeedData();
             CarbonDioxideRemediation newco2 = new CarbonDioxideRemediation(co2);
-            Assert.True(co2.AbsorbingBed == newco2.AbsorbingBed);
+            Assert.Equal(newco2.AbsorbingBed, co2.AbsorbingBed);
         }
 
         [Fact]
@@ -186,7 +186,7 @@ namespace Orbit.Tests.Models
             CarbonDioxideRemediation co2 = new CarbonDioxideRemediation();
             co2.SeedData();
             CarbonDioxideRemediation newco2 = new CarbonDioxideRemediation(co2);
-            Assert.False(co2.Co2Level == newco2.Co2Level);
+            Assert.NotEqual(newco2.Co2Level, co2.Co2Level);
         }
 
         [Fact]

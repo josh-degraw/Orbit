@@ -15,8 +15,10 @@ namespace Orbit.Tests.Models
             InternalCoolantLoopData ic = new InternalCoolantLoopData();
             ic.SeedData();
             ic.ProcessData();
-            Assert.True((ic.LowTempMixValvePosition == 15) && (ic.MedTempMixValvePosition == 32));
+            Assert.Equal(15, ic.LowTempMixValvePosition);
+            Assert.Equal(32, ic.MedTempMixValvePosition);
         }
+
         [Fact]
         public void TestDualLoop_LowTempHigh()
         {
@@ -24,7 +26,7 @@ namespace Orbit.Tests.Models
             ic.SeedData();
             ic.TempLowLoop = 8;
             ic.ProcessData();
-            Assert.True(ic.LowTempMixValvePosition == 16);
+            Assert.Equal(16, ic.LowTempMixValvePosition);
         }
 
         [Fact]
@@ -34,7 +36,7 @@ namespace Orbit.Tests.Models
             ic.SeedData();
             ic.TempLowLoop = 0;
             ic.ProcessData();
-            Assert.True(ic.LowTempMixValvePosition == 14);
+            Assert.Equal(14, ic.LowTempMixValvePosition);
         }
 
         [Fact]
@@ -44,7 +46,7 @@ namespace Orbit.Tests.Models
             ic.SeedData();
             ic.TempMedLoop = 15;
             ic.ProcessData();
-            Assert.True(ic.MedTempMixValvePosition == 33);
+            Assert.Equal(33, ic.MedTempMixValvePosition);
         }
 
         [Fact]
@@ -54,7 +56,7 @@ namespace Orbit.Tests.Models
             ic.SeedData();
             ic.TempMedLoop = 6;
             ic.ProcessData();
-            Assert.True(ic.MedTempMixValvePosition == 31);
+            Assert.Equal(31, ic.MedTempMixValvePosition);
         }
 
         [Fact]
@@ -65,7 +67,7 @@ namespace Orbit.Tests.Models
             ic.LowTempPumpOn = false;
             ic.MedTempPumpOn = false;
             ic.ProcessData();
-            Assert.True(ic.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, ic.Status);
         }
 
         [Fact]
@@ -76,7 +78,7 @@ namespace Orbit.Tests.Models
             ic.LowTempPumpOn = false;
             ic.MedTempSingleLoop = true;
             ic.ProcessData();
-            Assert.True(ic.Status == SystemStatus.On);
+            Assert.Equal(SystemStatus.On, ic.Status);
         }
 
         [Fact]
@@ -89,7 +91,7 @@ namespace Orbit.Tests.Models
             ic.TempLowLoop = 7;
             ic.CrossoverMixValvePosition = 12;
             ic.ProcessData();
-            Assert.True(ic.CrossoverMixValvePosition == 13);
+            Assert.Equal(13, ic.CrossoverMixValvePosition);
         }
 
         [Fact]
@@ -102,7 +104,7 @@ namespace Orbit.Tests.Models
             ic.TempMedLoop = 6;
             ic.CrossoverMixValvePosition = 12;
             ic.ProcessData();
-            Assert.True(ic.CrossoverMixValvePosition == 11);
+            Assert.Equal(11, ic.CrossoverMixValvePosition);
         }
 
         [Fact]
@@ -112,7 +114,7 @@ namespace Orbit.Tests.Models
             ic.SeedData();
             ic.MedTempPumpOn = false;
             ic.ProcessData();
-            Assert.True(ic.CrossoverMixValvePosition == 40);
+            Assert.Equal(40, ic.CrossoverMixValvePosition);
         }
 
         [Fact]
@@ -122,7 +124,7 @@ namespace Orbit.Tests.Models
             ic.SeedData();
             ic.LowTempPumpOn = false;
             ic.ProcessData();
-            Assert.True(ic.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, ic.Status);
         }
 
         [Fact]
@@ -146,7 +148,7 @@ namespace Orbit.Tests.Models
             ic.MedTempPumpOn = false;
             ic.LowTempPumpOn = false;
             ic.ProcessData();
-            Assert.True(ic.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, ic.Status);
         }
     }
 }

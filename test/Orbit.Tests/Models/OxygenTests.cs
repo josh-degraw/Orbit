@@ -24,7 +24,7 @@ namespace Orbit.Tests.Models
             o2.OxygenLevel = 22;
             o2.ProcessData();
             output.WriteLine("SystemOutput = {0}, NumCells = {1}, O2Level = {2}", o2.SystemOutput, o2.NumActiveCells, o2.OxygenLevel);
-            Assert.True(o2.SystemOutput == 0);
+            Assert.Equal(0, o2.SystemOutput);
         }
 
         [Fact]
@@ -35,7 +35,7 @@ namespace Orbit.Tests.Models
             o2.Status = SystemStatus.Processing;
             o2.ProcessData();
             // numactive cells = 1 * 270 output/cell
-            Assert.True(o2.SystemOutput == 270);
+            Assert.Equal(270, o2.SystemOutput);
         }
 
         [Fact]
@@ -47,7 +47,7 @@ namespace Orbit.Tests.Models
             o2.lastWorkingStatus = SystemStatus.Standby;
             o2.ProcessData();
             // numactive cells = 1 * 270 output/cell
-            Assert.True(o2.SystemOutput == 0);
+            Assert.Equal(0, o2.SystemOutput);
         }
 
         [Fact]
@@ -59,7 +59,7 @@ namespace Orbit.Tests.Models
             o2.lastWorkingStatus = SystemStatus.Processing;
             o2.ProcessData();
             // numactive cells * 270 output/cell
-            Assert.True(o2.SystemOutput == 270);
+            Assert.Equal(270, o2.SystemOutput);
         }
 
         [Fact]
@@ -71,7 +71,7 @@ namespace Orbit.Tests.Models
             o2.NumActiveCells = 3;
             o2.OxygenLevel = 22;
             o2.ProcessData();
-            Assert.True(o2.NumActiveCells == 2);
+            Assert.Equal(2, o2.NumActiveCells);
         }
 
         [Fact]
@@ -82,7 +82,7 @@ namespace Orbit.Tests.Models
             o2.Status = SystemStatus.Processing;
             o2.InflowBubblesPresent = true;
             o2.ProcessData();
-            Assert.True(o2.DiverterValvePosition == DiverterValvePositions.Reprocess);
+            Assert.Equal(DiverterValvePositions.Reprocess, o2.DiverterValvePosition);
         }
 
         [Fact]
@@ -93,7 +93,7 @@ namespace Orbit.Tests.Models
             o2.Status = SystemStatus.Processing;
             o2.InflowBubblesPresent = false;
             o2.ProcessData();
-            Assert.True(o2.DiverterValvePosition == DiverterValvePositions.Accept);
+            Assert.Equal(DiverterValvePositions.Accept, o2.DiverterValvePosition);
         }
 
         [Fact]
@@ -108,7 +108,7 @@ namespace Orbit.Tests.Models
             o2.NumActiveCells = 1;
             o2.OxygenLevel = 22;
             o2.ProcessData();
-            Assert.True(o2.Status == SystemStatus.Standby);
+            Assert.Equal(SystemStatus.Standby, o2.Status);
         }
 
         [Fact]
@@ -119,7 +119,7 @@ namespace Orbit.Tests.Models
             o2.Status = SystemStatus.Processing;
             o2.HydrogenSensor = true;
             o2.ProcessData();
-            Assert.True(o2.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, o2.Status);
         }
 
         [Fact]
@@ -130,7 +130,7 @@ namespace Orbit.Tests.Models
             o2.Status = SystemStatus.Standby;
             o2.HydrogenSensor = true;
             o2.ProcessData();
-            Assert.True(o2.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, o2.Status);
         }
 
         [Fact]
@@ -140,7 +140,7 @@ namespace Orbit.Tests.Models
             o2.SeedData();
             o2.SeparatorOn = true;
             o2.ProcessData();
-            Assert.True(o2.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, o2.Status);
         }
 
         [Fact]
@@ -152,7 +152,7 @@ namespace Orbit.Tests.Models
             o2.SeparatorOn = false;
             o2.RecirculationPumpOn = true;
             o2.ProcessData();
-            Assert.True(o2.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, o2.Status);
         }
 
         [Fact]
@@ -163,7 +163,7 @@ namespace Orbit.Tests.Models
             o2.Status = SystemStatus.Standby;
             o2.RecirculationPumpOn = true;
             o2.ProcessData();
-            Assert.True(o2.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, o2.Status);
         }
 
         [Fact]
@@ -175,7 +175,7 @@ namespace Orbit.Tests.Models
             o2.SeparatorOn = true;
             o2.RecirculationPumpOn = false;
             o2.ProcessData();
-            Assert.True(o2.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, o2.Status);
         }
 
         [Fact]
@@ -191,7 +191,7 @@ namespace Orbit.Tests.Models
         {
             OxygenGenerator o2 = new OxygenGenerator();
             OxygenGenerator new02 = new OxygenGenerator(o2);
-            Assert.True(o2.OxygenSetLevel == new02.OxygenSetLevel);
+            Assert.Equal(new02.OxygenSetLevel, o2.OxygenSetLevel);
         }
 
     }
