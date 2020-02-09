@@ -175,15 +175,15 @@ namespace Orbit.Models
         {
             if (ProductTankLevel >= productTankLevelUpperLimit)
             {
-                yield return this.CreateRangedAlert(nameof(ProductTankLevel), "Clean water tank is at capacity", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.ProductTankLevel, "Clean water tank is at capacity", AlertLevel.HighError);
             }
             else if (ProductTankLevel >= (productTankLevelUpperLimit - productTankLevelTolerance))
             {
-                yield return this.CreateRangedAlert(nameof(ProductTankLevel), "Clean water tank is nearing capacity", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.ProductTankLevel, "Clean water tank is nearing capacity", AlertLevel.HighWarning);
             }
             else
             {
-                yield return this.CreateRangedAlertSafe(nameof(ProductTankLevel));
+                yield return this.CreateAlert(a => a.ProductTankLevel);
             }
         }
 
@@ -203,23 +203,23 @@ namespace Orbit.Models
         {
             if (PostHeaterTemp >= postHeaterTempUpperLimit)
             {
-                yield return this.CreateRangedAlert(nameof(PostHeaterTemp), "Pre reactor water temp is above maximum", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.PostHeaterTemp, "Pre reactor water temp is above maximum", AlertLevel.HighError);
             }
             else if (PostHeaterTemp >= (postHeaterTempUpperLimit - postHeaterTempTolerance))
             {
-                yield return this.CreateRangedAlert(nameof(PostHeaterTemp), "Pre reactor water temp is too high", AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.PostHeaterTemp, "Pre reactor water temp is too high", AlertLevel.HighWarning);
             }
             else if (PostHeaterTemp <= postHeaterTempLowerLimit)
             {
-                yield return this.CreateRangedAlert(nameof(PostHeaterTemp), "Pre reactor water temp is below minimum", AlertLevel.LowError);
+                yield return this.CreateAlert(a => a.PostHeaterTemp, "Pre reactor water temp is below minimum", AlertLevel.LowError);
             }
             else if (PostHeaterTemp <= (postHeaterTempLowerLimit + postHeaterTempTolerance))
             {
-                yield return this.CreateRangedAlert(nameof(PostHeaterTemp), "Pre reactor water temp is too low", AlertLevel.LowWarning);
+                yield return this.CreateAlert(a => a.PostHeaterTemp, "Pre reactor water temp is too low", AlertLevel.LowWarning);
             }
             else
             {
-                yield return this.CreateRangedAlertSafe(nameof(PostHeaterTemp));
+                yield return this.CreateAlert(a => a.PostHeaterTemp);
             }
         }
 
