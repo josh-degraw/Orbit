@@ -56,6 +56,7 @@ namespace Orbit.Models
         /// reactor Nominal is 130.5
         /// </summary>
         [Range(32, 150)]
+        [IdealRange(120, 140)]
         [IdealValue(130.5)]
         public double PostHeaterTemp { get; set; }
 

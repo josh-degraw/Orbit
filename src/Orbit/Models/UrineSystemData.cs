@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using Orbit.Annotations;
 
 namespace Orbit.Models
 {
@@ -46,7 +47,8 @@ namespace Orbit.Models
         /// <summary>
         /// Fullness of treated urine holding tank as a percentage
         /// </summary>
-        [Range(0, urineTankUpperLimit)]
+        [Range(0, 100)]
+        [IdealRange(0, 90)]
         public double UrineTankLevel { get; set; }
 
         /// <summary>
@@ -63,13 +65,17 @@ namespace Orbit.Models
         /// <summary>
         /// Motor speed; nominal 1200 rpm
         /// </summary>
-        [Range(0, distillerSpeedUpperLimit + distillerSpeedTolerance)]
+        [Range(0, 1500)]
+        [IdealRange(1000, 1400)]
+        [IdealValue(1200)]
         public int DistillerSpeed { get; set; }
 
         /// <summary>
         /// Temp of urine in the distiller; nominal 45C
         /// </summary>
         [Range(0, 60)]
+        [IdealRange(35, 50)]
+        [IdealValue(45)]
         public double DistillerTemp { get; set; }
 
         /// <summary>
@@ -81,7 +87,8 @@ namespace Orbit.Models
         /// <summary>
         /// Stores concentrated minerals and contaminates from urine distillation process for later disposal shown as percentage
         /// </summary>
-        [Range(0, brineTankLevelUpperLimit)]
+        [Range(0, 100)]
+        [IdealRange(0, 90)]
         public double BrineTankLevel { get; set; }
 
         #endregion Properties
