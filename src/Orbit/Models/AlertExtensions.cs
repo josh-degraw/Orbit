@@ -32,14 +32,24 @@ namespace Orbit.Models
             return info;
         }
 
-        public static Alert CreateAlert<T, TProperty>(this T model, Expression<Func<T, TProperty>> propSelector, string message = "", AlertLevel level = AlertLevel.Safe) where T : class, IAlertableModel
+        /// <summary>
+        ///   Create a new <see cref="Alert"/> with the provided properties.
+        /// </summary>
+        /// <typeparam name="TModel">The type of the model.</typeparam>
+        /// <typeparam name="TProperty"></typeparam>
+        /// <param name="model">The model data object.</param>
+        /// <param name="propSelector">An expression (lambda method) selecting the property which the alert is for.</param>
+        /// <param name="message">The message for the alert.</param>
+        /// <param name="level">The level of the alert.</param>
+        /// <returns>The newly created alert.</returns>
+        public static Alert CreateAlert<TModel, TProperty>(this TModel model, Expression<Func<TModel, TProperty>> propSelector, string message = "", AlertLevel level = AlertLevel.Safe) where TModel : class, IAlertableModel
         {
             var body = (MemberExpression)propSelector.Body;
             var member = body.Member;
             var value = propSelector.Compile()(model);
 
             var info = GetMetadata(member);
-            return new Alert  (member.Name, message, level, info, value);
+            return new Alert(member.Name, message, level, info, value);
         }
     }
 }
