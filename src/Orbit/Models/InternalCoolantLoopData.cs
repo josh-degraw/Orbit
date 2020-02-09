@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using Orbit.Annotations;
 
 namespace Orbit.Models
 {
@@ -37,6 +38,11 @@ namespace Orbit.Models
         public SystemStatus Status { get; set; }
 
         /// <summary>
+        /// denotes whether system is operating manually or automatically
+        /// </summary>
+        public Modes Mode { get; set; }
+
+        /// <summary>
         /// true if pump is working, false if not working
         /// </summary>
         public bool LowTempPumpOn { get; set; }
@@ -50,37 +56,63 @@ namespace Orbit.Models
         /// determines mix of 'hot' coolant returning from equipment and 'cold' coolant coming from heat exchanger
         /// 0 = bypass heat exhanger, 100 = no fluid bypasses heat exchanger
         /// </summary>
-        public int HeatExMixValvePosition { get; set; }
+        [Range(0, 100)]
+        public int LowTempMixValvePosition { get; set; }
 
         /// <summary>
-        /// determines mix of 'med' and 'low' temp coolants, allows secondary control of temp and 
-        /// operation of seperate loops as one loop in case of a pump failure
-        /// 0 = operate as seperate loops, 100 = operate as single loop
+        /// determines mix of 'hot' coolant returning from equipment and 'cold' coolant coming from heat exchanger
+        /// 0 = bypass heat exhanger, 100 = no fluid bypasses heat exchanger
         /// </summary>
-        public int LoopMixValvePosition { get; set; }
+        [Range(0, 100)]
+        public int MedTempMixValvePosition { get; set; }
+
+        /// <summary>
+        /// determines mix of 'hot' coolant returning from equipment and 'cold' coolant coming from heat exchanger
+        /// 0 = bypass heat exhanger, 100 = no fluid bypasses heat exchanger
+        /// </summary>
+        [Range(0, 100)]
+        public int CrossoverMixValvePosition { get; set; }
+
+        /// <summary>
+        /// true when med and low loops are operating as a single loop and low temp pump is on
+        /// </summary>
+        public bool LowTempSingleLoop { get; set; }
+
+        /// <summary>
+        /// true when med and low loops are operating as a single loop and med temp pump is on
+        /// </summary>
+        public bool MedTempSingleLoop { get; set; }
 
         /// <summary>
         /// warmer temperature coolant loop for experiments and avionics 
         /// nominal is 10.5C
         /// </summary>
-        [Range(0, 47)]
-        public double TempMedCoolantLoop { get; set; }
+        [Range(0, 35)]
+        [IdealRange(10, 27)]
+        [IdealValue(10.5)]
+        public double TempMedLoop { get; set; }
 
         /// <summary>
         /// colder temperature coolant loop for life support, cabin air assembly, and some experiments 
         /// nominal is 4C
         /// </summary>
-        [Range(0, 47)]
-        public double TempLowCoolantLoop { get; set; }
+        [Range(0, 20)]
+        [IdealRange(2, 10)]
+        [IdealValue(4)]
+        public double TempLowLoop { get; set; }
 
         /// <summary>
         /// desired temperature for the medium temperature loop
         /// </summary>
+        [Range(0, 35)]
+        [IdealRange(10, 27)]
         public double SetTempMedLoop { get; set; }
 
         /// <summary>
         /// desired temperature for the low temperature loop
         /// </summary>
+        [Range(0, 20)]
+        [IdealRange(2, 10)]
         public double SetTempLowLoop { get; set; }
 
         #endregion Public Properties
@@ -92,56 +124,131 @@ namespace Orbit.Models
         public InternalCoolantLoopData(InternalCoolantLoopData other)
         {
             Status = other.Status;
+            Mode = other.Mode;
             LowTempPumpOn = other.LowTempPumpOn;
             MedTempPumpOn = other.MedTempPumpOn;
-            HeatExMixValvePosition = other.HeatExMixValvePosition;
-            LoopMixValvePosition = other.LoopMixValvePosition;
-            TempLowCoolantLoop = other.TempLowCoolantLoop;
-            TempMedCoolantLoop = other.TempMedCoolantLoop;
+            LowTempMixValvePosition = other.LowTempMixValvePosition;
+            MedTempMixValvePosition = other.MedTempMixValvePosition;
+            CrossoverMixValvePosition = other.CrossoverMixValvePosition;
+            LowTempSingleLoop = other.LowTempSingleLoop;
+            MedTempSingleLoop = other.MedTempSingleLoop;
+            TempLowLoop = other.TempLowLoop;
+            TempMedLoop = other.TempMedLoop;
             SetTempLowLoop = other.SetTempLowLoop;
             SetTempMedLoop = other.SetTempMedLoop;
+
+            GenerateData();
         }
 
         #endregion Constructors
 
         #region Methods
 
+        public void SeedData()
+        {
+            Status = SystemStatus.On;
+            Mode = Modes.Uncrewed;
+            LowTempPumpOn = true;
+            MedTempPumpOn = true;
+            LowTempMixValvePosition = 15;
+            MedTempMixValvePosition = 32;
+            CrossoverMixValvePosition = 0;
+            LowTempSingleLoop = false;
+            MedTempSingleLoop = false;
+            TempLowLoop = 4;
+            TempMedLoop = 10.5;
+            SetTempLowLoop = 4;
+            SetTempMedLoop = 10.5;
+        }
+
         public void ProcessData()
         {
-            GenerateData();
-
-            if(TempLowCoolantLoop < SetTempLowLoop)
+            // both pumps on, dual loop operation
+            if (LowTempPumpOn && MedTempPumpOn)
             {
-                // coolant too cool, decrease amount of 'cold' coolant from heat exchanger
-                DecreaseMix();   
-            }
+                CrossoverMixValvePosition = 0;
 
-            if(TempLowCoolantLoop > SetTempLowLoop)
-            {
-                // coolant too warm, add more 'cold' coolant from heat exchanger
-                IncreaseMix();
-            }
+                if (TempLowLoop < SetTempLowLoop)
+                {
+                    DecreaseMix("low");
+                }
+                else if (TempLowLoop > SetTempLowLoop)
+                {
+                    IncreaseMix("low");
+                }
 
-            if((!LowTempPumpOn || !MedTempPumpOn) && LoopMixValvePosition != mixValveMaxOpen)
-            {
-                // if a pump goes off, make sure loops are operating as single loop to maintain cooling ability
-                LoopMixValvePosition = mixValveMaxOpen;
-                Status = SystemStatus.Trouble;
+                if (TempMedLoop < SetTempMedLoop)
+                {
+                    DecreaseMix("med");
+                }
+                else if (TempMedLoop > SetTempMedLoop)
+                {
+                    IncreaseMix("med");
+                }
             }
+            //  manually triggered single loop operation with failure of corresponding pump, switch loops then process
+            else
+            {
+                // running on med loop only and med loop pump has failed, switch loop pumps
+                if (MedTempSingleLoop && !MedTempPumpOn)
+                {
+                    Trouble();
+                    MedTempSingleLoop = false;
+                    LowTempSingleLoop = true;
+                    LowTempPumpOn = true;
+                }
+                // running on low temp loop only and low loop pump has failed, switch loop pumps
+                else if (LowTempSingleLoop && !LowTempPumpOn)
+                {
+                    Trouble();
+                    LowTempSingleLoop = false;
+                    MedTempSingleLoop = true;
+                    MedTempPumpOn = true;
+                }
+                // Single loop operation not manually selected
+                else if(!LowTempSingleLoop && !MedTempSingleLoop)
+                {
+                    Trouble();
 
-            if ((TempLowCoolantLoop <= lowTempCoolantLoopLowerLimit) && (HeatExMixValvePosition != mixValveMaxClosed))
-            {
-                // temp is too low, bypass heat exchanger so line does not freeze
-                HeatExMixValvePosition = mixValveMaxClosed;
+                    // give the crossover mix valve a starting 'open' position
+                    if (CrossoverMixValvePosition == 0)
+                    {
+                        CrossoverMixValvePosition = 40;
+                    }
+
+                }
+                // dual pump failure
+                else if (!LowTempPumpOn && !MedTempPumpOn)
+                {
+                    Trouble();
+                }
+
+
+                if ((TempLowLoop < SetTempLowLoop) || (TempMedLoop < SetTempMedLoop))
+                {
+                    // coolant too cool, decrease amount of 'cold' coolant from heat exchanger
+                    DecreaseCombinedValve();
+                }
+
+                else if ((TempLowLoop > SetTempLowLoop) || (TempMedLoop > SetTempMedLoop))
+                {
+                    // coolant too warm, add more 'cold' coolant from heat exchanger
+                    IncreaseCombinedValve();
+                }
             }
+        }
+
+        private void Trouble()
+        {
+            Status = SystemStatus.Trouble;
         }
 
         private void GenerateData()
         {
             Random rand = new Random();
 
-            TempLowCoolantLoop = rand.Next(0, 60);
-            TempMedCoolantLoop = rand.Next(0, 60);
+            TempLowLoop = rand.Next(0, 60);
+            TempMedLoop = rand.Next(0, 60);
 
             if (rand.Next(0, 10) == 5)
             {
@@ -153,29 +260,84 @@ namespace Orbit.Models
             }
         }
 
-        private void IncreaseMix()
+        private void IncreaseMix(string loop)
         {
-            if(HeatExMixValvePosition < mixValveMaxOpen)
+            if (loop.Equals("low"))
             {
-                HeatExMixValvePosition++;
+                if (LowTempMixValvePosition < mixValveMaxOpen)
+                {
+                    LowTempMixValvePosition++;
+                }
+                else
+                {
+                    LowTempMixValvePosition = mixValveMaxOpen;
+                }
+            }
+            else if (loop.Equals("med"))
+            {
+                if (MedTempMixValvePosition < mixValveMaxOpen)
+                {
+                    MedTempMixValvePosition++;
+                }
+                else
+                {
+                    MedTempMixValvePosition = mixValveMaxOpen;
+                }
+            }
+            else { }
+        }
+
+        private void IncreaseCombinedValve()
+        {
+            if(CrossoverMixValvePosition < mixValveMaxOpen)
+            {
+                CrossoverMixValvePosition++;
             }
             else
             {
-                HeatExMixValvePosition = mixValveMaxOpen;
+                CrossoverMixValvePosition = mixValveMaxOpen;
             }
         }
 
-        private void DecreaseMix()
+        private void DecreaseMix(string loop)
         {
-            if (HeatExMixValvePosition > mixValveMaxClosed)
+            if (loop.Equals("low"))
             {
-                HeatExMixValvePosition--;
+                if (LowTempMixValvePosition > mixValveMaxClosed)
+                {
+                    LowTempMixValvePosition--;
+                }
+                else
+                {
+                    LowTempMixValvePosition = mixValveMaxClosed;
+                }
             }
-            else 
+            else if (loop.Equals("med"))
             {
-                HeatExMixValvePosition = 0;
+                if (MedTempMixValvePosition > mixValveMaxClosed)
+                {
+                    MedTempMixValvePosition--;
+                }
+                else
+                {
+                    MedTempMixValvePosition = mixValveMaxClosed;
+                }
+            }
+            else { }
+        }
+
+        private void DecreaseCombinedValve()
+        {
+            if (CrossoverMixValvePosition > mixValveMaxClosed)
+            {
+                CrossoverMixValvePosition--;
+            }
+            else
+            {
+                CrossoverMixValvePosition = mixValveMaxClosed;
             }
         }
+
 
         #endregion Methods
 
@@ -183,97 +345,121 @@ namespace Orbit.Models
 
         private IEnumerable<Alert> CheckLowLoopTemp()
         {
-            if (TempLowCoolantLoop >= lowTempCoolantLoopUpperLimit)
+            if (TempLowLoop >= lowTempCoolantLoopUpperLimit)
             {
-                yield return new Alert(nameof(TempLowCoolantLoop), "Low coolant loop temperature is above maximum", AlertLevel.HighError);
+                yield return new Alert(nameof(TempLowLoop), "Low loop temperature is above maximum", AlertLevel.HighError);
             }
-            else if (TempLowCoolantLoop >= (lowTempCoolantLoopUpperLimit - lowTempCoolantLoopTolerance))
+            else if (TempLowLoop >= (lowTempCoolantLoopUpperLimit - lowTempCoolantLoopTolerance))
             {
-                yield return new Alert(nameof(TempLowCoolantLoop), "Low coolant loop temperature is high", AlertLevel.HighWarning);
+                yield return new Alert(nameof(TempLowLoop), "Low loop temperature is high", AlertLevel.HighWarning);
             }
-            else if (TempLowCoolantLoop <= lowTempCoolantLoopLowerLimit)
+            else if (TempLowLoop <= lowTempCoolantLoopLowerLimit)
             {
-                yield return new Alert(nameof(TempLowCoolantLoop), "Low coolant loop temperature is low", AlertLevel.LowError);
+                yield return new Alert(nameof(TempLowLoop), "Low loop temperature is low", AlertLevel.LowError);
             }
-            else if (TempLowCoolantLoop <= (lowTempCoolantLoopLowerLimit + lowTempCoolantLoopTolerance))
+            else if (TempLowLoop <= (lowTempCoolantLoopLowerLimit + lowTempCoolantLoopTolerance))
             {
-                yield return new Alert(nameof(TempLowCoolantLoop), "Low coolant loop temperature is below minimum", AlertLevel.LowWarning);
+                yield return new Alert(nameof(TempLowLoop), "Low loop temperature is below minimum", AlertLevel.LowWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(TempLowCoolantLoop));
+                yield return Alert.Safe(nameof(TempLowLoop));
             }
         }
 
         private IEnumerable<Alert> CheckMedLoopTemp()
         {
-            if (TempMedCoolantLoop >= medCoolantLoopUpperLimit)
+            if (TempMedLoop >= medCoolantLoopUpperLimit)
             {
-                yield return new Alert(nameof(TempMedCoolantLoop), "Med coolant loop temperature is above maximum", AlertLevel.HighError);
+                yield return new Alert(nameof(TempMedLoop), "Med loop temperature is above maximum", AlertLevel.HighError);
             }
-            else if (TempMedCoolantLoop >= (medCoolantLoopUpperLimit - medCoolantLoopTolerance))
+            else if (TempMedLoop >= (medCoolantLoopUpperLimit - medCoolantLoopTolerance))
             {
-                yield return new Alert(nameof(TempMedCoolantLoop), "Med coolant loop temperature is high", AlertLevel.HighWarning);
+                yield return new Alert(nameof(TempMedLoop), "Med loop temperature is high", AlertLevel.HighWarning);
             }
-            else if (TempMedCoolantLoop <= medCoolantLoopLowerLimit)
+            else if (TempMedLoop <= medCoolantLoopLowerLimit)
             {
-                yield return new Alert(nameof(TempMedCoolantLoop), "Med coolant loop temperature is low", AlertLevel.LowError);
+                yield return new Alert(nameof(TempMedLoop), "Med loop temperature is low", AlertLevel.LowError);
             }
-            else if (TempMedCoolantLoop <= (medCoolantLoopLowerLimit + medCoolantLoopTolerance))
+            else if (TempMedLoop <= (medCoolantLoopLowerLimit + medCoolantLoopTolerance))
             {
-                yield return new Alert(nameof(TempMedCoolantLoop), "Med coolant loop temperature is below minimum", AlertLevel.LowWarning);
+                yield return new Alert(nameof(TempMedLoop), "Med loop temperature is below minimum", AlertLevel.LowWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(TempMedCoolantLoop));
+                yield return Alert.Safe(nameof(TempMedLoop));
             }
         }
 
-        private IEnumerable<Alert> CheckHeatExMixValve()
+        private IEnumerable<Alert> CheckLowTempMixValve()
         {
-            if(HeatExMixValvePosition >= mixValveMaxOpen)
+            if(LowTempMixValvePosition >= mixValveMaxOpen)
             {
-                yield return new Alert(nameof(HeatExMixValvePosition), "Internal coolant heat exchange mixing valve is fully open", AlertLevel.HighError);
+                yield return new Alert(nameof(LowTempMixValvePosition), "Low temp mixing valve is fully open", AlertLevel.HighError);
             }
-            if(HeatExMixValvePosition > (mixValveMaxOpen - mixValveTolerance))
+            if(LowTempMixValvePosition > (mixValveMaxOpen - mixValveTolerance))
             {
-                yield return new Alert(nameof(HeatExMixValvePosition), "Internal collant heat exchange mixing valve is almost fully open", AlertLevel.HighWarning);
+                yield return new Alert(nameof(LowTempMixValvePosition), "Low temp mixing valve is almost fully open", AlertLevel.HighWarning);
             }
-            if(HeatExMixValvePosition <= mixValveMaxClosed)
+            if(LowTempMixValvePosition <= mixValveMaxClosed)
             {
-                yield return new Alert(nameof(HeatExMixValvePosition), "Internal coolant heat exchange mixing valve is fully closed", AlertLevel.LowError);
+                yield return new Alert(nameof(LowTempMixValvePosition), "Low temp mixing valve is fully closed", AlertLevel.LowError);
             }
-            if(HeatExMixValvePosition < (mixValveMaxClosed - mixValveTolerance))
+            if(LowTempMixValvePosition < (mixValveMaxClosed - mixValveTolerance))
             {
-                yield return new Alert(nameof(HeatExMixValvePosition), "Internal coolant heat exchange mixing valve is almost fully closed", AlertLevel.LowWarning);
+                yield return new Alert(nameof(LowTempMixValvePosition), "Low temp mixing valve is almost fully closed", AlertLevel.LowWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(HeatExMixValvePosition));
+                yield return Alert.Safe(nameof(LowTempMixValvePosition));
             }
         }
 
-        private IEnumerable<Alert> CheckLoopMixValve()
+        private IEnumerable<Alert> CheckMedTempMixValve()
         {
-            if (LoopMixValvePosition >= mixValveMaxOpen)
+            if (MedTempMixValvePosition >= mixValveMaxOpen)
             {
-                yield return new Alert(nameof(LoopMixValvePosition), "Internal coolant loop mixing valve is fully open", AlertLevel.HighError);
+                yield return new Alert(nameof(MedTempMixValvePosition), "Med temp mixing valve is fully open", AlertLevel.HighError);
             }
-            if (LoopMixValvePosition > (mixValveMaxOpen - mixValveTolerance))
+            if (MedTempMixValvePosition > (mixValveMaxOpen - mixValveTolerance))
             {
-                yield return new Alert(nameof(LoopMixValvePosition), "Internal coolant loop mixing valve is almost fully open", AlertLevel.HighWarning);
+                yield return new Alert(nameof(MedTempMixValvePosition), "Med temp mixing valve is almost fully open", AlertLevel.HighWarning);
             }
-            if (LoopMixValvePosition <= mixValveMaxClosed)
+            if (MedTempMixValvePosition <= mixValveMaxClosed)
             {
-                yield return new Alert(nameof(LoopMixValvePosition), "Internal coolant loop mixing valve is fully closed", AlertLevel.LowError);
+                yield return new Alert(nameof(LowTempMixValvePosition), "Med temp mixing valve is fully closed", AlertLevel.LowError);
             }
-            if (LoopMixValvePosition < (mixValveMaxClosed - mixValveTolerance))
+            if (MedTempMixValvePosition < (mixValveMaxClosed - mixValveTolerance))
             {
-                yield return new Alert(nameof(LoopMixValvePosition), "Internal coolant loop mixing valve is almost fully closed", AlertLevel.LowWarning);
+                yield return new Alert(nameof(MedTempMixValvePosition), "Med temp mixing valve is almost fully closed", AlertLevel.LowWarning);
             }
             else
             {
-                yield return Alert.Safe(nameof(LoopMixValvePosition));
+                yield return Alert.Safe(nameof(MedTempMixValvePosition));
+            }
+        }
+
+        private IEnumerable<Alert> CheckCrossoverMixValve()
+        {
+            if (CrossoverMixValvePosition >= mixValveMaxOpen)
+            {
+                yield return new Alert(nameof(CrossoverMixValvePosition), "Crossover mixing valve is fully open", AlertLevel.HighError);
+            }
+            if (CrossoverMixValvePosition > (mixValveMaxOpen - mixValveTolerance))
+            {
+                yield return new Alert(nameof(CrossoverMixValvePosition), "Crossover mixing valve is almost fully open", AlertLevel.HighWarning);
+            }
+            if (CrossoverMixValvePosition <= mixValveMaxClosed)
+            {
+                yield return new Alert(nameof(CrossoverMixValvePosition), "Crossover mixing valve is fully closed", AlertLevel.LowError);
+            }
+            if (CrossoverMixValvePosition < (mixValveMaxClosed - mixValveTolerance))
+            {
+                yield return new Alert(nameof(CrossoverMixValvePosition), "Crossover mixing valve is almost fully closed", AlertLevel.LowWarning);
+            }
+            else
+            {
+                yield return Alert.Safe(nameof(CrossoverMixValvePosition));
             }
         }
 
@@ -306,8 +492,9 @@ namespace Orbit.Models
         {
             return this.CheckLowLoopTemp()
                 .Concat(CheckMedLoopTemp())
-                .Concat(CheckHeatExMixValve())
-                .Concat(CheckLoopMixValve())
+                .Concat(CheckLowTempMixValve())
+                .Concat(CheckMedTempMixValve())
+                .Concat(CheckCrossoverMixValve())
                 .Concat(CheckLowTempPump())
                 .Concat(CheckMedTempPump());
         }
@@ -324,12 +511,16 @@ namespace Orbit.Models
                 return true;
             return this.ReportDateTime == other.ReportDateTime
                 && this.Status == other.Status
+                && this.Mode == other.Mode
                 && this.LowTempPumpOn == other.LowTempPumpOn
                 && this.MedTempPumpOn == other.MedTempPumpOn
-                && this.HeatExMixValvePosition == other.HeatExMixValvePosition
-                && this.LoopMixValvePosition == other.LoopMixValvePosition
-                && this.TempMedCoolantLoop == other.TempMedCoolantLoop
-                && this.TempLowCoolantLoop == other.TempLowCoolantLoop
+                && this.LowTempMixValvePosition == other.LowTempMixValvePosition
+                && this.MedTempMixValvePosition == other.MedTempMixValvePosition
+                && this.LowTempSingleLoop == other.LowTempSingleLoop
+                && this.MedTempSingleLoop == other.MedTempSingleLoop
+                && this.CrossoverMixValvePosition == other.CrossoverMixValvePosition
+                && this.TempMedLoop == other.TempMedLoop
+                && this.TempLowLoop == other.TempLowLoop
                 && this.SetTempMedLoop == other.SetTempMedLoop
                 && this.SetTempLowLoop == other.SetTempLowLoop;
         }
@@ -344,12 +535,13 @@ namespace Orbit.Models
             return HashCode.Combine(
                 this.ReportDateTime,
                 this.Status,
+                this.Mode,
                 this.LowTempPumpOn,
                 this.MedTempPumpOn,
-                this.HeatExMixValvePosition,
-                this.LoopMixValvePosition,
-                this.TempLowCoolantLoop,
-                (this.TempMedCoolantLoop, this.SetTempLowLoop, this.SetTempMedLoop)
+                this.LowTempMixValvePosition,
+                this.MedTempMixValvePosition,
+                
+                (this.LowTempSingleLoop, this.MedTempSingleLoop, this.CrossoverMixValvePosition, this.TempLowLoop, this.TempMedLoop, this.SetTempLowLoop, this.SetTempMedLoop)
             );
         }
 
