@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
 using Orbit.Models;
@@ -179,8 +180,7 @@ namespace Orbit.Tests.Models
             ad.SeedData();
             ad.CabinStatus = Modes.Crewed;
             AtmosphereData newad = new AtmosphereData(ad);
-            Assert.True(newad.SeperatorSpeed > 1000);
+            newad.SeperatorSpeed.Should().BeGreaterThan(1000);
         }
-
     }
 }
