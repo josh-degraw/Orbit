@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Orbit.Annotations;
 
 namespace Orbit.Models
 {
@@ -71,15 +72,20 @@ namespace Orbit.Models
         /// ISS to conserve power
         /// </summary>
         [Range(0, 232)]
+        [IdealRange(120, 220)]
+        [IdealValue(204)]
         public int Bed1Temperature { get; set; }
 
         [Range(0, 232)]
+        [IdealRange(120, 220)]
+        [IdealValue(204)]
         public int Bed2Temperature { get; set; }
 
         /// <summary>
         /// the level of co2 in the air leaving the unit and entering the cabin
         /// </summary>
-        [Range(0, 13)]
+        [Range(0, 10)]
+        [IdealRange(0, 3)]
         public double Co2OutputLevel { get; set; }
 
         /// <summary>
