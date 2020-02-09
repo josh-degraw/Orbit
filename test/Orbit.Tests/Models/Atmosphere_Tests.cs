@@ -16,7 +16,7 @@ namespace Orbit.Tests.Models
             ad.SeedData();
             ad.Temperature = 19.5;
             ad.ProcessData();
-            Assert.True(ad.TempControlBafflePosition == 60);
+            Assert.Equal(60, ad.TempControlBafflePosition);
         }
 
         [Fact]
@@ -26,7 +26,7 @@ namespace Orbit.Tests.Models
             ad.SeedData();
             ad.Temperature = 18.5;
             ad.ProcessData();
-            Assert.True(ad.TempControlBafflePosition == 60);
+            Assert.Equal(60, ad.TempControlBafflePosition);
         }
 
         [Fact]
@@ -36,7 +36,7 @@ namespace Orbit.Tests.Models
             ad.SeedData();
             ad.HumidityLevel = 45;
             ad.ProcessData();
-            Assert.True(ad.TempControlBafflePosition == 60);
+            Assert.Equal(60, ad.TempControlBafflePosition);
         }
 
 
@@ -47,7 +47,7 @@ namespace Orbit.Tests.Models
             ad.SeedData();
             ad.HumidityLevel = 35;
             ad.ProcessData();
-            Assert.True(ad.TempControlBafflePosition == 60);
+            Assert.Equal(60, ad.TempControlBafflePosition);
         }
 
         [Fact]
@@ -57,7 +57,7 @@ namespace Orbit.Tests.Models
             ad.SeedData();
             ad.Temperature = 19.6;
             ad.ProcessData();
-            Assert.True(ad.TempControlBafflePosition == 61);
+            Assert.Equal(61, ad.TempControlBafflePosition);
         }
 
         [Fact]
@@ -67,7 +67,7 @@ namespace Orbit.Tests.Models
             ad.SeedData();
             ad.HumidityLevel = 60;
             ad.ProcessData();
-            Assert.True(ad.TempControlBafflePosition == 61);
+            Assert.Equal(61, ad.TempControlBafflePosition);
         }
 
         [Fact]
@@ -78,7 +78,7 @@ namespace Orbit.Tests.Models
             ad.TempControlBafflePosition = 100;
             ad.Temperature = 19.6;
             ad.ProcessData();
-            Assert.True(ad.TempControlBafflePosition == 100);
+            Assert.Equal(100, ad.TempControlBafflePosition);
         }
         
         [Fact]
@@ -88,7 +88,7 @@ namespace Orbit.Tests.Models
             ad.SeedData();
             ad.Temperature = 2;
             ad.ProcessData();
-            Assert.True(ad.TempControlBafflePosition == 59);
+            Assert.Equal(59, ad.TempControlBafflePosition);
         }
 
         [Fact]
@@ -99,7 +99,7 @@ namespace Orbit.Tests.Models
             ad.TempControlBafflePosition = 0;
             ad.Temperature = 18.4;
             ad.ProcessData();
-            Assert.True(ad.TempControlBafflePosition == 0);
+            Assert.Equal(0, ad.TempControlBafflePosition);
         }
 
         [Fact]
@@ -109,7 +109,7 @@ namespace Orbit.Tests.Models
             ad.SeedData();
             ad.HumidityLevel = 20;
             ad.ProcessData();
-            Assert.True(ad.TempControlBafflePosition == 59);
+            Assert.Equal(59, ad.TempControlBafflePosition);
         }
 
         [Fact]
@@ -120,7 +120,7 @@ namespace Orbit.Tests.Models
             ad.CabinStatus = Modes.Crewed;
             ad.Temperature = 15;
             ad.ProcessData();
-            Assert.True(ad.TempControlBafflePosition == 59);
+            Assert.Equal(59, ad.TempControlBafflePosition);
         }
 
         [Fact]
@@ -130,7 +130,7 @@ namespace Orbit.Tests.Models
             ad.SeedData();
             ad.HumidityLevel = 34;
             ad.ProcessData();
-            Assert.True(ad.TempControlBafflePosition == 59);
+            Assert.Equal(59, ad.TempControlBafflePosition);
         }
 
         [Fact]
@@ -140,7 +140,7 @@ namespace Orbit.Tests.Models
             ad.SeedData();
             ad.LiquidInOutflow = true;
             ad.ProcessData();
-            Assert.True(ad.ReprocessBafflePosition == DiverterValvePositions.Reprocess);
+            Assert.Equal(DiverterValvePositions.Reprocess, ad.ReprocessBafflePosition);
         }
 
         [Fact]
@@ -151,7 +151,7 @@ namespace Orbit.Tests.Models
             ad.ReprocessBafflePosition = DiverterValvePositions.Reprocess;
             ad.LiquidInOutflow = false;
             ad.ProcessData();
-            Assert.True(ad.ReprocessBafflePosition == DiverterValvePositions.Accept);
+            Assert.Equal(DiverterValvePositions.Accept, ad.ReprocessBafflePosition);
         }
 
         [Fact]
@@ -160,7 +160,7 @@ namespace Orbit.Tests.Models
             AtmosphereData ad = new AtmosphereData();
             ad.SeedData();
             AtmosphereData newad = new AtmosphereData(ad);
-            Assert.False(ad.Temperature == newad.Temperature);
+            Assert.NotEqual(newad.Temperature, ad.Temperature);
         }
         
         [Fact]
@@ -169,7 +169,7 @@ namespace Orbit.Tests.Models
             AtmosphereData ad = new AtmosphereData();
             ad.SeedData();
             AtmosphereData newad = new AtmosphereData(ad);
-            Assert.True(newad.SeperatorSpeed == 0);
+            Assert.Equal(0, newad.SeperatorSpeed);
         }
 
         [Fact]

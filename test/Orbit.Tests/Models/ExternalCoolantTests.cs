@@ -14,7 +14,7 @@ namespace Orbit.Tests.Models
             ExternalCoolantLoopData ec = new ExternalCoolantLoopData();
             ec.SeedData();
             ec.ProcessData();
-            Assert.True(ec.Status == SystemStatus.On);
+            Assert.Equal(SystemStatus.On, ec.Status);
         }
 
         [Fact]
@@ -24,7 +24,7 @@ namespace Orbit.Tests.Models
             ecl.SeedData();
             ecl.PumpAOn = false;
             ecl.ProcessData();
-            Assert.True(ecl.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, ecl.Status);
         }
 
         [Fact]
@@ -34,7 +34,7 @@ namespace Orbit.Tests.Models
             ecl.SeedData();
             ecl.PumpBOn = false;
             ecl.ProcessData();
-            Assert.True(ecl.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, ecl.Status);
         }
 
         [Fact]
@@ -44,7 +44,7 @@ namespace Orbit.Tests.Models
             ec.SeedData();
             ec.RadiatorDeployed = false;
             ec.ProcessData();
-            Assert.True(ec.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, ec.Status);
         }
 
         [Fact]
@@ -54,7 +54,7 @@ namespace Orbit.Tests.Models
             ec.SeedData();
             ec.OutputFluidTemperature = 0;
             ec.ProcessData();
-            Assert.True(ec.MixValvePosition == 24);
+            Assert.Equal(24, ec.MixValvePosition);
         }
 
         [Fact]
@@ -64,7 +64,7 @@ namespace Orbit.Tests.Models
             ec.SeedData();
             ec.OutputFluidTemperature = 5;
             ec.ProcessData();
-            Assert.True(ec.MixValvePosition == 26);
+            Assert.Equal(26, ec.MixValvePosition);
         }
 
         [Fact]
@@ -94,7 +94,7 @@ namespace Orbit.Tests.Models
             ec.SeedData();
             ec.LineAPressure = 2861;
             ec.ProcessData();
-            Assert.True(ec.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, ec.Status);
         }
 
         [Fact]
@@ -104,7 +104,7 @@ namespace Orbit.Tests.Models
             ec.SeedData();
             ec.LineBPressure = 2862;
             ec.ProcessData();
-            Assert.True(ec.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, ec.Status);
         }
 
         [Fact]
@@ -113,7 +113,7 @@ namespace Orbit.Tests.Models
             ExternalCoolantLoopData ec = new ExternalCoolantLoopData();
             ec.SeedData();
             ec.ProcessData();
-            Assert.True(ec.RadiatorRotation == 1);
+            Assert.Equal(1, ec.RadiatorRotation);
         }
 
         [Fact]
@@ -133,7 +133,7 @@ namespace Orbit.Tests.Models
             ec.SeedData();
             ec.radiatorRotationIncreasing = false;
             ec.ProcessData();
-            Assert.True(ec.RadiatorRotation == -1);
+            Assert.Equal(-1, ec.RadiatorRotation);
         }
 
         [Fact]
@@ -144,7 +144,7 @@ namespace Orbit.Tests.Models
             ec.RadiatorDeployed = false;
             ec.RadiatorRotation = 11;
             ec.ProcessData();
-            Assert.True(ec.RadiatorRotation == 0);
+            Assert.Equal(0, ec.RadiatorRotation);
         }
 
         [Fact]
@@ -154,7 +154,7 @@ namespace Orbit.Tests.Models
             ec.SeedData();
             ec.Status = SystemStatus.Trouble;
             ec.ProcessData();
-            Assert.True(ec.Status == SystemStatus.On);
+            Assert.Equal(SystemStatus.On, ec.Status);
 
         }
     }

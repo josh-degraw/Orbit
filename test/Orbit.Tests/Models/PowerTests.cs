@@ -16,7 +16,7 @@ namespace Orbit.Tests.Models
             ps.SeedData();
             ps.SolarDeployed = false;
             PowerSystemData newps = new PowerSystemData(ps);
-            Assert.False(ps.SolarArrayVoltage == newps.SolarArrayVoltage);
+            Assert.NotEqual(newps.SolarArrayVoltage, ps.SolarArrayVoltage);
         }
 
         [Fact]
@@ -25,7 +25,7 @@ namespace Orbit.Tests.Models
             PowerSystemData ps = new PowerSystemData();
             ps.SeedData();
             PowerSystemData newps = new PowerSystemData();
-            Assert.False(newps.SolarArrayVoltage == ps.SolarArrayVoltage);
+            Assert.NotEqual(ps.SolarArrayVoltage, newps.SolarArrayVoltage);
         }
 
         [Fact]
@@ -35,7 +35,7 @@ namespace Orbit.Tests.Models
             ps.SeedData();
             ps.BatteryTemperature = -10;
             ps.ProcessData();
-            Assert.True(ps.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, ps.Status);
         }
         [Fact]
         public void TestBatteryTempHigh()
@@ -44,7 +44,7 @@ namespace Orbit.Tests.Models
             ps.SeedData();
             ps.BatteryTemperature = 35;
             ps.ProcessData();
-            Assert.True(ps.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, ps.Status);
         }
 
         [Fact]
@@ -53,7 +53,7 @@ namespace Orbit.Tests.Models
             PowerSystemData ps = new PowerSystemData();
             ps.SeedData();
             ps.ProcessData();
-            Assert.True(ps.BatteryChargeLevel == 86);
+            Assert.Equal(86, ps.BatteryChargeLevel);
         }
 
         [Fact]
@@ -63,7 +63,7 @@ namespace Orbit.Tests.Models
             ps.SeedData();
             ps.BatteryChargeLevel = 105;
             ps.ProcessData();
-            Assert.True(ps.BatteryChargeLevel == 105);
+            Assert.Equal(105, ps.BatteryChargeLevel);
         }
 
         [Fact]
@@ -73,7 +73,7 @@ namespace Orbit.Tests.Models
             ps.SeedData();
             ps.SolarArrayVoltage = 181;
             ps.ProcessData();
-            Assert.True(ps.Status == SystemStatus.Trouble);
+            Assert.Equal(SystemStatus.Trouble, ps.Status);
         }
 
         [Fact]
@@ -83,7 +83,7 @@ namespace Orbit.Tests.Models
             ps.SeedData();
             ps.SolarArrayVoltage = 159;
             ps.ProcessData();
-            Assert.True(ps.ShuntStatus == PowerShuntState.Discharge);
+            Assert.Equal(PowerShuntState.Discharge, ps.ShuntStatus);
         }
 
         [Fact]
@@ -93,7 +93,7 @@ namespace Orbit.Tests.Models
             ps.SeedData();
             ps.SolarArrayVoltage = 159;
             ps.ProcessData();
-            Assert.True(ps.BatteryChargeLevel == 84);
+            Assert.Equal(84, ps.BatteryChargeLevel);
         }
 
         [Fact]
@@ -104,7 +104,7 @@ namespace Orbit.Tests.Models
             ps.SolarArrayVoltage = 159;
             ps.BatteryChargeLevel = -1;
             ps.ProcessData();
-            Assert.True(ps.BatteryChargeLevel == 0);
+            Assert.Equal(0, ps.BatteryChargeLevel);
         }
 
         [Fact]
@@ -115,7 +115,7 @@ namespace Orbit.Tests.Models
             ps.SolarArrayVoltage = 159;
             ps.BatteryChargeLevel = 50;
             ps.ProcessData();
-            Assert.True(ps.Status == SystemStatus.Trouble); ;
+            Assert.Equal(SystemStatus.Trouble, ps.Status); ;
         }
 
         [Fact]
@@ -126,7 +126,7 @@ namespace Orbit.Tests.Models
             ps.SolarArrayVoltage = 159;
             ps.BatteryVoltage = 109;
             ps.ProcessData();
-            Assert.True(ps.Status == SystemStatus.Trouble); ;
+            Assert.Equal(SystemStatus.Trouble, ps.Status); ;
         }
 
         [Fact]
@@ -137,7 +137,7 @@ namespace Orbit.Tests.Models
             ps.SolarArrayVoltage = 159;
             ps.BatteryVoltage = 161;
             ps.ProcessData();
-            Assert.True(ps.Status == SystemStatus.Trouble); ;
+            Assert.Equal(SystemStatus.Trouble, ps.Status); ;
         }
 
          [Fact]
@@ -146,7 +146,7 @@ namespace Orbit.Tests.Models
             PowerSystemData ps = new PowerSystemData();
             ps.SeedData();
             ps.ProcessData();
-            Assert.True(ps.SolarArrayRotation == 1);
+            Assert.Equal(1, ps.SolarArrayRotation);
         }
 
         [Fact]
@@ -156,7 +156,7 @@ namespace Orbit.Tests.Models
             ps.SeedData();
             ps.SolarRotationIncreasing = false;
             ps.ProcessData();
-            Assert.True(ps.SolarArrayRotation == -1);
+            Assert.Equal(-1, ps.SolarArrayRotation);
         }
 
         [Fact]
