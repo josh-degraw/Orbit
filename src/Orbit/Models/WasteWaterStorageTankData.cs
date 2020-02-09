@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.ComponentModel.DataAnnotations;
+using Orbit.Annotations;
 
 namespace Orbit.Models
 {
@@ -23,6 +25,8 @@ namespace Orbit.Models
         /// Current level of the waste water collection tank receives output from urine processing system and other
         /// wastewater sources (hygiene...)
         /// </summary>
+        [Range(0, 100)]
+        [IdealRange(0, 90)]
         public double Level { get; set; }
 
         public void ProcessData(SystemStatus urineProcessor, SystemStatus waterProcessor)
