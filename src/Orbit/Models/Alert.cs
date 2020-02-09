@@ -6,15 +6,22 @@ namespace Orbit.Models
     {
         private readonly Dictionary<string, object> _data = new Dictionary<string, object>();
 
-        internal Alert(string propertyName, string message, AlertLevel level, PropertyMetadata? information = null, object? currentValue = null)
+        internal Alert(string propertyName,
+            string message,
+            AlertLevel level,
+            PropertyMetadata? metadata = null,
+            object? currentValue = null)
         {
             this.PropertyName = propertyName;
             this.Message = message;
             this.AlertLevel = level;
-            this.Metadata = information ?? new PropertyMetadata();
+            this.Metadata = metadata ?? new PropertyMetadata();
             this.CurrentValue = currentValue;
         }
 
+        /// <summary>
+        ///   The name of the property of the model that generated the alert.
+        /// </summary>
         public string PropertyName { get; }
 
         public string Message { get; }
@@ -35,7 +42,7 @@ namespace Orbit.Models
         /// <summary>
         ///   Optionally specify additional data via key-value pairs.
         /// </summary>
-        public IReadOnlyDictionary<string, object> Data => _data;
+        public IReadOnlyDictionary<string, object> Data => this._data;
 
         public bool IsSafe => this.Message.Length == 0 && this.AlertLevel == AlertLevel.Safe;
 
@@ -49,7 +56,7 @@ namespace Orbit.Models
         /// <returns>This Alert for method chaining.</returns>
         internal Alert WithData(string key, object value)
         {
-            _data.Add(key, value);
+            this._data.Add(key, value);
             return this;
         }
 
@@ -62,7 +69,7 @@ namespace Orbit.Models
         {
             foreach (var item in data)
             {
-                _data[item.Key] = item.Value;
+                this._data[item.Key] = item.Value;
             }
             return this;
         }
