@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
 using Orbit.Models;
@@ -168,7 +169,7 @@ namespace Orbit.Tests.Models
             co2.FanOn = true;
             co2.Bed2Temperature = 260;
             co2.ProcessData();
-            Assert.Equal(SystemStatus.Trouble, co2.Status);
+            co2.Status.Should().Be(SystemStatus.Trouble, "bed 2 is regenerating, so it should be hot and bed 1 cold");
         }
 
         [Fact]
@@ -197,7 +198,7 @@ namespace Orbit.Tests.Models
             co2.Status = SystemStatus.Processing;
             co2.FanOn = true;
             CarbonDioxideRemediation newco2 = new CarbonDioxideRemediation(co2);
-            Assert.True(newco2.Bed2Temperature > 119);
+            newco2.Bed2Temperature.Should().BeGreaterThan(119);
         }
 
         [Fact]
@@ -208,7 +209,7 @@ namespace Orbit.Tests.Models
             co2.Status = SystemStatus.Processing;
             co2.FanOn = true;
             CarbonDioxideRemediation newco2 = new CarbonDioxideRemediation(co2);
-            Assert.False(co2.Bed1Temperature > 119);
+            newco2.Bed1Temperature.Should().BeLessOrEqualTo(119);
         }
 
         [Fact]
@@ -217,9 +218,7 @@ namespace Orbit.Tests.Models
             CarbonDioxideRemediation co2 = new CarbonDioxideRemediation();
             co2.SeedData();
             CarbonDioxideRemediation newco2 = new CarbonDioxideRemediation(co2);
-            Assert.True(co2.Bed1Temperature < 33);
+            newco2.Bed1Temperature.Should().BeLessThan(33);
         }
-
-
     }
 }
