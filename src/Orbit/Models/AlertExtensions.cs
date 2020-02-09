@@ -33,6 +33,22 @@ namespace Orbit.Models
         }
 
         /// <summary>
+        ///   Retrieve the metadata of the given property. This could be used from within the alert generation methods
+        ///   to compare against the range values.
+        /// </summary>
+        /// <typeparam name="TModel">The type of the model.</typeparam>
+        /// <typeparam name="TProperty"></typeparam>
+        /// <param name="model">The model data object.</param>
+        /// <param name="propSelector">An expression (lambda method) selecting the property which the alert is for.</param>
+        /// <returns>The metadata for the provided property.</returns>
+        public static PropertyMetadata GetMetadata<TModel, TProperty>(this TModel model, Expression<Func<TModel, TProperty>> propSelector)
+        {
+            var body = (MemberExpression)propSelector.Body;
+
+            return GetMetadata(body.Member);
+        }
+
+        /// <summary>
         ///   Create a new <see cref="Alert"/> with the provided properties.
         /// </summary>
         /// <typeparam name="TModel">The type of the model.</typeparam>
@@ -44,12 +60,11 @@ namespace Orbit.Models
         /// <returns>The newly created alert.</returns>
         public static Alert CreateAlert<TModel, TProperty>(this TModel model, Expression<Func<TModel, TProperty>> propSelector, string message = "", AlertLevel level = AlertLevel.Safe) where TModel : class, IAlertableModel
         {
-            var body = (MemberExpression)propSelector.Body;
-            var member = body.Member;
-            var value = propSelector.Compile()(model);
+            var memberName = ((MemberExpression)propSelector.Body).Member.Name;
+            var info = model.GetMetadata(propSelector);
 
-            var info = GetMetadata(member);
-            return new Alert(member.Name, message, level, info, value);
+            var value = propSelector.Compile()(model);
+            return new Alert(memberName, message, level, info, value);
         }
     }
 }
