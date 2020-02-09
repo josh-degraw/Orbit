@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
 using Microsoft.EntityFrameworkCore;
 
 using Orbit.Data;
-using Orbit.Util;
 
 namespace Orbit.Components
 {
@@ -33,17 +31,28 @@ namespace Orbit.Components
 
             if (maxResults != null)
                 query = query.Take(maxResults.Value);
-            
+
             return await query.ToListAsync(cancellationToken).ConfigureAwait(false);
         }
 
         /// <summary>
-        /// Asynchronously returns the latest available report of type <typeparamref name="T"/> available.
+        ///   Asynchronously returns the latest available report of type <typeparamref name="T"/> available.
         /// </summary>
         public async ValueTask<T?> GetLatestReportAsync(CancellationToken cancellationToken = default)
         {
             var set = this.Database.Set<T>();
             T? val = await set.AsNoTracking().LastOrDefaultAsync(cancellationToken).ConfigureAwait(false);
+
+            return val;
+        }
+
+        /// <summary>
+        ///   Synchronously returns the latest available report of type <typeparamref name="T"/> available.
+        /// </summary>
+        public T? GetLatestReport()
+        {
+            var set = this.Database.Set<T>();
+            T? val = set.AsNoTracking().LastOrDefault();
 
             return val;
         }
