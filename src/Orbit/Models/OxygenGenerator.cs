@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.ComponentModel.DataAnnotations;
+using Orbit.Annotations;
 
 namespace Orbit.Models
 {
@@ -69,11 +71,14 @@ namespace Orbit.Models
         /// <summary>
         /// Each person aboard would require at least 3 cells to be active to maintain baseline oxygen requirements
         /// </summary>
+        [Range(0,12)]
         public int NumActiveCells { get; set; }
 
         /// <summary>
         /// current oxygen output of the system
         /// </summary>
+        [Range(0, 100)]
+        [IdealRange(0, 90)]
         public double SystemOutput { get; set; }
 
         /// <summary>
@@ -84,6 +89,9 @@ namespace Orbit.Models
         /// <summary>
         /// actual oxygen level in the cabin
         /// </summary>
+        [Range(15, 40)]
+        [IdealRange(19, 23)]
+        [IdealValue(21)]
         public int OxygenLevel { get; set; }
 
         #endregion Public Properties

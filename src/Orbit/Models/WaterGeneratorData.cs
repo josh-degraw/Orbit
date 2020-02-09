@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using Orbit.Annotations;
+using System.ComponentModel.DataAnnotations;
 
 namespace Orbit.Models
 {
@@ -49,6 +51,9 @@ namespace Orbit.Models
         /// <summary>
         /// current operating speed of the motor in RPM
         /// </summary>
+        [Range(0, 2500)]
+        [IdealRange(1000, 2400)]
+        [IdealValue(2000)]
         public int SeperatorMotorSpeed { get; set; }
 
         /// <summary>
@@ -65,6 +70,9 @@ namespace Orbit.Models
         /// <summary>
         /// highest temperature in the reactor
         /// </summary>
+        [Range(0, 700)]
+        [IdealRange(450, 650)]
+        [IdealValue(500)]
         public int ReactorTemp { get; set; }
 
         /// <summary>
@@ -80,16 +88,22 @@ namespace Orbit.Models
         /// <summary>
         /// amount of methane in holding tank, vents to space when full
         /// </summary>
+        [Range(0, 100)]
+        [IdealRange(0, 90)]
         public int MethaneStoreLevel { get; set; }
 
         /// <summary>
         /// simulate storage of H2 for reaction
         /// </summary>
+        [Range(0, 100)]
+        [IdealRange(0, 90)]
         public int H2StoreLevel { get; set; }
 
         /// <summary>
         /// simulate storage of Co2 for reaction
         /// </summary>
+        [Range(0, 100)]
+        [IdealRange(0, 90)]
         public int Co2StoreLevel { get; set; }
 
         #endregion Public Properties

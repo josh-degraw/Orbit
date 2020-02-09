@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using Orbit.Annotations;
 
 namespace Orbit.Models
 {
@@ -60,12 +61,14 @@ namespace Orbit.Models
         /// Decibel value of cabin noise
         /// </summary>
         [Range(0, 90)]
+        [IdealRange(10, 40)]
         public double AmbientNoiseLevel { get; set; }
 
         /// <summary>
         /// Crewed: 40-75%; uncrewed: 30-80% (is allowed for up to 24hrs while crewed)
         /// </summary>
         [Range(0, 100)]
+        [IdealRange(30, 80)]
         public double HumidityLevel { get; set; }
 
         /// <summary>
@@ -77,6 +80,7 @@ namespace Orbit.Models
         /// motor speed of the air/liquid seperator in RPM
         /// </summary>
         [Range(0, 2400)]
+        [IdealRange(1800, 2200)]
         public int SeperatorSpeed { get; set; }
 
         /// <summary>
@@ -88,7 +92,9 @@ namespace Orbit.Models
         /// Pressure used are in kPa and is what is listed as nominal for low EVA modules per interoperability standards
         /// Nominal is 101kpa
         /// </summary>
-        [Range(0, 120)]
+        [Range(40, 120)]
+        [IdealRange(65, 105)]
+        [IdealValue(101)]
         public double Pressure { get; set; }
 
         /// <summary>
@@ -99,7 +105,8 @@ namespace Orbit.Models
         /// <summary>
         /// Ambient air temperature Nominal range is 20-27C uncrewed min is 4C
         /// </summary>
-        [Range(-10, 100)]
+        [Range(0, 40)]
+        [IdealRange(20, 27)]
         public double Temperature { get; set; }
 
         /// <summary>
