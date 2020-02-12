@@ -60,6 +60,7 @@ namespace Orbit.Models
         /// <returns>The newly created alert.</returns>
         public static Alert CreateAlert<TModel, TProperty>(this TModel model, Expression<Func<TModel, TProperty>> propSelector, string message = "", AlertLevel level = AlertLevel.Safe) where TModel : class, IAlertableModel
         {
+
             var memberName = ((MemberExpression)propSelector.Body).Member.Name;
             var info = model.GetMetadata(propSelector);
 

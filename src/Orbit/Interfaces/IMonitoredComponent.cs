@@ -66,10 +66,10 @@ namespace Orbit
         /// <param name="component">The component.</param>
         /// <param name="selector">A lambda method returning the property to get the alerts for.</param>
         /// <returns></returns>
-        public static IEnumerable<Alert> GetLatestAlerts<TModel, TProp>(this IMonitoredComponent<TModel> component, Expression<Func<TModel, TProp>> selector) where TModel : class, IAlertableModel
+        public static Alert GetLatestAlert<TModel, TProp>(this IMonitoredComponent<TModel> component, Expression<Func<TModel, TProp>> selector) where TModel : class, IAlertableModel
         {
             string name = ((MemberExpression)selector.Body).Member.Name;
-            return component.GetLatestAlerts().Where(a => a.PropertyName == name);
+            return component.GetLatestAlerts().SingleOrDefault(a => a.PropertyName == name);
         }
     }
 }
