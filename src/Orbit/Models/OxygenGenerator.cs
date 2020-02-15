@@ -29,7 +29,7 @@ namespace Orbit.Models
         [NotMapped]
         public string ComponentName => "OxygenGenerator";
 
-        public DateTimeOffset ReportDateTime { get; set; } 
+        public DateTimeOffset ReportDateTime { get; set; } = DateTimeOffset.Now;
 
         /// <summary>
         /// state of system; standby, processing, fail, etc
