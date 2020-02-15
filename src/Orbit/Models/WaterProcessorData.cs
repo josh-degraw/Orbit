@@ -93,6 +93,8 @@ namespace Orbit.Models
             PostReactorQualityOk = other.PostReactorQualityOk;
             DiverterValvePosition = other.DiverterValvePosition;
             ProductTankLevel = other.ProductTankLevel;
+
+            GenerateData();
         }
 
         #endregion Constructors
@@ -101,18 +103,19 @@ namespace Orbit.Models
 
         public void ProcessData(double wasteTankLevel)
         {
-            GenerateData();
-
             if (SystemStatus == SystemStatus.Standby)
             {
-                if (wasteTankLevel >= highLevel
-                    && ProductTankLevel < productTankLevelUpperLimit)
+                // waste tank is full and there is room in the clean tank;
+                // or clean tank is empty and waste tank is not, start processing
+                if ( ((wasteTankLevel >= highLevel) && (ProductTankLevel < productTankLevelUpperLimit))
+                    || (ProductTankLevel < productTankLevelTolerance) && (wasteTankLevel > 0) )
                 {
                     SystemStatus = SystemStatus.Processing;
+                    // turn processor 'on'
                     PumpOn = true;
                     HeaterOn = true;
-                    ProductTankLevel += largeIncrement;
                 }
+                // simulate water usage
                 else
                 {
                     if (ProductTankLevel <= smallIncrement)
@@ -127,30 +130,29 @@ namespace Orbit.Models
             }
             else if (SystemStatus == SystemStatus.Processing)
             {
+                // waste tank empty, nothing left to process or product tank full; change to standby
                 if (wasteTankLevel <= 0)
                 {
                     SystemStatus = SystemStatus.Standby;
+                    // turn processor 'off'
                     PumpOn = false;
                     HeaterOn = false;
-                    ProductTankLevel -= (smallIncrement * 2);
                 }
-                else if (ProductTankLevel >= productTankLevelUpperLimit)
+                // product tank full, change to standby
+                else if (ProductTankLevel >= productTankLevelUpperLimit - largeIncrement)
                 {
                     SystemStatus = SystemStatus.Standby;
+                    // turn processor 'off'
                     PumpOn = false;
                     HeaterOn = false;
+                    // make sure tank does not read over full
                     ProductTankLevel = productTankLevelUpperLimit;
                 }
                 else
                 {
+                    // simulate processing
                     ProductTankLevel += largeIncrement;
                 }
-            }
-            else //(wasteTankLevel <= 0)
-            {
-                PumpOn = false;
-                HeaterOn = false;
-                ProductTankLevel -= smallIncrement;
             }
         }
 
@@ -167,6 +169,18 @@ namespace Orbit.Models
                 PostHeaterTemp = 19; // somewhere close to ambient air temp
             }
         }
+
+        public void SeedData()
+        {
+            SystemStatus = SystemStatus.Standby;
+            FiltersOk = true;
+            PostHeaterTemp = 20;
+            ProductTankLevel = 80;
+            PostReactorQualityOk = false;
+            DiverterValvePosition = DiverterValvePositions.Reprocess;
+            PumpOn = false;
+        }
+
         #endregion Logic Methods
 
         #region ValueCheckMethods

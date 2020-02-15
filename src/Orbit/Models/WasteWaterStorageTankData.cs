@@ -8,6 +8,12 @@ namespace Orbit.Models
 {
     public class WasteWaterStorageTankData : IAlertableModel
     {
+        private int fillIncrement = 2;
+        private int emptyIncrement = 3;
+        private int full = 100;
+        private int empty = 0;
+        private int tolerance = 5;
+ 
         /// <summary>
         /// The name of the component.
         /// </summary>
@@ -19,7 +25,7 @@ namespace Orbit.Models
         /// <summary>
         /// distinguish between separate tanks ('Tank 1', 'Tank 2')
         /// </summary>
-        public string TankId { get; set; } = "";
+        public string TankId { get; set; } = "Main Tank";
 
         /// <summary>
         /// Current level of the waste water collection tank receives output from urine processing system and other
@@ -33,44 +39,49 @@ namespace Orbit.Models
         {
             if(urineProcessor == SystemStatus.Processing)
             {
-                if(Level <= 96)
+                if(Level <= (full - fillIncrement))
                 {
-                    Level += 4;
+                    Level += fillIncrement;
                 }
                 else
                 {
-                    Level = 0;
+                    Level = full;
                 }
             }
             if (waterProcessor == SystemStatus.Processing)
             {
-                if (Level >= 6)
+                if (Level >= (empty + emptyIncrement))
                 {
-                    Level -= 6;
+                    Level -= emptyIncrement;
                 }
                 else
                 {
-                    Level = 0;
+                    Level = empty;
                 }
             }
+        }
+
+        private void SeedData()
+        {
+            Level = 30;
         }
 
         IEnumerable<Alert> IAlertableModel.GenerateAlerts()
 
         {
-            if (this.Level >= 100)
+            if (this.Level >= full)
             {
                 yield return this.CreateAlert(a => a.Level, "Tank overflowing", AlertLevel.HighError);
             }
-            else if (this.Level >= 70)
+            else if (this.Level >= (full - tolerance))
             {
                 yield return this.CreateAlert(a => a.Level, "Water level high", AlertLevel.HighWarning);
             }
-            else if (this.Level <= 0)
+            else if (this.Level <= empty)
             {
                 yield return this.CreateAlert(a => a.Level, "Water level very low", AlertLevel.HighError);
             }
-            else if (this.Level < 5)
+            else if (this.Level < (empty + tolerance))
             {
                 yield return this.CreateAlert(a => a.Level, "Water level low", AlertLevel.LowWarning);
             }
