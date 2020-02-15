@@ -76,27 +76,71 @@ namespace Orbit.Util
                     db.SaveChanges();
                     continue;
                 }
+                
+                #region Get data from context
 
                 WasteWaterStorageTankData wasteTank = db.WasteWaterStorageTankData.Last();
                 UrineSystemData urineSystem = db.UrineProcessorData.Last();
                 WaterProcessorData waterProcessor = db.WaterProcessorData.Last();
+                PowerSystemData power = db.PowerSystemData.Last();
+                AtmosphereData atmo = db.AtmosphereData.Last();
+                CarbonDioxideRemediation co2 = db.CarbonDioxideRemoverData.Last();
+                ExternalCoolantLoopData eloop = db.ExternalCoolantLoopData.Last();
+                InternalCoolantLoopData iloop = db.InternalCoolantLoopData.Last();
+                OxygenGenerator o2 = db.OxygenGeneratorData.Last();
+                WaterGeneratorData h20 = db.WaterGeneratorData.Last();
+
+                #endregion Get data from context
+
+
+                #region Process the data
 
                 urineSystem.ProcessData(wasteTank.Level);
                 wasteTank.ProcessData(urineSystem.Status, waterProcessor.SystemStatus);
                 waterProcessor.ProcessData(wasteTank.Level);
+                power.ProcessData();
+                atmo.ProcessData();
+                co2.ProcessData();
+                eloop.ProcessData();
+                iloop.ProcessData();
+                o2.ProcessData();
+                h20.ProcessData();
+
+                #endregion Process the data
+
+
+                #region Generate new data sets
 
                 var nextUrineSystem = new UrineSystemData(urineSystem);
-                var nextWasteTank = new WasteWaterStorageTankData {
-                    TankId = "Main",
-                    Level = wasteTank.Level,
-                };
-
+                var nextWasteTank = new WasteWaterStorageTankData { Level = wasteTank.Level };
                 var nextWaterProcessor = new WaterProcessorData(waterProcessor);
+                var nextPower = new PowerSystemData(power);
+                var nextAtmo = new AtmosphereData(atmo);
+                var nextCo2 = new CarbonDioxideRemediation(co2);
+                var nextEloop = new ExternalCoolantLoopData(eloop);
+                var nextIloop = new InternalCoolantLoopData(iloop);
+                var nextO2 = new OxygenGenerator(o2);
+                var nextH20 = new WaterGeneratorData(h20);
+
+                #endregion Generate new data sets
+
+
+                #region Save new data sets to context
 
                 db.UrineProcessorData.Add(nextUrineSystem);
                 db.WasteWaterStorageTankData.Add(nextWasteTank);
                 db.WaterProcessorData.Add(nextWaterProcessor);
+                db.PowerSystemData.Add(nextPower);
+                db.AtmosphereData.Add(nextAtmo);
+                db.CarbonDioxideRemoverData.Add(nextCo2);
+                db.ExternalCoolantLoopData.Add(nextEloop);
+                db.InternalCoolantLoopData.Add(nextIloop);
+                db.OxygenGeneratorData.Add(nextO2);
+                db.WaterGeneratorData.Add(nextH20);
+               
                 db.SaveChanges();
+
+                #endregion Save new data sets to context
             }
 
             this.Stopped?.Invoke(this, EventArgs.Empty);
