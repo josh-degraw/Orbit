@@ -297,7 +297,7 @@ namespace Orbit.Models
             if (HydrogenSensor)
             {
                 Trouble();
-                yield return this.CreateAlert(a => a.HydrogenSensor, "Hydrogen detected in outflow", AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.HydrogenSensor, "Hydrogen detected in oxygen outflow", AlertLevel.HighError);
             }
             else
             {

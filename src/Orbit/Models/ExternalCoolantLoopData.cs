@@ -505,6 +505,22 @@ namespace Orbit.Models
             }
         }
 
+        private IEnumerable<Alert> CheckLineHeater()
+        {
+            if((OutputFluidTemperature > outputFluidTemperatureLowerLimit) && LineHeaterOn)
+            {
+                yield return this.CreateAlert(a => a.LineHeaterOn, "External coolant line heater on while fluid temp is greater than minimum", AlertLevel.HighError);
+            }
+            else if ((OutputFluidTemperature < outputFluidTemperatureLowerLimit) && !LineHeaterOn)
+            {
+                yield return this.CreateAlert(a => a.LineHeaterOn, "External coolant line heater off while fluid temp is less than minimum", AlertLevel.LowError);
+            }
+            else
+            {
+                yield return this.CreateAlert(a => a.LineHeaterOn);
+            }
+        }
+
         IEnumerable<Alert> IAlertableModel.GenerateAlerts()
         {
             return this.CheckPumpA()
@@ -514,7 +530,8 @@ namespace Orbit.Models
                 .Concat(CheckRadiatorRotation())
                 .Concat(CheckLineAPressure())
                 .Concat(CheckLineBPressure())
-                .Concat(CheckOutputFluidTemp());
+                .Concat(CheckOutputFluidTemp())
+                .Concat(CheckLineHeater());
         }
 
         #endregion Alert generation
