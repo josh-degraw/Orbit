@@ -394,7 +394,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae3bd0f9b272c4a4ca3171f8acf478d3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  pb: {fileID: 296551379}
 --- !u!114 &296551378
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -425,8 +424,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   loadingBar: {fileID: 467347828}
   textPercent: {fileID: 146972164}
-  isOn: 1
-  restart: 1
+  isOn: 0
+  restart: 0
   invert: 0
   currentPercent: 0
   speed: 7
@@ -872,7 +871,6 @@ GameObject:
   - component: {fileID: 1095274262}
   - component: {fileID: 1095274261}
   - component: {fileID: 1095274265}
-  - component: {fileID: 1095274266}
   m_Layer: 5
   m_Name: Canvas
   m_TagString: Untagged
@@ -972,25 +970,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: df1f9af78e7206c47bca77c9c5112e20, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &1095274266
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1095274260}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 20c6dbf0102c7bc468113ccdd97dad83, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  loadingBar: {fileID: 0}
-  textPercent: {fileID: 0}
-  isOn: 0
-  restart: 0
-  invert: 0
-  currentPercent: 0
-  speed: 0
 --- !u!1 &1195964472 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 100008, guid: ce816f2e6abb0504092c23ed9b970dfd,
