@@ -183,7 +183,7 @@ namespace Orbit.Tests.Models
         {
             OxygenGenerator o2 = new OxygenGenerator();
             OxygenGenerator new02 = new OxygenGenerator(o2);
-            Assert.NotEqual(o2.OxygenLevel, new02.OxygenLevel);
+            Assert.Equal(o2.OxygenLevel, new02.OxygenLevel);
         }
 
         [Fact]

@@ -7,7 +7,7 @@ using Orbit.Annotations;
 
 namespace Orbit.Models
 {
-    public class AtmosphereData : IAlertableModel, IEquatable<AtmosphereData>
+    public class AtmosphereData : IAlertableModel, IEquatable<AtmosphereData>, ISeedableModel
     {
         #region Limits
         //values in decibels

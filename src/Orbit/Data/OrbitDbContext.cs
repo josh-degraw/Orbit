@@ -1,7 +1,8 @@
 ﻿#nullable disable warnings
 
 using System;
-
+using System.Linq;
+using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -36,49 +37,29 @@ namespace Orbit.Data
 
         public DbSet<WaterGeneratorData> WaterGeneratorData { get; set; }
 
+        private void Seed<T>() where T : class, ISeedableModel, new()
+        {
+            var data = new T();
+
+            data.SeedData();
+            this.Set<T>().Add(data);
+        }
+
         public void InsertSeedData()
         {
-            UrineSystemData urine = new UrineSystemData();
-            urine.SeedData();
-            this.UrineProcessorData.Add(urine);
+            var seedMethodGeneric = this.GetType()
+                .GetMethod(nameof(Seed), BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.InvokeMethod);
 
-            this.WasteWaterStorageTankData.Add(new WasteWaterStorageTankData {
-                TankId = "Main",
-                Level = 30,
-            });
-
-            PowerSystemData power = new PowerSystemData();
-            power.SeedData();
-            this.PowerSystemData.Add(power);
-
-            AtmosphereData atmo = new AtmosphereData();
-            atmo.SeedData();
-            this.AtmosphereData.Add(atmo);
-
-            CarbonDioxideRemediation co2 = new CarbonDioxideRemediation();
-            co2.SeedData();
-            this.CarbonDioxideRemoverData.Add(co2);
-
-            ExternalCoolantLoopData eloop = new ExternalCoolantLoopData();
-            eloop.SeedData();
-            this.ExternalCoolantLoopData.Add(eloop);
-
-            InternalCoolantLoopData iloop = new InternalCoolantLoopData();
-            iloop.SeedData();
-            this.InternalCoolantLoopData.Add(iloop);
-
-            OxygenGenerator o2 = new OxygenGenerator();
-            o2.SeedData();
-            this.OxygenGeneratorData.Add(o2);
-
-            WaterGeneratorData h20 = new WaterGeneratorData();
-            h20.SeedData();
-            this.WaterGeneratorData.Add(h20);
-
-            WaterProcessorData water = new WaterProcessorData();
-            water.SeedData();
-            this.WaterProcessorData.Add(water);
-
+            foreach (var type in this.GetType().Assembly.GetTypes().Where(t => t.GetInterfaces().Contains(typeof(ISeedableModel))))
+            {
+                var seedMethod = seedMethodGeneric?.MakeGenericMethod(type);
+                if (seedMethod == null)
+                {
+                    throw new InvalidOperationException($"Could not find Seed Method for type {type}");
+                }
+                seedMethod?.Invoke(this, null);
+            }
+            
             this.SaveChanges();
         }
 

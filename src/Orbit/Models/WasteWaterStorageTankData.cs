@@ -6,7 +6,7 @@ using Orbit.Annotations;
 
 namespace Orbit.Models
 {
-    public class WasteWaterStorageTankData : IAlertableModel
+    public class WasteWaterStorageTankData : IAlertableModel, ISeedableModel
     {
         private int fillIncrement = 2;
         private int emptyIncrement = 3;
@@ -61,8 +61,9 @@ namespace Orbit.Models
             }
         }
 
-        private void SeedData()
+        void ISeedableModel.SeedData()
         {
+            TankId = "Main";
             Level = 30;
         }
 

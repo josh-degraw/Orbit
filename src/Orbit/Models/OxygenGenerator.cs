@@ -7,7 +7,7 @@ using Orbit.Annotations;
 
 namespace Orbit.Models
 {
-    public class OxygenGenerator : IAlertableModel, IEquatable<OxygenGenerator>
+    public class OxygenGenerator : IAlertableModel, IEquatable<OxygenGenerator>, ISeedableModel
     {
         #region Limits
         // these should not be constant so crew can make changes in orbit

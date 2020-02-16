@@ -7,7 +7,7 @@ using Orbit.Annotations;
 
 namespace Orbit.Models
 {
-    public class UrineSystemData : IAlertableModel, IEquatable<UrineSystemData>
+    public class UrineSystemData : IAlertableModel, IEquatable<UrineSystemData>, ISeedableModel
     {
         #region Limits
 
@@ -260,7 +260,7 @@ namespace Orbit.Models
             }
         }
 
-        public void SeedData()
+        void ISeedableModel.SeedData()
         {
             BrineTankLevel = 5;
             DistillerSpeed = 20;

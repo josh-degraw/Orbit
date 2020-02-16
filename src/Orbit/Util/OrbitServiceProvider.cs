@@ -26,12 +26,20 @@ namespace Orbit.Util
 
         private IServiceProvider Build()
         {
-            var services = new ServiceCollection();
-            this.RegisterServices(services);
-            OnRegisteringServices?.Invoke(this, services);
-            ServiceProvider prov = services.BuildServiceProvider();
-            EventMonitor.Instance.Start();
-            return prov;
+            try
+            {
+                var services = new ServiceCollection();
+                this.RegisterServices(services);
+                OnRegisteringServices?.Invoke(this, services);
+                ServiceProvider prov = services.BuildServiceProvider();
+                EventMonitor.Instance.Start();
+                return prov;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex);
+                throw;
+            }
         }
 
 

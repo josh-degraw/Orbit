@@ -7,7 +7,7 @@ using Orbit.Annotations;
 
 namespace Orbit.Models
 {
-    public class WaterProcessorData : IAlertableModel, IEquatable<WaterProcessorData>
+    public class WaterProcessorData : IAlertableModel, IEquatable<WaterProcessorData>, ISeedableModel
     {
         #region Limits
 

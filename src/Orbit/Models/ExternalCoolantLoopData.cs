@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace Orbit.Models
 {
-    public class ExternalCoolantLoopData : IAlertableModel, IEquatable<ExternalCoolantLoopData>
+    public class ExternalCoolantLoopData : IAlertableModel, IEquatable<ExternalCoolantLoopData>, ISeedableModel
     {
         #region Limits
 

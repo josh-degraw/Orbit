@@ -7,7 +7,7 @@ using Orbit.Annotations;
 
 namespace Orbit.Models
 {
-    public class InternalCoolantLoopData : IAlertableModel, IEquatable<InternalCoolantLoopData>
+    public class InternalCoolantLoopData : IAlertableModel, IEquatable<InternalCoolantLoopData>, ISeedableModel
     {
         #region Limits
 

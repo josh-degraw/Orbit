@@ -17,7 +17,7 @@ namespace Michsky.UI.ModernUIPack
         public bool invert;
         [Range(0, 100)] public float currentPercent;
         [Range(0, 100)] public int speed;
-
+        
         void Start()
         {
             if(isOn == false)

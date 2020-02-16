@@ -12,7 +12,7 @@ namespace Orbit.Models
         Discharge
     }
 
-    public class PowerSystemData : IAlertableModel, IEquatable<PowerSystemData>
+    public class PowerSystemData : IAlertableModel, IEquatable<PowerSystemData>, ISeedableModel
     {
         #region Private Limits
 
