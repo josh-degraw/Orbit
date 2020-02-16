@@ -12,7 +12,7 @@ namespace Orbit.Models
         #region Limits
 
         private const int urineTankUpperLimit = 100;
-        private const int urineTankLevelTolerance = 5;
+        private const int urineTankLevelTolerance = 10;
 
         private const int distillerSpeedUpperLimit = 1300;
         private const int distillerSpeedLowerLimit = 1100;
@@ -26,6 +26,9 @@ namespace Orbit.Models
         private const int brineTankLevelTolerance = 5;
 
         private SystemStatus lastWorkingStatus;
+        private int largeIncrement = 5;
+        private int smallIncrement = 2;
+        private int brineIncrement = 1;
 
         #endregion Limits
 
@@ -109,6 +112,7 @@ namespace Orbit.Models
             PurgePumpOn = other.PurgePumpOn;
             BrineTankLevel = other.BrineTankLevel;
 
+            GenerateData();
         }
 
         #endregion Constructors
@@ -117,16 +121,17 @@ namespace Orbit.Models
 
         public void ProcessData(double wasteTankLevel)
         {
-            GenerateData();
+            bool trouble = false;
 
             if (Status == SystemStatus.Standby)
             {
                 // if urine tank is full and the waste and brine tanks are not, change to 'processing' state
-                if (UrineTankLevel >= urineTankUpperLimit * .8
+                if (UrineTankLevel >= urineTankUpperLimit - urineTankLevelTolerance
                     && wasteTankLevel < urineTankUpperLimit
                     && BrineTankLevel < brineTankLevelUpperLimit)
                 {
                     Status = SystemStatus.Processing;
+                    //SimulateProcessing();
                 }
                 // if urine tank not full, stay in standby and simulate urine tank filling
                 else
@@ -134,15 +139,14 @@ namespace Orbit.Models
                     if (SupplyPumpOn || PurgePumpOn || DistillerOn)
                     {
                         lastWorkingStatus = Status;
-                        Status = SystemStatus.Trouble;
+                        //Status = SystemStatus.Trouble;
+                        trouble = true;
                     }
-                    else
-                    {
-                        SimulateStandby();
-                    }
+
+                    SimulateStandby();
                 }
             }
-            else if (Status == SystemStatus.Processing)
+            if (Status == SystemStatus.Processing)
             {
                 // no more urine to process or waste or brine tank full, change to 'Standby' state
                 if (UrineTankLevel <= 0
@@ -150,6 +154,7 @@ namespace Orbit.Models
                     || BrineTankLevel >= brineTankLevelUpperLimit)
                 {
                     Status = SystemStatus.Standby;
+                    //SimulateStandby();
 
                     UrineTankLevel = Math.Max(UrineTankLevel, 0);
                     BrineTankLevel = Math.Min(BrineTankLevel, brineTankLevelUpperLimit);
@@ -159,30 +164,49 @@ namespace Orbit.Models
                     if(!SupplyPumpOn || !PurgePumpOn || !DistillerOn)
                     {
                         lastWorkingStatus = Status;
-                        Status = SystemStatus.Trouble;
+                        //Status = SystemStatus.Trouble;
                     }
-                    else
-                    {
-                        SimulateProcessing();
-                    }
+                    SimulateProcessing();
                 }
             }
-            else if(Status == SystemStatus.Trouble)
-            {
-                Trouble();
-            }
-            else
-            {
-                Status = SystemStatus.Standby;
-                SimulateStandby();
-            }
+            //else if(Status == SystemStatus.Trouble)
+            //{
+            //    if (trouble)
+            //    {
+            //        Status = SystemStatus.Trouble;
+            //        Trouble();
+            //    }
+            //    else
+            //    {
+            //        Status = lastWorkingStatus;
+            //    }
+            //}
         }
 
         private void SimulateProcessing()
         {
-            UrineTankLevel -= 5;
-            BrineTankLevel += 1;
-            
+            // urine tank not empty, process 
+            if (UrineTankLevel > largeIncrement)
+            {
+                UrineTankLevel -= largeIncrement;
+            }
+            // urine tank full, set to full value
+            else
+            {
+                UrineTankLevel = urineTankUpperLimit;
+            }
+
+            // brine tank not full, process
+            if (BrineTankLevel < brineTankLevelUpperLimit - brineIncrement)
+            {
+                BrineTankLevel += brineIncrement;
+            }
+            // brine tank full, set to full value
+            else
+            {
+                BrineTankLevel = brineTankLevelUpperLimit;
+            }
+
             // should be on, randomly trigger a false to simulate a fault
             SupplyPumpOn = RandomFalse();
             DistillerOn = RandomFalse();
@@ -191,7 +215,16 @@ namespace Orbit.Models
 
         private void SimulateStandby()
         {
-            UrineTankLevel += 3;
+            // urine tank  not full, simulate toilet usage
+            if(UrineTankLevel < urineTankUpperLimit - smallIncrement)
+            {
+                UrineTankLevel += smallIncrement;
+            }
+            // urine tank full, set to ful value
+            else
+            {
+                UrineTankLevel = urineTankUpperLimit;
+            }
 
             // should be off, randomly trigger a true to simulate a fault
             SupplyPumpOn = RandomTrue();
@@ -207,7 +240,7 @@ namespace Orbit.Models
             }
             else
             {
-                SimulateStandby();
+                SimulateStandby();                                                                                           
             }
         }
 
@@ -225,6 +258,18 @@ namespace Orbit.Models
                 DistillerTemp = rand.Next(15, 32);  // something close to ambient air temp
                 DistillerSpeed = 0;
             }
+        }
+
+        public void SeedData()
+        {
+            BrineTankLevel = 5;
+            DistillerSpeed = 20;
+            DistillerTemp = 20;
+            DistillerOn = false;
+            SupplyPumpOn = false;
+            PurgePumpOn = false;
+            Status = SystemStatus.Standby;
+            UrineTankLevel = 20;
         }
 
         private bool RandomTrue()
