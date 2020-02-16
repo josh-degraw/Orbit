@@ -38,32 +38,47 @@ namespace Orbit.Data
 
         public void InsertSeedData()
         {
-            //TODO: Use NSubstitute for generating random seed data
-            this.UrineProcessorData.Add(new UrineSystemData {
-                BrineTankLevel = 5,
-                DistillerSpeed = 20,
-                DistillerTemp = 20,
-                DistillerOn = false,
-                SupplyPumpOn = false,
-                PurgePumpOn = false,
-                Status = SystemStatus.Standby,
-                UrineTankLevel = 40,
-            });
+            UrineSystemData urine = new UrineSystemData();
+            urine.SeedData();
+            this.UrineProcessorData.Add(urine);
 
             this.WasteWaterStorageTankData.Add(new WasteWaterStorageTankData {
                 TankId = "Main",
                 Level = 30,
             });
 
-            this.WaterProcessorData.Add(new WaterProcessorData {
-                FiltersOk = true,
-                PostHeaterTemp= 20,
-                ProductTankLevel = 80,
-                PostReactorQualityOk = false,
-                DiverterValvePosition = DiverterValvePositions.Reprocess,
-                PumpOn = false,
-                SystemStatus = SystemStatus.Standby,
-            });
+            PowerSystemData power = new PowerSystemData();
+            power.SeedData();
+            this.PowerSystemData.Add(power);
+
+            AtmosphereData atmo = new AtmosphereData();
+            atmo.SeedData();
+            this.AtmosphereData.Add(atmo);
+
+            CarbonDioxideRemediation co2 = new CarbonDioxideRemediation();
+            co2.SeedData();
+            this.CarbonDioxideRemoverData.Add(co2);
+
+            ExternalCoolantLoopData eloop = new ExternalCoolantLoopData();
+            eloop.SeedData();
+            this.ExternalCoolantLoopData.Add(eloop);
+
+            InternalCoolantLoopData iloop = new InternalCoolantLoopData();
+            iloop.SeedData();
+            this.InternalCoolantLoopData.Add(iloop);
+
+            OxygenGenerator o2 = new OxygenGenerator();
+            o2.SeedData();
+            this.OxygenGeneratorData.Add(o2);
+
+            WaterGeneratorData h20 = new WaterGeneratorData();
+            h20.SeedData();
+            this.WaterGeneratorData.Add(h20);
+
+            WaterProcessorData water = new WaterProcessorData();
+            water.SeedData();
+            this.WaterProcessorData.Add(water);
+
             this.SaveChanges();
         }
 

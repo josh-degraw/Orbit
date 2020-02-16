@@ -39,7 +39,7 @@ namespace Orbit.Models
         [NotMapped]
         public string ComponentName => "Water Generator";
 
-        public DateTimeOffset ReportDateTime { get; set; }
+        public DateTimeOffset ReportDateTime { get; set; } = DateTimeOffset.Now;
 
         public SystemStatus Status { get; set; }
 
