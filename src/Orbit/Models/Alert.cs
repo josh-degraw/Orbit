@@ -37,7 +37,7 @@ namespace Orbit.Models
         /// <summary>
         ///   The value of the relevant property at the time of the alert.
         /// </summary>
-        public object? CurrentValue { get; }
+        public object? CurrentValue { get; set; }
 
         /// <summary>
         ///   Optionally specify additional data via key-value pairs.

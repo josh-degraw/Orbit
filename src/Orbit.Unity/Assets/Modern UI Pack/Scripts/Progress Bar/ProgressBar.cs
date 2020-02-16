@@ -18,12 +18,23 @@ namespace Michsky.UI.ModernUIPack
         [Range(0, 100)] public float currentPercent;
         [Range(0, 100)] public int speed;
         
+        [Header("Colors")]
+        public Color barColor;
+
+        public Color warningColor = new Color(255, 218, 116);
+        public Color errorColor= new Color(255, 119, 107);
+
         void Start()
         {
-            if(isOn == false)
+            var image = loadingBar.GetComponent<Image>();
+            if (isOn == false)
             {
-                loadingBar.GetComponent<Image>().fillAmount = currentPercent / 100;
+                image.fillAmount = currentPercent / 100;
                 textPercent.GetComponent<TextMeshProUGUI>().text = ((int)currentPercent).ToString("F0") + "%";
+            }
+            if (barColor == default)
+            {
+                barColor = image.color;
             }
         }
 
@@ -45,6 +56,7 @@ namespace Michsky.UI.ModernUIPack
                     else if (currentPercent == 0 || currentPercent <= 0 && restart == true && invert == true)
                         currentPercent = 100;
                 }
+
                 loadingBar.GetComponent<Image>().fillAmount = currentPercent / 100;
                 textPercent.GetComponent<TextMeshProUGUI>().text = ((int)currentPercent).ToString("F0") + "%";
             }

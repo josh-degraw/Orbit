@@ -385,6 +385,9 @@ MonoBehaviour:
   invert: 0
   currentPercent: 0
   speed: 7
+  barColor: {r: 0, g: 0, b: 0, a: 0}
+  warningColor: {r: 1, g: 0.85490197, b: 0.45490196, a: 1}
+  errorColor: {r: 1, g: 0.46666667, b: 0.41960785, a: 1}
 --- !u!1 &5619456390808987219
 GameObject:
   m_ObjectHideFlags: 0

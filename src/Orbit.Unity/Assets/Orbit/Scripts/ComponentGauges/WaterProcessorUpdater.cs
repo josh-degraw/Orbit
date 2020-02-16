@@ -11,13 +11,17 @@ using UnityEngine;
 
 public class WaterProcessorUpdater : ComponentUpdater
 {
-    protected override Alert GetLatestAlert()
+    protected override Alert GetLatestAlertValue()
     {
         using (var scope = OrbitServiceProvider.Instance.CreateScope())
         {
             var comp = scope.ServiceProvider.GetService<IMonitoredComponent<WaterProcessorData>>();
 
-            return comp.GetLatestAlert(d => d.ProductTankLevel);
+            var next = comp.GetLatestAlert(d => d.ProductTankLevel);
+            if (next == null)
+                return null;
+            
+            return next;
         }
     }
 }

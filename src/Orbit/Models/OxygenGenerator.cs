@@ -12,7 +12,7 @@ namespace Orbit.Models
         #region Limits
         // these should not be constant so crew can make changes in orbit
         [NotMapped]
-        int cellOutputLiters = 270;
+        double cellOutputLiters = 270;
         [NotMapped]
         int oxygenNeedPerPersonLiters = 550;
         [NotMapped]
@@ -50,7 +50,7 @@ namespace Orbit.Models
         /// switches water from going to reaction to water processor if bubbles are present
         /// </summary>
         public DiverterValvePositions DiverterValvePosition { get; set; }
-        
+
         /// <summary>
         /// checks if hydrogen is present in product oxygen flow, if yes then there is a problem in the system and it 
         /// shuts down
@@ -71,7 +71,8 @@ namespace Orbit.Models
         /// <summary>
         /// Each person aboard would require at least 3 cells to be active to maintain baseline oxygen requirements
         /// </summary>
-        [Range(0,12)]
+        [Range(0, 12)]
+        [IdealRange(3, 12)]
         public int NumActiveCells { get; set; }
 
         /// <summary>
@@ -138,7 +139,7 @@ namespace Orbit.Models
             lastWorkingStatus = SystemStatus.Standby;
         }
 
-        public void ProcessData() 
+        public void ProcessData()
         {
             if (Status == SystemStatus.Processing)
             {
@@ -152,8 +153,9 @@ namespace Orbit.Models
             {
                 Trouble();
             }
-            else { }
-            
+            else
+            { }
+
             SystemOutput = SimulateOutput();
         }
 
@@ -202,11 +204,11 @@ namespace Orbit.Models
         private void Trouble()
         {
             Status = SystemStatus.Trouble;
-            if(lastWorkingStatus == SystemStatus.Processing)
+            if (lastWorkingStatus == SystemStatus.Processing)
             {
                 SimulateProcessing();
             }
-            else 
+            else
             {
                 SimulateStandby();
             }
@@ -216,8 +218,9 @@ namespace Orbit.Models
         {
             Random rand = new Random();
             OxygenLevel = rand.Next(OxygenSetLevel - oxygenLevelTolerance, OxygenSetLevel + oxygenLevelTolerance);
-            
-            if(Status == SystemStatus.Processing)
+            OxygenLevel = this.LimitValue(t => t.OxygenLevel);
+
+            if (Status == SystemStatus.Processing)
             {
                 // trigger hydrogen sensor on occasion
                 if (rand.Next(0, 100) == 9)
@@ -284,10 +287,10 @@ namespace Orbit.Models
             }
         }
 
-        private int SimulateOutput()
+        private double SimulateOutput()
         {
             return NumActiveCells * cellOutputLiters;
-        }                                                                             
+        }
 
         #endregion Private Methods
 
@@ -357,16 +360,21 @@ namespace Orbit.Models
         private IEnumerable<Alert> CheckMaxProduction()
         {
             // at maximum output and cabin oxygen concentration is still low
-            if((NumActiveCells >= totalNumOfCells) && (OxygenLevel < (OxygenSetLevel - oxygenLevelTolerance)))
+            if ((NumActiveCells >= totalNumOfCells) && (OxygenLevel < (OxygenSetLevel - oxygenLevelTolerance)))
             {
-                yield return this.CreateAlert(a => a.NumActiveCells, "Maximum oxygen production not maintaining set oxygen level", AlertLevel.HighError);
+                const string msg = "Maximum oxygen production not maintaining set oxygen level";
+                yield return this.CreateAlert(a => a.OxygenLevel, msg, AlertLevel.HighError);
+                yield return this.CreateAlert(a => a.NumActiveCells, msg, AlertLevel.HighError);
             }
-            else if(NumActiveCells >= totalNumOfCells && (OxygenLevel <= OxygenSetLevel))
+            else if (NumActiveCells >= totalNumOfCells && (OxygenLevel <= OxygenSetLevel))
             {
-                yield return this.CreateAlert(a => a.NumActiveCells, "All oxygen production cells currently active", AlertLevel.HighWarning);
+                const string msg = "All oxygen production cells currently active";
+                yield return this.CreateAlert(a => a.OxygenLevel, msg, AlertLevel.HighWarning);
+                yield return this.CreateAlert(a => a.NumActiveCells, msg, AlertLevel.HighWarning);
             }
             else
             {
+                yield return this.CreateAlert(a => a.OxygenLevel);
                 yield return this.CreateAlert(a => a.NumActiveCells);
             }
         }

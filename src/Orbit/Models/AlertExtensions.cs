@@ -14,7 +14,7 @@ namespace Orbit.Models
         private static readonly ConcurrentDictionary<int, PropertyMetadata> _metadata =
             new ConcurrentDictionary<int, PropertyMetadata>();
 
-        private static PropertyMetadata GetMetadata(MemberInfo member)
+        internal static PropertyMetadata GetMetadata(MemberInfo member)
         {
             // Indexed by hashcode to reduce the memory footprint needed
             var info = _metadata.GetOrAdd(member.GetHashCode(), _ =>
@@ -66,6 +66,39 @@ namespace Orbit.Models
 
             var value = propSelector.Compile()(model);
             return new Alert(memberName, message, level, info, value);
+        }
+        
+        public static int LimitValue<TModel>(this TModel model, Expression<Func<TModel, int>> selector) where TModel : IModel
+        {
+            var body = (MemberExpression)selector.Body;
+
+            var meta = GetMetadata(body.Member);
+            int value = selector.Compile()(model);
+
+            return Limit(value, meta.TotalRange);
+        }
+        public static double LimitValue<TModel>(this TModel model, Expression<Func<TModel, double>> selector) where TModel : IModel
+        {
+            var body = (MemberExpression)selector.Body;
+
+            var meta = GetMetadata(body.Member);
+            double value = selector.Compile()(model);
+
+            return Limit(value, meta.TotalRange);
+        }
+
+        private static int Limit(int value, ValueRange range)
+        {
+            return (int)Limit((double)value, range);
+        }
+
+        private static double Limit(double value, ValueRange range)
+        {
+            if (value > range.Maximum)
+                return range.Maximum;
+            if (value < range.Minimum)
+                return range.Minimum;
+            return value;
         }
     }
 }

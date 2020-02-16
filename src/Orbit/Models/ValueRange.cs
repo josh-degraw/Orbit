@@ -21,7 +21,14 @@ namespace Orbit.Models
 
         public bool IsInRangeInclusive(double value) => value >= this.Minimum && value <= this.Maximum;
 
+        public double ToPercentage(double value)
+        {
+            return (value / (Maximum - Minimum)) * 100;
+        }
+
         #region Equality members
+
+        public override string ToString() => $"{Minimum} - {Maximum}";
 
         public override bool Equals(object? obj) => obj is ValueRange range && this.Equals(range);
 

@@ -470,6 +470,26 @@ PrefabInstance:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 5619456390685293443, guid: de766a12644345e44a777548500751a9,
+        type: 3}
+      propertyPath: warningColor.g
+      value: 0.85490197
+      objectReference: {fileID: 0}
+    - target: {fileID: 5619456390685293443, guid: de766a12644345e44a777548500751a9,
+        type: 3}
+      propertyPath: warningColor.b
+      value: 0.45490196
+      objectReference: {fileID: 0}
+    - target: {fileID: 5619456390685293443, guid: de766a12644345e44a777548500751a9,
+        type: 3}
+      propertyPath: errorColor.g
+      value: 0.46666667
+      objectReference: {fileID: 0}
+    - target: {fileID: 5619456390685293443, guid: de766a12644345e44a777548500751a9,
+        type: 3}
+      propertyPath: errorColor.b
+      value: 0.41960785
+      objectReference: {fileID: 0}
     - target: {fileID: 5619456390685293471, guid: de766a12644345e44a777548500751a9,
         type: 3}
       propertyPath: m_Name
@@ -1364,6 +1384,26 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Pivot.y
       value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 5619456390685293443, guid: de766a12644345e44a777548500751a9,
+        type: 3}
+      propertyPath: warningColor.g
+      value: 0.85490197
+      objectReference: {fileID: 0}
+    - target: {fileID: 5619456390685293443, guid: de766a12644345e44a777548500751a9,
+        type: 3}
+      propertyPath: warningColor.b
+      value: 0.45490196
+      objectReference: {fileID: 0}
+    - target: {fileID: 5619456390685293443, guid: de766a12644345e44a777548500751a9,
+        type: 3}
+      propertyPath: errorColor.g
+      value: 0.46666667
+      objectReference: {fileID: 0}
+    - target: {fileID: 5619456390685293443, guid: de766a12644345e44a777548500751a9,
+        type: 3}
+      propertyPath: errorColor.b
+      value: 0.41960785
       objectReference: {fileID: 0}
     - target: {fileID: 5619456390685293471, guid: de766a12644345e44a777548500751a9,
         type: 3}

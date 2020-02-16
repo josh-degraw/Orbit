@@ -3,7 +3,9 @@ using System.Collections;
 using System.Collections.Generic;
 using Michsky.UI.ModernUIPack;
 using Orbit.Models;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 
 namespace Orbit.Unity
@@ -28,7 +30,15 @@ namespace Orbit.Unity
         }
 
 
-        protected abstract Alert GetLatestAlert();
+        protected abstract Alert GetLatestAlertValue();
+
+
+        private void SetColor(Color color)
+        {
+            var text = pb.textPercent.GetComponent<TextMeshProUGUI>();
+
+            text.color = color;
+        }
 
         public void HandleUpdate()
         {
@@ -40,17 +50,33 @@ namespace Orbit.Unity
                     return;
                 }
 
-                var next = GetLatestAlert();
+                var next = GetLatestAlertValue();
                 if (next == null)
                 {
                     Debug.Log("No report found", this);
-                     
+
                     pb.currentPercent = 0;
                     return;
                 }
 
                 this.pb.currentPercent = Convert.ToSingle(next.CurrentValue);
 
+                switch (next.AlertLevel)
+                {
+                    case AlertLevel.HighWarning:
+                    case AlertLevel.LowWarning:
+                        SetColor(pb.warningColor);
+                        break;
+
+                    case AlertLevel.HighError:
+                    case AlertLevel.LowError:
+                        SetColor(pb.errorColor);
+                        break;
+
+                    default:
+                        SetColor(pb.barColor);
+                        break;
+                }
 
             }
             catch (Exception e)
