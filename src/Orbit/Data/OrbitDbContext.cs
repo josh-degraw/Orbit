@@ -38,32 +38,19 @@ namespace Orbit.Data
 
         public void InsertSeedData()
         {
-            //TODO: Use NSubstitute for generating random seed data
-            this.UrineProcessorData.Add(new UrineSystemData {
-                BrineTankLevel = 5,
-                DistillerSpeed = 20,
-                DistillerTemp = 20,
-                DistillerOn = false,
-                SupplyPumpOn = false,
-                PurgePumpOn = false,
-                Status = SystemStatus.Standby,
-                UrineTankLevel = 40,
-            });
+            UrineSystemData urine = new UrineSystemData();
+            urine.SeedData();
+            this.UrineProcessorData.Add(urine);
 
             this.WasteWaterStorageTankData.Add(new WasteWaterStorageTankData {
                 TankId = "Main",
                 Level = 30,
             });
 
-            this.WaterProcessorData.Add(new WaterProcessorData {
-                FiltersOk = true,
-                PostHeaterTemp= 20,
-                ProductTankLevel = 80,
-                PostReactorQualityOk = false,
-                DiverterValvePosition = DiverterValvePositions.Reprocess,
-                PumpOn = false,
-                SystemStatus = SystemStatus.Standby,
-            });
+            WaterProcessorData water = new WaterProcessorData();
+            water.SeedData();
+            this.WaterProcessorData.Add(water);
+
             this.SaveChanges();
         }
 
