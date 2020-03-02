@@ -8,7 +8,7 @@ using UnityEditor;
 
 using UnityEngine;
 
-[InitializeOnLoad]
+//[InitializeOnLoad]
 public class Startup : MonoBehaviour
 {
     private static IServiceProvider ServiceProvider => OrbitServiceProvider.Instance;

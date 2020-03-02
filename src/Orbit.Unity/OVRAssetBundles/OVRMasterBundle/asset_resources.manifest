@@ -1,0 +1,462 @@
+ManifestFileVersion: 0
+CRC: 3564802792
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 39ae629d44a00436438fda4b7893836b
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 3d7c14d29cff9ac6863a11de25d1e81e
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 4
+  Script: {instanceID: 0}
+- Class: 21
+  Script: {instanceID: 0}
+- Class: 28
+  Script: {instanceID: 0}
+- Class: 48
+  Script: {instanceID: 0}
+- Class: 49
+  Script: {instanceID: 0}
+- Class: 74
+  Script: {instanceID: 0}
+- Class: 91
+  Script: {instanceID: 0}
+- Class: 95
+  Script: {instanceID: 0}
+- Class: 109
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 7d428c10df30a084587fcfa5eb845e76, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: b01fef50de04046448865a6d70ddb9b7, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 20c6dbf0102c7bc468113ccdd97dad83, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: e882cff0df1ed284a8cfdf670297b01d, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: e3c6e5718ae5e9246af72590402986a6, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: c7f637a1b5cac8548a4a1cf0615c2015, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 2a4db7a114972834c8e4117be1d82ba3, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: fe87c0e1cc204ed48ad3b37840f39efc, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 2da0c512f12947e489f739169773d7ca, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: f74f8e3213a5a144d801c9a0e3a84d80, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: dea4139266751024f8662f14af08584d, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 3245ec927659c4140ac4f8d17403cc18, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 9142f1b2d4f467c49af32a1445cf9117, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 306cc8c2b49d7114eaa3623786fc2126, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 125c77e2c7bf16f4792824151a1d9249, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: eb3339e2f5f66dd42b96285c9d99c82f, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 058cba836c1846c3aa1c5fd2e28aea77, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: ef1b9ec3e5bcdc64d87d311ffc627a77, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 31a19414c41e5ae4aae2af33fee712f6, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: ddd611441fc6f1f4c9f714fcd4dcbeb3, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: ad074644ff568a14187a3690cfbd7534, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 2a54a7257a6436d41b873f1053130384, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 84a92b25f83d49b9bc132d206b370281, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: ae2d1475ff8202447b792ea5e136014d, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: e098a0a519700eb4094ec2c8b9d07b30, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 323287a52e0836642bb7e541f4ed6416, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: a9d2f9067277ade4e9b47012ea4d9e17, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 033273b6ffafa814cbd95d1b39b157d1, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 1aa08ab6e0800fa44ae55d278d1423e3, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 5d218e07e7315e243acdfcc700d01eb5, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: c65c7917835d8a04b94c8b906234b09e, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 09bc67870d6e747c79794142c4f06f22, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 4a058d8729a0602458c4c9045eeddbf6, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 61b11bb72526919478d1a13bdcb7aec8, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 4e29b1a8efbd4b44bb3f3716e73f07ff, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: bec9b7e800825ee4bb3c622d02a73364, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 7b3d601986abab74cb6b3901c4bb2508, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 59f8146938fff824cb5fd77236b75775, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: be5fad699a120164d91f8b2f69924ad1, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 7847a689c7721eb4dba4344e727ab715, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: b3d881e962d099f4a8eb492ef7e9a8c0, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 025076e9ea2db4748aaecbfb47809745, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 30649d3a9faa99c48a7b1166b86bf2a0, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 71c1514a6bd24e1e882cebbe1904ce04, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 2705215ac5b84b70bacc50632be6e391, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 86b8e0ba11d23674b90c578d7eec2d09, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 4ebbd33be3a73ca40aa6a4371ff9a6c6, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: eb7cf53b7c3b36a4b9f4d2b688942503, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: d170bc6b162fcce46a456b2011fd50b4, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 7572d0ebb027576419bc79973789628e, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 1a12ddbc47b17cd478cb447d1113a22b, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 8ff5b50d8ff89864090b86d1fee33b66, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: ab2114bdc8544297b417dfefe9f1e410, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: e577c30e78b6a8d428d2d7bc77913d0b, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: fa9c8e8ebd8e36245bbac0e6d6979363, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: fa5100cea443dc7448b10a5f20698420, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 803cebee00d5c504e930205383017dc1, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: d0b148fe25e99eb48b9724523833bab1, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 4f231c4fb786f3946a6b90b886c48677, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 9085046f02f69544eb97fd06b6048fe2, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 67db9e8f0e2ae9c40bc1e2b64352a6b4, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 2fafe2cfe61f6974895a912c3755e8f1, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: 4b4bbdcf873a4164eabf85f0d7820717, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+- Class: 128
+  Script: {instanceID: 0}
+- Class: 213
+  Script: {instanceID: 0}
+- Class: 222
+  Script: {instanceID: 0}
+- Class: 223
+  Script: {instanceID: 0}
+- Class: 224
+  Script: {instanceID: 0}
+- Class: 225
+  Script: {instanceID: 0}
+Assets:
+- Assets/Modern UI Pack/Resources/Button/Basic - With Icon/White.prefab
+- Assets/Modern UI Pack/Resources/Animated Icon/Slider.prefab
+- Assets/Modern UI Pack/Resources/Slider/Gradient/Slider - Gradient (Popup).prefab
+- Assets/Modern UI Pack/Resources/Notification/Fading Notification.prefab
+- Assets/Oculus/Avatar/Resources/FallbackTextures/fallback_diffuse_roughness_2048.png
+- Assets/Modern UI Pack/Resources/Button/Radial - Only Icon/Gray.prefab
+- Assets/Modern UI Pack/Resources/Button/Radial - Outline Only Icon/Pink.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline Only Icon/Night.prefab
+- Assets/Modern UI Pack/Resources/Button/Rounded/Orange.prefab
+- Assets/Modern UI Pack/Resources/Button/Radial - Only Icon/Green.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline Gradient/Red.prefab
+- Assets/Oculus/Avatar/Resources/FallbackTextures/fallback_diffuse_roughness_256.png
+- Assets/Modern UI Pack/Resources/Button/Rounded - Outline Gradient/Pink.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - With Icon/Purple.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic/Brown.prefab
+- Assets/Modern UI Pack/Resources/Button/Rounded/Purple.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline/Blue.prefab
+- Assets/TextMesh Pro/Resources/Shaders/TMP_SDF-Surface-Mobile.shader
+- Assets/TextMesh Pro/Resources/LineBreaking Leading Characters.txt
+- Assets/Modern UI Pack/Resources/Button/Basic - With Icon/Brown.prefab
+- Assets/Modern UI Pack/Resources/Toggle/Toggle - Standard (Regular).prefab
+- Assets/Modern UI Pack/Resources/Button/Rounded - Gradient/Blue.prefab
+- Assets/Oculus/Avatar/Resources/Materials/Version1.5/Avatar_PC_SingleComponent.shader
+- Assets/Modern UI Pack/Resources/Button/Radial - Only Icon/Pink.prefab
+- Assets/Modern UI Pack/Resources/Movable Window/Movable Window.prefab
+- Assets/Oculus/VR/Resources/OVRMRUnlitTransparent.shader
+- Assets/TextMesh Pro/Resources/Sprite Assets/EmojiOne.asset
+- Assets/Oculus/Avatar/Resources/FallbackTextures/fallback_normal_2048.png
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline Only Icon/Purple.prefab
+- Assets/Modern UI Pack/Resources/Modal Window/Style 2/MW - With Tabs.prefab
+- Assets/Modern UI Pack/Resources/Button/Rounded - Gradient/Green.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline/Green.prefab
+- Assets/Oculus/VR/Resources/OVRMRChromaKey.cginc
+- Assets/Modern UI Pack/Resources/Button/Basic - Only Icon/Standard.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline Only Icon/Red.prefab
+- Assets/Modern UI Pack/Resources/Slider/Range/Slider - Range.prefab
+- Assets/Modern UI Pack/Resources/Progress Bar/PB - Radial Filled Vertical.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline Only Icon/Orange.prefab
+- Assets/Modern UI Pack/Resources/Progress Bar (Loop)/PB Loop - Radial Material.prefab
+- Assets/Oculus/SampleFramework/Core/Video/Resources/Multiview Stereo.shader
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline/Pink.prefab
+- Assets/TextMesh Pro/Resources/Style Sheets/Default Style Sheet.asset
+- Assets/Modern UI Pack/Resources/Button/Basic - Only Icon/White.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline Gradient/Night.prefab
+- Assets/Modern UI Pack/Resources/Button/Rounded/Standard.prefab
+- Assets/Modern UI Pack/Resources/Progress Bar/PB - Radial (Regular).prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline With Icon/Orange.prefab
+- Assets/Modern UI Pack/Resources/Modal Window/Style 1/MW - With Tabs.prefab
+- Assets/Modern UI Pack/Resources/Progress Bar/PB - Radial Light.prefab
+- Assets/Modern UI Pack/Resources/Button/Rounded - Outline/Green.prefab
+- Assets/Modern UI Pack/Resources/Input Field/Input Field - Standard (Left).prefab
+- Assets/Modern UI Pack/Resources/Button/Rounded - Outline/Blue.prefab
+- Assets/Modern UI Pack/Resources/Button/Rounded/Brown.prefab
+- Assets/Modern UI Pack/Resources/Horizontal Selector/Indicator Item.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline With Icon/Standard.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline/Gray.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline Gradient/Pink.prefab
+- Assets/Modern UI Pack/Resources/Slider/Gradient/Slider - Gradient (Value).prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Only Icon/Red.prefab
+- Assets/Modern UI Pack/Resources/Button/Rounded - Outline/Red.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline/Brown.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic/White.prefab
+- Assets/Modern UI Pack/Resources/Button/Rounded - Outline/Standard.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - With Icon/Blue.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - With Icon/Night.prefab
+- Assets/TextMesh Pro/Resources/Shaders/TMPro_Properties.cginc
+- Assets/Modern UI Pack/Resources/Button/Basic - Only Icon/Green.prefab
+- Assets/Modern UI Pack/Resources/Button/Rounded/Night.prefab
+- Assets/Oculus/Avatar/Resources/Materials/Version1.5/Avatar_Mobile_Loader.shader
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline With Icon/Night.prefab
+- Assets/Modern UI Pack/Resources/Input Field/Input Field - Fading (Right).prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline Gradient/Purple.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline Gradient/Green.prefab
+- Assets/Modern UI Pack/Resources/Input Field/Input Field - Standard (Right).prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Gradient/Blue.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic/Standard.prefab
+- Assets/Modern UI Pack/Resources/Slider/Standard/Slider - Standard.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Only Icon/Pink.prefab
+- Assets/Modern UI Pack/Resources/Button/Radial - Only Icon/Red.prefab
+- Assets/Modern UI Pack/Resources/Slider/Standard/Slider - Standard (Value).prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline With Icon/Red.prefab
+- Assets/Modern UI Pack/Resources/Dropdown/Multi Select Dropdown Item.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic/Red.prefab
+- Assets/TextMesh Pro/Resources/Shaders/TMP_Bitmap-Custom-Atlas.shader
+- Assets/Modern UI Pack/Resources/Button/Basic - With Icon/Orange.prefab
+- Assets/Modern UI Pack/Resources/Notification/Popup Notification.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic/Pink.prefab
+- Assets/Modern UI Pack/Resources/Button/Rounded - Outline Gradient/Green.prefab
+- Assets/Oculus/VR/Resources/Cubemap Blit.shader
+- Assets/Modern UI Pack/Resources/Button/Rounded - Outline Gradient/Orange.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline/Night.prefab
+- Assets/Modern UI Pack/Resources/Input Field/Input Field - Fading (Middle).prefab
+- Assets/Modern UI Pack/Resources/Slider/Radial/Slider - Radial (Gradient).prefab
+- Assets/Modern UI Pack/Resources/Button/Rounded - Outline Gradient/Gray.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Gradient/Pink.prefab
+- Assets/Modern UI Pack/Resources/Button/Rounded - Outline/Purple.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - With Icon/Standard.prefab
+- Assets/Oculus/VR/Resources/OVRMRUnlit.shader
+- Assets/Modern UI Pack/Resources/Button/Basic - Gradient/Red.prefab
+- Assets/Modern UI Pack/Resources/MUIP Manager.asset
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline/Standard.prefab
+- Assets/Modern UI Pack/Resources/Button/Rounded - Outline/Brown.prefab
+- Assets/Modern UI Pack/Resources/Switch/Switch - Material.prefab
+- Assets/Modern UI Pack/Resources/Editor/MUIP Editor Light.png
+- Assets/Modern UI Pack/Resources/Button/Basic/Orange.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline Only Icon/Pink.prefab
+- Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF - Drop Shadow.mat
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline With Icon/Blue.prefab
+- Assets/Modern UI Pack/Resources/Button/Radial - Only Icon/Orange.prefab
+- Assets/Modern UI Pack/Resources/Button/Rounded - Outline/Pink.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline/White.prefab
+- Assets/Modern UI Pack/Resources/Input Field/Input Field - Fading (Left).prefab
+- Assets/Modern UI Pack/Resources/Progress Bar (Loop)/PB Loop - Standard Fastly.prefab
+- Assets/Modern UI Pack/Resources/Button/Radial - Only Icon/White.prefab
+- Assets/Modern UI Pack/Resources/Button/Radial - Only Icon/Brown.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline Only Icon/Green.prefab
+- Assets/Oculus/Avatar/Resources/Materials/AvatarSurfaceShaderSelfOccluding.shader
+- Assets/Oculus/VR/Resources/Unlit Transparent Color.shader
+- Assets/Modern UI Pack/Resources/Toggle/Toggle Group Panel.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline/Orange.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic/Gray.prefab
+- Assets/Resources/OculusPlatformSettings.asset
+- Assets/Modern UI Pack/Resources/Button/Rounded/White.prefab
+- Assets/Resources/OVRBuildConfig.asset
+- Assets/Modern UI Pack/Resources/Button/Basic - Gradient/Night.prefab
+- Assets/Modern UI Pack/Resources/Animated Icon/Window.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Gradient/Purple.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Gradient/White.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline With Icon/White.prefab
+- Assets/Oculus/Avatar/Resources/Materials/AvatarSurfaceShaderPBS.shader
+- Assets/Modern UI Pack/Resources/Button/Rounded - Outline Gradient/Purple.prefab
+- Assets/Modern UI Pack/Resources/Button/Rounded - Outline/Night.prefab
+- Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF.asset
+- Assets/Modern UI Pack/Resources/Button/Radial - Outline Only Icon/Red.prefab
+- Assets/Modern UI Pack/Resources/Button/Rounded - Gradient/Red.prefab
+- Assets/Oculus/VR/Resources/OVRMRCameraFrameLit.shader
+- Assets/Modern UI Pack/Resources/Button/Radial - Only Icon/Standard.prefab
+- Assets/Modern UI Pack/Resources/Switch/Switch - Standard.prefab
+- Assets/TextMesh Pro/Resources/LineBreaking Following Characters.txt
+- Assets/Modern UI Pack/Resources/Dropdown/Dropdown Item.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - With Icon/Red.prefab
+- Assets/Modern UI Pack/Resources/Button/Rounded/Gray.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Only Icon/Orange.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline With Icon/Green.prefab
+- Assets/Oculus/Avatar/Resources/Materials/Version1.5/Avatar_Mobile_CombinedMesh.shader
+- Assets/TextMesh Pro/Resources/Shaders/TMP_SDF-Mobile Masking.shader
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline Gradient/White.prefab
+- Assets/Modern UI Pack/Resources/Progress Bar/PB - Radial Filled Horizontal.prefab
+- Assets/Oculus/Avatar/Resources/Materials/Expressive/Avatar_Mobile_CombinedMeshExpressive.shader
+- Assets/Modern UI Pack/Resources/Input Field/Input Field - Multi-Line.prefab
+- Assets/Modern UI Pack/Resources/Animated Icon/Yes to No.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline Only Icon/Standard.prefab
+- Assets/Modern UI Pack/Resources/Input Field/Input Field - Standard (Middle).prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Gradient/Green.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline With Icon/Gray.prefab
+- Assets/Modern UI Pack/Resources/Slider/Outline/Slider - Outline.prefab
+- Assets/Oculus/VR/Resources/Underlay Transparent Occluder.shader
+- Assets/Modern UI Pack/Resources/Button/Radial - Outline Only Icon/Orange.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Only Icon/Purple.prefab
+- Assets/Modern UI Pack/Resources/Modal Window/Style 2/MW - Standard.prefab
+- Assets/Oculus/VR/Resources/Texture2D Blit.shader
+- Assets/Oculus/Avatar/Resources/Materials/Expressive/Avatar_PC_SingleComponentExpressive.shader
+- Assets/Modern UI Pack/Resources/Button/Rounded - Outline Gradient/Brown.prefab
+- Assets/Modern UI Pack/Resources/Button/Rounded/Blue.prefab
+- Assets/Modern UI Pack/Resources/Toggle/Toggle - Standard (Bold).prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Gradient/Gray.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - With Icon/Green.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Gradient/Brown.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic/Night.prefab
+- Assets/Modern UI Pack/Resources/Button/Rounded - Gradient/Pink.prefab
+- Assets/Oculus/Avatar/Resources/Materials/AvatarPBRV2Simple.shader
+- Assets/TextMesh Pro/Resources/Shaders/TMP_Bitmap-Mobile.shader
+- Assets/Modern UI Pack/Resources/Button/Radial - Outline Only Icon/White.prefab
+- Assets/Modern UI Pack/Resources/Slider/Outline/Slider - Outline (Popup).prefab
+- Assets/Modern UI Pack/Resources/Button/Basic/Blue.prefab
+- Assets/Modern UI Pack/Resources/Progress Bar (Loop)/PB Loop - Radial Pie.prefab
+- Assets/Modern UI Pack/Resources/Button/Radial - Outline Only Icon/Brown.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Only Icon/Blue.prefab
+- Assets/Modern UI Pack/Resources/Scrollbar/Scrollbar.prefab
+- Assets/Modern UI Pack/Resources/Animated Icon/Hamburger to Exit.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline Only Icon/Blue.prefab
+- Assets/Modern UI Pack/Resources/Slider/Standard/Slider - Standard (Popup).prefab
+- Assets/Modern UI Pack/Resources/Progress Bar/PB - Radial Bold.prefab
+- Assets/Modern UI Pack/Resources/Other/Canvas.prefab
+- Assets/Modern UI Pack/Resources/Slider/Range/Slider - Range (Label).prefab
+- Assets/Modern UI Pack/Resources/Button/Rounded - Outline/Gray.prefab
+- Assets/Modern UI Pack/Resources/Button/Rounded/Red.prefab
+- Assets/Modern UI Pack/Resources/Button/Radial - Only Icon/Night.prefab
+- Assets/Modern UI Pack/Resources/Toggle/Toggle - Standard.prefab
+- Assets/Modern UI Pack/Resources/Slider/Outline/Slider - Outline (Value).prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Only Icon/Brown.prefab
+- Assets/Oculus/Avatar/Resources/FallbackTextures/fallback_normal_256.png
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline Gradient/Orange.prefab
+- Assets/TextMesh Pro/Resources/Shaders/TMP_SDF Overlay.shader
+- Assets/Modern UI Pack/Resources/Slider/Radial/Slider - Radial.prefab
+- Assets/Modern UI Pack/Resources/Button/Rounded - Gradient/Purple.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline Gradient/Blue.prefab
+- Assets/Modern UI Pack/Resources/Slider/Gradient/Slider - Gradient.prefab
+- Assets/Modern UI Pack/Resources/Button/Rounded - Outline Gradient/Night.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline Only Icon/Brown.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - With Icon/Gray.prefab
+- Assets/TextMesh Pro/Resources/Shaders/TMPro_Surface.cginc
+- Assets/Oculus/Avatar/Resources/Materials/Expressive/Avatar_Mobile_SingleComponentExpressive.shader
+- Assets/Modern UI Pack/Resources/Animated Icon/No to Yes.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - With Icon/Pink.prefab
+- Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF - Fallback.asset
+- Assets/Modern UI Pack/Resources/Dropdown/Dropdown - Multi Select.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Gradient/Orange.prefab
+- Assets/Modern UI Pack/Resources/Modal Window/Style 1/MW - Standard.prefab
+- Assets/Oculus/VR/Resources/OVRMRCameraFrame.shader
+- Assets/Modern UI Pack/Resources/Animated Icon/Load.prefab
+- Assets/TextMesh Pro/Resources/Shaders/TMP_SDF-Mobile Overlay.shader
+- Assets/Modern UI Pack/Resources/Toggle/Toggle - Standard (Light).prefab
+- Assets/Modern UI Pack/Resources/List View/List View.prefab
+- Assets/Modern UI Pack/Resources/Button/Rounded - Outline/Orange.prefab
+- Assets/Modern UI Pack/Resources/Progress Bar (Loop)/PB Loop - Radial Run.prefab
+- Assets/Oculus/Avatar/Resources/Materials/AvatarSurfaceShaderPBSV2.shader
+- Assets/Oculus/VR/Resources/OVRMRClipPlane.shader
+- Assets/Modern UI Pack/Resources/Horizontal Selector/Horizontal Selector.prefab
+- Assets/Modern UI Pack/Resources/Button/Radial - Outline Only Icon/Gray.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline/Purple.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline With Icon/Brown.prefab
+- Assets/Modern UI Pack/Resources/Animated Icon/Sand Clock.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline With Icon/Purple.prefab
+- Assets/Modern UI Pack/Resources/Tooltip/Tooltip.prefab
+- Assets/Resources/ONSPSettings.asset
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline Only Icon/Gray.prefab
+- Assets/Modern UI Pack/Resources/Button/Radial - Outline Only Icon/Standard.prefab
+- Assets/TextMesh Pro/Resources/Shaders/TMP_Bitmap.shader
+- Assets/Modern UI Pack/Resources/Button/Basic/Green.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline/Red.prefab
+- Assets/Modern UI Pack/Resources/Notification/Sliding Notification.prefab
+- Assets/Modern UI Pack/Resources/Button/Rounded - Gradient/Night.prefab
+- Assets/Oculus/Avatar/Resources/FallbackTextures/fallback_diffuse_roughness_1024.png
+- Assets/TextMesh Pro/Resources/Shaders/TMPro.cginc
+- Assets/Modern UI Pack/Resources/Button/Rounded/Pink.prefab
+- Assets/Modern UI Pack/Resources/Button/Radial - Outline Only Icon/Night.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic/Purple.prefab
+- Assets/Modern UI Pack/Resources/Animated Icon/Notification Bell.prefab
+- Assets/Modern UI Pack/Resources/Dropdown/Dropdown.prefab
+- Assets/Modern UI Pack/Resources/Button/Radial - Only Icon/Blue.prefab
+- Assets/Modern UI Pack/Resources/Button/Rounded - Outline Gradient/Blue.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline With Icon/Pink.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline Only Icon/White.prefab
+- Assets/Oculus/Avatar/Resources/Materials/Version1.5/Avatar_Mobile_SingleComponent.shader
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline Gradient/Gray.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Only Icon/Night.prefab
+- Assets/TextMesh Pro/Resources/Shaders/TMP_SDF.shader
+- Assets/Modern UI Pack/Resources/Progress Bar/PB - Standard.prefab
+- Assets/Oculus/Avatar/Resources/Materials/AvatarMaterialStateShader.cginc
+- Assets/Oculus/Avatar/Resources/Materials/Expressive/AvatarEyeLens.shader
+- Assets/Oculus/Avatar/Resources/Materials/AvatarSurfaceShader.shader
+- Assets/Modern UI Pack/Resources/Button/Rounded - Gradient/Gray.prefab
+- Assets/Modern UI Pack/Resources/Animated Icon/Heart Pop.prefab
+- Assets/Modern UI Pack/Resources/Button/Rounded - Gradient/White.prefab
+- Assets/Modern UI Pack/Resources/Animated Icon/Message Bubbles.prefab
+- Assets/Modern UI Pack/Resources/Button/Rounded - Outline Gradient/White.prefab
+- Assets/Oculus/Avatar/Resources/FallbackTextures/fallback_normal_1024.tif
+- Assets/Oculus/VR/Resources/Underlay Impostor.shader
+- Assets/TextMesh Pro/Resources/Shaders/TMP_SDF-Mobile.shader
+- Assets/Modern UI Pack/Resources/Button/Basic - Outline Gradient/Brown.prefab
+- Assets/Modern UI Pack/Resources/Button/Radial - Only Icon/Purple.prefab
+- Assets/Modern UI Pack/Resources/Animated Icon/Lock.prefab
+- Assets/Modern UI Pack/Resources/Progress Bar/PB - Radial (Thin).prefab
+- Assets/TextMesh Pro/Resources/Fonts & Materials/LiberationSans SDF - Outline.mat
+- Assets/Modern UI Pack/Resources/Button/Rounded - Gradient/Brown.prefab
+- Assets/Modern UI Pack/Resources/Editor/MUIP Editor Dark.png
+- Assets/Modern UI Pack/Resources/Button/Radial - Outline Only Icon/Blue.prefab
+- Assets/Modern UI Pack/Resources/Button/Basic - Only Icon/Gray.prefab
+- Assets/Modern UI Pack/Resources/Button/Rounded - Outline Gradient/Red.prefab
+- Assets/TextMesh Pro/Resources/Shaders/TMP_Sprite.shader
+- Assets/Modern UI Pack/Resources/Progress Bar (Loop)/PB Loop - Radial Trapez.prefab
+- Assets/Modern UI Pack/Resources/Button/Rounded - Outline/White.prefab
+- Assets/Modern UI Pack/Resources/Progress Bar (Loop)/PB Loop - Standard Run.prefab
+- Assets/Modern UI Pack/Resources/Button/Rounded - Gradient/Orange.prefab
+- Assets/TextMesh Pro/Resources/Shaders/TMP_SDF-Surface.shader
+- Assets/Modern UI Pack/Resources/Button/Radial - Outline Only Icon/Purple.prefab
+- Assets/Modern UI Pack/Resources/Button/Radial - Outline Only Icon/Green.prefab
+- Assets/TextMesh Pro/Resources/TMP Settings.asset
+Dependencies:
+- C:/Users/Josh/source/school/2019Fall/Capstone/src/Orbit.Unity/OVRAssetBundles/OVRMasterBundle/asset_png0
+- C:/Users/Josh/source/school/2019Fall/Capstone/src/Orbit.Unity/OVRAssetBundles/OVRMasterBundle/asset_asset0
