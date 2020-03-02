@@ -345,3 +345,5 @@ healthchecksdb
 src/Orbit.Unity/Assets/Dependencies/
 
 src/Orbit.Unity/OVRAssetBundles/Temp/
+
+src/Orbit.Unity/.ionide/
