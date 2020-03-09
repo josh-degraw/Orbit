@@ -40,6 +40,15 @@ namespace Orbit.Unity
             text.color = color;
         }
 
+        private void OnEnable()
+        {
+                
+        }
+        private void OnDisable()
+        {
+            
+        }
+
         public void HandleUpdate()
         {
             try
