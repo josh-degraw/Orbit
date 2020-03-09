@@ -8,6 +8,13 @@
 /[Bb]uild/
 /[Bb]uilds/
 /[Ll]ogs/
+<<<<<<< HEAD
+=======
+/[Uu]ser[Ss]ettings/
+
+# MemoryCaptures can get excessive in size.
+# They also could contain extremely sensitive data
+>>>>>>> 1a8e5d8... Working model on Unity 2018.4 vers with chart and gauge pack. Charts added to 2019 version
 /[Mm]emoryCaptures/
 
 # Asset meta data should only be ignored when the corresponding asset is also ignored
@@ -57,5 +64,8 @@ sysinfo.txt
 
 # Crashlytics generated file
 crashlytics-build.properties
+<<<<<<< HEAD
 
 src/Orbit.Unity/Assets/Dependencies/
+=======
+>>>>>>> 1a8e5d8... Working model on Unity 2018.4 vers with chart and gauge pack. Charts added to 2019 version
