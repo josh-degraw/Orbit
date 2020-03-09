@@ -33,6 +33,6 @@
   </ItemGroup>
 
   <Target Name="CopyFiles" AfterTargets="PostBuildEvent">
-    <Copy SourceFiles="@(MySourceFiles)" DestinationFolder="..\Orbit.Unity\Assets\Dependencies" />
+    <Copy SourceFiles="@(MySourceFiles)" DestinationFolder="..\Orbit_Unity2018\Assets\Dependencies" />
   </Target>
 </Project>
