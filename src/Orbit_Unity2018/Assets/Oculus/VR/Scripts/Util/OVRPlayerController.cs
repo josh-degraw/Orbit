@@ -81,7 +81,7 @@ public class OVRPlayerController : MonoBehaviour
 	/// <summary>
 	/// If true, each OVRPlayerController will use the player's physical height.
 	/// </summary>
-	public bool useProfileData = false;
+	public bool useProfileData = true;
 
 	/// <summary>
 	/// The CameraHeight is the actual height of the HMD and can be used to adjust the height of the character controller, which will affect the

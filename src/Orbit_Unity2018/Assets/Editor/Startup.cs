@@ -9,7 +9,7 @@ public class Startup : MonoBehaviour
 {
     private static IServiceProvider ServiceProvider => OrbitServiceProvider.Instance;
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad /*AfterAssembliesLoaded*/)]
+    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.AfterSceneLoad)]
     public static void Initialize()
     {
         Debug.Log("Calling Startup.Initialize");

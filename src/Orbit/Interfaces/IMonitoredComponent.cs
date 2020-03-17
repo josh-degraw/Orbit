@@ -4,6 +4,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Threading;
 using System.Threading.Tasks;
+
 using Orbit.Models;
 using Orbit.Util;
 
@@ -53,21 +54,21 @@ namespace Orbit
     public static class ComponentExtensions
     {
         /// <summary>
-        /// Get all (usually one) of the latest alerts from the given component.
+        ///   Get all (usually one) of the latest alerts from the given component.
         /// </summary>
         /// <typeparam name="TModel">The type of the model.</typeparam>
         /// <typeparam name="TProp">The type of the member to check the alert for.</typeparam>
         /// <param name="component">The component.</param>
         /// <param name="selector">A lambda method returning the property to get the alerts for.</param>
         /// <returns></returns>
-        public static IEnumerable<Alert> GetLatestAlerts<TModel>(this IMonitoredComponent<TModel> component) where TModel:class, IAlertableModel
+        public static IEnumerable<Alert> GetLatestAlerts<TModel>(this IMonitoredComponent<TModel> component) where TModel : class, IAlertableModel
         {
             var report = component.GetLatestReport();
-            return report?.GenerateAlerts()?? Enumerable.Empty<Alert>();
+            return report?.GenerateAlerts() ?? Enumerable.Empty<Alert>();
         }
-        
+
         /// <summary>
-        /// Get all (usually one) of the latest alerts from the given component.
+        ///   Get all (usually one) of the latest alerts from the given component.
         /// </summary>
         /// <typeparam name="TModel">The type of the model.</typeparam>
         /// <typeparam name="TProp">The type of the member to check the alert for.</typeparam>
@@ -79,11 +80,35 @@ namespace Orbit
             string name = ((MemberExpression)selector.Body).Member.Name;
             return component.GetLatestAlerts().SingleOrDefault(a => a.PropertyName == name);
         }
-        public static bool Matches<TModel>(this AlertEventArgs args, Expression<Func<TModel, object>> selector) where TModel : class, IAlertableModel
-        {
-            string name = ((MemberExpression)selector.Body).Member.Name;
-            return args.Report is TModel && args.Alert.PropertyName == name;
-        }
 
+        /// <summary>
+        ///   Use this to query <see cref="AlertEventArgs"/> using Expressions for readability.
+        /// </summary>
+        public static Matcher<TModel> Query<TModel>(this AlertEventArgs args) where TModel : class, IAlertableModel => new Matcher<TModel>(args);
+
+        public sealed class Matcher<TModel>
+        {
+            private readonly AlertEventArgs _args;
+
+            public Matcher(AlertEventArgs args)
+            {
+                this._args = args;
+            }
+
+            /// <summary>
+            ///   Validate that the arguments match the provided expression.
+            /// </summary>
+            /// <typeparam name="TProperty"></typeparam>
+            /// <param name="selector">A lambda method returning the property to get the alerts for.</param>
+            /// <returns>
+            ///   True if the report on the arguments is of the correct type and the selector is the referenced property.
+            /// </returns>
+            public bool Matches<TProperty>(Expression<Func<TModel, TProperty>> selector)
+            {
+                return this._args.Report is TModel
+                       // calculate inline to allow lazy execution to short-circuit if the report type is not correct
+                       && this._args.Alert.PropertyName == ((MemberExpression)selector.Body).Member.Name; 
+            }
+        }
     }
 }
