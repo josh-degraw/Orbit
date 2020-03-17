@@ -1,98 +1,85 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using Michsky.UI.ModernUIPack;
-using Orbit.Models;
-using TMPro;
-using UnityEngine;
-using UnityEngine.UI;
 
+using Orbit.Models;
+using Orbit.Util;
+using TMPro;
+
+using UnityEngine;
 
 namespace Orbit.Unity
 {
     public abstract class ComponentUpdater : MonoBehaviour
     {
-        ProgressBar pb;
+        public ProgressBar pb;
+        public TextMeshProUGUI text;
 
-        void Start()
+        private void Start()
         {
             try
             {
-                pb = GetComponent<ProgressBar>();
-
-                //textComponent.text = "Water Level";
-                InvokeRepeating(nameof(HandleUpdate), 0, 2f);
+                if(pb == null)
+                {
+                    pb = GetComponent<ProgressBar>();
+                }
+                if(text == null)
+                {
+                    text = pb.textPercent.GetComponent<TextMeshProUGUI>();
+                }
             }
             catch (Exception e)
             {
                 Debug.LogError(e, this);
             }
-        }
-
-
-        protected abstract Alert GetLatestAlertValue();
-
-
-        private void SetColor(Color color)
-        {
-            var text = pb.textPercent.GetComponent<TextMeshProUGUI>();
-
-            text.color = color;
         }
 
         private void OnEnable()
         {
-                
+            EventMonitor.Instance.AlertReported += this.Instance_AlertReported;
         }
+
         private void OnDisable()
         {
-            
+            EventMonitor.Instance.AlertReported -= this.Instance_AlertReported;
         }
 
-        public void HandleUpdate()
+        private void Instance_AlertReported(object sender, AlertEventArgs e)
         {
-            try
+            if (AlertMatches(e))
             {
-                if (pb?.loadingBar == null)
-                {
-                    Debug.LogWarning("Progress bar loadingBar is null", this);
-                    return;
-                }
-
-                var next = GetLatestAlertValue();
-                if (next == null)
-                {
-                    Debug.Log("No report found", this);
-
-                    pb.currentPercent = 0;
-                    return;
-                }
-
-                this.pb.currentPercent = Convert.ToSingle(next.CurrentValue);
-
-                switch (next.AlertLevel)
-                {
-                    case AlertLevel.HighWarning:
-                    case AlertLevel.LowWarning:
-                        SetColor(pb.warningColor);
-                                  
-                        break;
-
-                    case AlertLevel.HighError:
-                    case AlertLevel.LowError:
-                        SetColor(pb.errorColor);
-                        break;
-
-                    default:
-                        SetColor(pb.barColor);
-                        break;
-                }
-
+                HandleUpdate(e.Alert);
             }
-            catch (Exception e)
+        }
+
+        public void HandleUpdate(Alert alert)
+        {
+            this.pb.currentPercent = Convert.ToSingle(alert.CurrentValue);
+
+            switch (alert.AlertLevel)
             {
-                Debug.LogError(e, this);
+                case AlertLevel.HighWarning:
+                case AlertLevel.LowWarning:
+                    text.color = pb.warningColor;
+
+                    break;
+
+                case AlertLevel.HighError:
+                case AlertLevel.LowError:
+                    text.color = pb.errorColor;
+                    break;
+
+                default:
+                    text.color = pb.barColor;
+                    break;
             }
+        }
+
+        protected abstract bool AlertMatches(AlertEventArgs alert);
+
+        protected void MakePercentage(Alert next)
+        {
+            double val = Convert.ToDouble(next.CurrentValue);
+            next.CurrentValue = Convert.ToSingle((float)next.Metadata.TotalRange.ToPercentage(val));
         }
     }
 }

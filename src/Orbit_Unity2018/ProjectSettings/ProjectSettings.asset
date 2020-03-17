@@ -721,10 +721,10 @@ PlayerSettings:
   facebookXfbml: 0
   facebookFrictionlessRequests: 1
   apiCompatibilityLevel: 6
-  cloudProjectId: 4e5e99c2-4861-4bb6-9cf5-9e6a605fff5d
+  cloudProjectId: 
   framebufferDepthMemorylessMode: 0
-  projectName: Gear
-  organizationId: lifesacode
+  projectName: 
+  organizationId: 
   cloudEnabled: 0
   enableNativePlatformBackendsForNewInputSystem: 0
   disableOldInputManagerSupport: 0

@@ -1,29 +1,25 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
+using System.Linq.Expressions;
 using Microsoft.Extensions.DependencyInjection;
 using Orbit;
 using Orbit.Models;
 using Orbit.Unity;
 using Orbit.Util;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class O2Updater : ComponentUpdater
 {
-    protected override Alert GetLatestAlertValue()
+    protected override bool AlertMatches(AlertEventArgs alert)
     {
-        using (var scope = OrbitServiceProvider.Instance.CreateScope())
+        bool matches = alert.Matches<OxygenGenerator>(a => a.OxygenLevel);
+        if (matches)
         {
-            var comp = scope.ServiceProvider.GetService<IMonitoredComponent<OxygenGenerator>>();
-
-            var next = comp.GetLatestAlert(d => d.OxygenLevel);
-
-            if (next == null)
-                return null;
-
-            double val = Convert.ToDouble(next.CurrentValue);
-            next.CurrentValue = Convert.ToSingle((float)next.Metadata.TotalRange.ToPercentage(val));
-            return next;
+            MakePercentage(alert.Alert);
         }
+        return matches;
     }
 }

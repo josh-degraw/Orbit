@@ -52,6 +52,14 @@ namespace Orbit
 
     public static class ComponentExtensions
     {
+        /// <summary>
+        /// Get all (usually one) of the latest alerts from the given component.
+        /// </summary>
+        /// <typeparam name="TModel">The type of the model.</typeparam>
+        /// <typeparam name="TProp">The type of the member to check the alert for.</typeparam>
+        /// <param name="component">The component.</param>
+        /// <param name="selector">A lambda method returning the property to get the alerts for.</param>
+        /// <returns></returns>
         public static IEnumerable<Alert> GetLatestAlerts<TModel>(this IMonitoredComponent<TModel> component) where TModel:class, IAlertableModel
         {
             var report = component.GetLatestReport();
@@ -71,5 +79,11 @@ namespace Orbit
             string name = ((MemberExpression)selector.Body).Member.Name;
             return component.GetLatestAlerts().SingleOrDefault(a => a.PropertyName == name);
         }
+        public static bool Matches<TModel>(this AlertEventArgs args, Expression<Func<TModel, object>> selector) where TModel : class, IAlertableModel
+        {
+            string name = ((MemberExpression)selector.Body).Member.Name;
+            return args.Report is TModel && args.Alert.PropertyName == name;
+        }
+
     }
 }
