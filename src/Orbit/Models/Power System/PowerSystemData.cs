@@ -16,31 +16,31 @@ namespace Orbit.Models
     {
         #region Private Limits
 
-        private int solarRotationUpperLimit = 205;
-        private int solarRotationLowerLimit = -205;
-        private int solarRotationTolerance = 5;
-
-        private int solarVoltageUpperLimit = 180;
-        private int solarVoltageLowerLimit = 0;
-        private int solarVoltageTolerance = 10;
-
-        private int minOutputToCharge = 160;
-
-        private int batteryTemperatureUpperLimit = 35;
-        private int batteryTemperatureLowerLimit = -10;
-        private int batteryTemperatureTolerance = 10;
-
-        private int batteryChargeLevelUpperLimit = 105;
-        private int batteryChargeLevelLowerLimit = 50;
-        private int batteryChargeLevelTolerance = 10;
-
-        private int batteryVoltageUpperLimit = 160;
-        private int batteryVoltageLowerLimit = 110;
-        private int batteryVoltageTolerance = 10;
-
-        private int eclipseCount;
-        private int eclipseLength = 20;
-        private bool inEclipse;
+        public int solarRotationUpperLimit = 205;
+        public int solarRotationLowerLimit = -205;
+        public int solarRotationTolerance = 5;
+         
+        public int solarVoltageUpperLimit = 180;
+        public int solarVoltageLowerLimit = 0;
+        public int solarVoltageTolerance = 10;
+         
+        public int minOutputToCharge = 160;
+         
+        public int batteryTemperatureUpperLimit = 35;
+        public int batteryTemperatureLowerLimit = -10;
+        public int batteryTemperatureTolerance = 10;
+         
+        public int batteryChargeLevelUpperLimit = 105;
+        public int batteryChargeLevelLowerLimit = 50;
+        public int batteryChargeLevelTolerance = 10;
+         
+        public int batteryVoltageUpperLimit = 160;
+        public int batteryVoltageLowerLimit = 110;
+        public int batteryVoltageTolerance = 10;
+         
+        public int eclipseCount;
+        public int eclipseLength = 20;
+        public bool inEclipse;
 
         #endregion Private Limits
 

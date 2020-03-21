@@ -22,12 +22,12 @@ namespace Orbit.Models
     {
         #region Limits
 
-        private const double TemperatureUpperLimit = 250;
-        private const double TemperatureLowerLimit = 220;
-        private const double TemperatureTolerance = 10;
-        private const double CarbonDioxideOutputLimit = 2;  // im ppm
-        private const double CarbonDioxideOutputTolerance = 2;
-        private const double CarbonDioxideStandbyValue = .5;
+        public const double TemperatureUpperLimit = 250;
+        public const double TemperatureLowerLimit = 220;
+        public const double TemperatureTolerance = 10;
+        public const double CarbonDioxideOutputLimit = 2;  // im ppm
+        public const double CarbonDioxideOutputTolerance = 2;
+        public const double CarbonDioxideStandbyValue = .5;
                 
         // temporary pseudo-timer 
         public int count = 0;

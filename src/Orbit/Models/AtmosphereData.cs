@@ -11,37 +11,37 @@ namespace Orbit.Models
     {
         #region Limits
         //values in decibels
-        private const int cabinAmbientNoiseTolerance = 5;
-        private const int cabinAmbientNoiseUpperLimit = 72;
+        public const int cabinAmbientNoiseTolerance = 5;
+        public const int cabinAmbientNoiseUpperLimit = 72;
 
         // values are percentages
-        private const double cabinHumidityLevelLowerLimit = 30;
-        private const double cabinHumidityLevelTolerance = 5;
-        private const double cabinHumidityLevelUpperLimit = 80;
+        public const double cabinHumidityLevelLowerLimit = 30;
+        public const double cabinHumidityLevelTolerance = 5;
+        public const double cabinHumidityLevelUpperLimit = 80;
 
         // values in psia
-        private const double cabinPressureLowerLimit = 50;
-        private const double cabinPressureTolerance = 5;
-        private const double cabinPressureUpperLimit = 110;
+        public const double cabinPressureLowerLimit = 50;
+        public const double cabinPressureTolerance = 5;
+        public const double cabinPressureUpperLimit = 110;
 
         // degrees Celsius
-        private const int cabinTemperatureCrewedLowerLimit = 17;
-        private const double cabinTemperatureTolerance = 2;
-
-        private const int cabinTemperatureUncrewedLowerLimit = 4;
-        private const int cabinTemperatureUpperLimit = 30;
+        public const int cabinTemperatureCrewedLowerLimit = 17;
+        public const double cabinTemperatureTolerance = 2;
+         
+        public const int cabinTemperatureUncrewedLowerLimit = 4;
+        public const int cabinTemperatureUpperLimit = 30;
 
         // values are percentage
-        private const int fanSpeedLowerLimit = 20;
-        private const int fanSpeedTolerance = 10;
-        private const int fanSpeedUpperLimit = 100;
-
-        private int sepertorSpeedUpperLimit = 2400;
-        private int seperatorSpeedLowerLimit = 1800;
-        private int seperatorTolerance = 200;
-
-        private SystemStatus lastWorkingStatus;
-        private double tempControlIncrement = 0.5;
+        public const int fanSpeedLowerLimit = 20;
+        public const int fanSpeedTolerance = 10;
+        public const int fanSpeedUpperLimit = 100;
+         
+        public int sepertorSpeedUpperLimit = 2400;
+        public int seperatorSpeedLowerLimit = 1800;
+        public int seperatorTolerance = 200;
+         
+        public SystemStatus lastWorkingStatus;
+        public double tempControlIncrement = 0.5;
 
         #endregion Limits
 

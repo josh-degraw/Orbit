@@ -11,17 +11,17 @@ namespace Orbit.Models
     {
         #region Limits
 
-        private int mixValveMaxOpen = 100;
-        private int mixValveMaxClosed = 0;
-        private int mixValveTolerance = 5;
+        public int mixValveMaxOpen = 100;
+        public int mixValveMaxClosed = 0;
+        public int mixValveTolerance = 5;
 
-        private const double medCoolantLoopUpperLimit = 22;
-        private const double medCoolantLoopLowerLimit = 12;
-        private const double medCoolantLoopTolerance = 5;
+        public const double medCoolantLoopUpperLimit = 22;
+        public const double medCoolantLoopLowerLimit = 12;
+        public const double medCoolantLoopTolerance = 5;
 
-        private const double lowTempCoolantLoopUpperLimit = 10;
-        private const double lowTempCoolantLoopLowerLimit = 2;
-        private const double lowTempCoolantLoopTolerance = 2;
+        public const double lowTempCoolantLoopUpperLimit = 10;
+        public const double lowTempCoolantLoopLowerLimit = 2;
+        public const double lowTempCoolantLoopTolerance = 2;
 
         #endregion Limits
 

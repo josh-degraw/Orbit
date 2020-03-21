@@ -28,7 +28,7 @@ namespace Orbit.Models
 
         private int MethaneFillValue = 5;
         private int Co2FillValue = 3;
-        private int H2FillValue = 2;
+        private int H2FillValue = 3;
 
         private SystemStatus lastStatus;
 
@@ -152,6 +152,8 @@ namespace Orbit.Models
 
         public void ProcessData()
         {
+            GenerateData();
+
             if(Status == SystemStatus.Processing)
             {
                 SimulateProcessing();
@@ -188,8 +190,8 @@ namespace Orbit.Models
 
             if(Status == SystemStatus.Processing)
             {
-                SeperatorMotorSpeed = rand.Next(SeperatorMotorSetSpeed - seperatorSpeedTolerance, SeperatorMotorSetSpeed + seperatorSpeedTolerance);
-                ReactorTemp = rand.Next(ReactorSetTemp - reactorTempTolerance, ReactorSetTemp + reactorTempTolerance);
+                SeperatorMotorSpeed = rand.Next(900, 2500);
+                ReactorTemp = rand.Next(399, 700);
             }
             else
             {
@@ -211,7 +213,7 @@ namespace Orbit.Models
                 || (SeperatorMotorSpeed > seperatorSpeedUpperLimit)
                 || (SeperatorMotorSpeed < seperatorSpeedLowerLimit))
             {
-                Trouble();
+                //Trouble();
             }
 
             // simulate removal of reactant gasses to reaction  
@@ -243,6 +245,12 @@ namespace Orbit.Models
             {
                 MethaneStoreLevel = 0;
             }
+
+            if(MethaneStoreLevel >= 100)
+            {
+                // simulate emptying of methane tank
+                MethaneStoreLevel = 0;
+            }
         }
 
         private void SimulateStandby()
@@ -254,7 +262,7 @@ namespace Orbit.Models
                 || HeaterOn
                 || (MethaneStoreLevel > (storeFull - storeTolerance)))
             {
-                Trouble();
+                //Trouble();
             }
 
             // simulate addition of reactant gasses to stores  

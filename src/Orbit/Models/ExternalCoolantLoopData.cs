@@ -11,25 +11,25 @@ namespace Orbit.Models
     {
         #region Limits
 
-        private const int radiatorRotationUpperLimit = 215;
-        private const int radiatorRotationLowerLimit = -215;
-        private const int radiatorRotationTolerance = 10;
+        public const int radiatorRotationUpperLimit = 215;
+        public const int radiatorRotationLowerLimit = -215;
+        public const int radiatorRotationTolerance = 10;
 
-        private const int fluidPressureUpperLimit = 3309;
-        private const int fluidPressureLowerLimit = 345;
-        private const int fluidPressureTolerance = 827;
+        public const int fluidPressureUpperLimit = 3309;
+        public const int fluidPressureLowerLimit = 345;
+        public const int fluidPressureTolerance = 827;
 
-        private const double outputFluidTemperatueUpperLimit = 8.1;
-        private const double outputFluidTemperatureLowerLimit = 1.6;
-        private const double outputFluidTemperatureTolerance = 2;
+        public const double outputFluidTemperatueUpperLimit = 8.1;
+        public const double outputFluidTemperatureLowerLimit = 1.6;
+        public const double outputFluidTemperatureTolerance = 2;
 
-        private int mixValveUpperLimit = 100;
-        private int mixValveLowerLimit = 0;
-        private int mixValveTolerance = 5;
+        public int mixValveUpperLimit = 100;
+        public int mixValveLowerLimit = 0;
+        public int mixValveTolerance = 5;
 
         public bool radiatorRotationIncreasing = true;
-        private bool trouble = false;
-        private SystemStatus lastWorkingStatus;
+        public bool trouble = false;
+        public SystemStatus lastWorkingStatus;
 
         #endregion Limits
 

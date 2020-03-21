@@ -8,11 +8,11 @@ namespace Orbit.Models
 {
     public class WasteWaterStorageTankData : IAlertableModel, ISeedableModel
     {
-        private int fillIncrement = 2;
-        private int emptyIncrement = 3;
-        private int full = 100;
-        private int empty = 0;
-        private int tolerance = 5;
+        public int fillIncrement = 2;
+        public int emptyIncrement = 3;
+        public int full = 100;
+        public int empty = 0;
+        public int tolerance = 5;
  
         /// <summary>
         /// The name of the component.
@@ -66,6 +66,13 @@ namespace Orbit.Models
             TankId = "Main";
             Level = 30;
         }
+
+        public void SeedData()
+        {
+            TankId = "Main";
+            Level = 30;
+        }
+
 
         IEnumerable<Alert> IAlertableModel.GenerateAlerts()
 

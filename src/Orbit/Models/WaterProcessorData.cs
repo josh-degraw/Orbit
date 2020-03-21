@@ -11,12 +11,12 @@ namespace Orbit.Models
     {
         #region Limits
 
-        private const int postHeaterTempUpperLimit = 130;
-        private const int postHeaterTempLowerLimit = 120;
-        private const int postHeaterTempTolerance = 5;
-
-        private const int productTankLevelUpperLimit = 100;
-        private const int productTankLevelTolerance = 20;
+        public const int postHeaterTempUpperLimit = 130;
+        public const int postHeaterTempLowerLimit = 120;
+        public const int postHeaterTempTolerance = 5;
+        
+        public const int productTankLevelUpperLimit = 100;
+        public const int productTankLevelTolerance = 20;
 
         const int smallIncrement = 2;
         const int largeIncrement = 5;
@@ -94,7 +94,7 @@ namespace Orbit.Models
             DiverterValvePosition = other.DiverterValvePosition;
             ProductTankLevel = other.ProductTankLevel;
 
-            GenerateData();
+            //GenerateData();
         }
 
         #endregion Constructors
@@ -103,6 +103,8 @@ namespace Orbit.Models
 
         public void ProcessData(double wasteTankLevel)
         {
+            GenerateData();
+
             if (SystemStatus == SystemStatus.Standby)
             {
                 // waste tank is full and there is room in the clean tank;

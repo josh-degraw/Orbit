@@ -11,24 +11,24 @@ namespace Orbit.Models
     {
         #region Limits
 
-        private const int urineTankUpperLimit = 100;
-        private const int urineTankLevelTolerance = 10;
-
-        private const int distillerSpeedUpperLimit = 1300;
-        private const int distillerSpeedLowerLimit = 1100;
-        private const int distillerSpeedTolerance = 100;
-
-        private const int distillerTempUpperLimit = 55;
-        private const int distillerTempLowerLimit = 35;
-        private const int distillerTempTolerance = 5;
-
-        private const int brineTankLevelUpperLimit = 100;
-        private const int brineTankLevelTolerance = 5;
-
-        private SystemStatus lastWorkingStatus;
-        private int largeIncrement = 5;
-        private int smallIncrement = 2;
-        private int brineIncrement = 1;
+        public const int urineTankUpperLimit = 100;
+        public const int urineTankLevelTolerance = 10;
+        
+        public const int distillerSpeedUpperLimit = 1300;
+        public const int distillerSpeedLowerLimit = 1100;
+        public const int distillerSpeedTolerance = 100;
+        
+        public const int distillerTempUpperLimit = 55;
+        public const int distillerTempLowerLimit = 35;
+        public const int distillerTempTolerance = 5;
+        
+        public const int brineTankLevelUpperLimit = 100;
+        public const int brineTankLevelTolerance = 5;
+        
+        public SystemStatus lastWorkingStatus;
+        public int largeIncrement = 5;
+        public int smallIncrement = 2;
+        public int brineIncrement = 1;
 
         #endregion Limits
 
@@ -112,7 +112,7 @@ namespace Orbit.Models
             PurgePumpOn = other.PurgePumpOn;
             BrineTankLevel = other.BrineTankLevel;
 
-            GenerateData();
+            //GenerateData();
         }
 
         #endregion Constructors
@@ -122,6 +122,7 @@ namespace Orbit.Models
         public void ProcessData(double wasteTankLevel)
         {
             bool trouble = false;
+            GenerateData();
 
             if (Status == SystemStatus.Standby)
             {
@@ -149,6 +150,11 @@ namespace Orbit.Models
             if (Status == SystemStatus.Processing)
             {
                 // no more urine to process or waste or brine tank full, change to 'Standby' state
+                if(BrineTankLevel >= 100)
+                {
+                    // simulate emptying full brine tank
+                    BrineTankLevel = 0;
+                }
                 if (UrineTankLevel <= 0
                     || wasteTankLevel >= urineTankUpperLimit
                     || BrineTankLevel >= brineTankLevelUpperLimit)
@@ -261,6 +267,18 @@ namespace Orbit.Models
         }
 
         void ISeedableModel.SeedData()
+        {
+            BrineTankLevel = 5;
+            DistillerSpeed = 20;
+            DistillerTemp = 20;
+            DistillerOn = false;
+            SupplyPumpOn = false;
+            PurgePumpOn = false;
+            Status = SystemStatus.Standby;
+            UrineTankLevel = 20;
+        }
+		
+		public void SeedData()
         {
             BrineTankLevel = 5;
             DistillerSpeed = 20;
