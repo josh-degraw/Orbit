@@ -106,8 +106,9 @@ namespace Orbit
             public bool Matches<TProperty>(Expression<Func<TModel, TProperty>> selector)
             {
                 return this._args.Report is TModel
+
                        // calculate inline to allow lazy execution to short-circuit if the report type is not correct
-                       && this._args.Alert.PropertyName == ((MemberExpression)selector.Body).Member.Name; 
+                       && this._args.Alert.PropertyName == ((MemberExpression)selector.Body).Member.Name;
             }
         }
     }

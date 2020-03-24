@@ -33,6 +33,8 @@ namespace Orbit.Unity
             }
         }
 
+        protected abstract bool AlertMatches(AlertEventArgs alert);
+
         private void OnEnable()
         {
             EventMonitor.Instance.AlertReported += this.Instance_AlertReported;
@@ -73,8 +75,6 @@ namespace Orbit.Unity
                     break;
             }
         }
-
-        protected abstract bool AlertMatches(AlertEventArgs alert);
 
         protected void MakePercentage(Alert next)
         {
